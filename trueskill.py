@@ -28,13 +28,16 @@ if sys.hexversion < 0x02060000:
   print("requires Python 2.6 or higher")
   sys.exit(1)
 
-from scipy.stats.distributions import norm as scipy_norm
+
 from math import sqrt
 
-norm = scipy_norm()
-pdf = norm.pdf
-cdf = norm.cdf
-icdf = norm.ppf    # inverse CDF
+from normal import pdf, cdf, invcdf
+
+# from scipy.stats.distributions import norm as scipy_norm
+# norm = scipy_norm()
+# pdf = norm.pdf
+# cdf = norm.cdf
+# invcdf = norm.ppf
 
 # Update rules for approximate marginals for the win and draw cases,
 # respectively.
@@ -255,7 +258,7 @@ def DrawProbability(epsilon, beta, total_players=2):
 
 def DrawMargin(p, beta, total_players=2):
   """ Compute the draw margin (epsilon) given the draw probability. """
-  return icdf((p+1.0)/2) * sqrt(total_players) * beta
+  return invcdf((p+1.0)/2) * sqrt(total_players) * beta
 
 
 INITIAL_MU = 25.0
@@ -302,7 +305,7 @@ def SetParameters(beta=None, epsilon=None, draw_probability=None,
     EPSILON = DrawMargin(draw_probability, BETA)
   else:
     EPSILON = epsilon
-
+  print("EPSILON %f" % EPSILON)
   if gamma is None:
     GAMMA = INITIAL_SIGMA / 100.0
   else:

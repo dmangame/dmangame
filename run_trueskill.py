@@ -23,6 +23,7 @@ def run(games, ratings, use_default_rating=False):
     are used.
     """
 
+    trueskill.SetParameters(gamma = 0.0)
     for game in games:
         players = []
         for k in xrange(len(game['players'])):
@@ -43,36 +44,77 @@ def run(games, ratings, use_default_rating=False):
 
 if __name__ == "__main__":
     # examples
+    def print_ratings(ratings):
+        out = []
+        for key in ratings.keys():
+            mu, sigma = ratings[key]
+            out.append((mu - 3 * sigma, key, mu, sigma))
+        out.sort()
+        out.reverse()
+        for r, key, mu, sigma in out:
+            print key, mu, sigma
+
     def example_1():
         games = [ { 'game_id': 0,
                     'map': 'random4',
                     'players': ['a', 'b', 'c', 'd'],
-                    'rank': [2,1,3,0],
+                    'rank': [0,1,2,3],
                     'score': [103, 153, 91, 167] } ]
 
         ratings = {}
         run(games, ratings, True)
-        for k in ratings.keys():
-            print k, ratings[k]
+        print_ratings(ratings)
 
 
     example_1()
 
 
+    def example_1a():
+        games = [ { 'game_id': 0,
+                    'map': 'random4',
+                    'players': ['a', 'b'],
+                    'rank': [0,1]} ]
+
+        ratings = {}
+        run(games, ratings, True)
+        print_ratings(ratings)        
+
+    example_1a()
+
+    print 
+    def example_1b():
+        games = [ { 'game_id': 0,
+                    'map': 'random4',
+                    'players': 'a b c d e f g h'.split(),
+                    'rank': [0,1,2,3,4,5,6,7]} ]
+
+        ratings = {}
+        run(games, ratings, True)
+
+        out = [(ratings[k], k) for k in ratings.keys()]
+        out.sort()
+        out.reverse()
+        print_ratings(ratings)        
+
+    example_1b()
+
+
+
 
     def example_2():
         games = [ { 'players': ['a', 'b', 'c', 'd'],
-                    'rank': [2,1,3,0]},
+                    'rank': [0,1,2,3]},
                   { 'players': ['a', 'b', 'c', 'd'],
-                    'rank': [2,1,3,0]},
+                    'rank': [0,1,2,3]},
                   { 'players': ['a', 'b', 'c', 'd'],
-                    'rank': [2,1,3,0]},]
+                    'rank': [0,1,2,3]}]
+
                   
 
-        ratings = {'a': (25, 8), 'b': (23, 5), 'c': (28,5),
-                    'd': (24, 6)}
+        ratings = {'c': (25, 8), 'b': (23, 5), 'd': (28,5),
+                    'a': (24, 6)}
         run(games, ratings, False)
-        print ratings
-#    example_2()
+        print_ratings(ratings)
+    example_2()
 
     

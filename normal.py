@@ -47,7 +47,6 @@ def newtons_method(f, fp, x0, eps=1e-15):
             raise Exception("Cannot use newton's method")
         
         x1 = x0 - f(x0) / d
-        print x0, x1, f(x0), d, f(x0) / d
         
         if abs(x0-x1) < eps: break
         i += 1
