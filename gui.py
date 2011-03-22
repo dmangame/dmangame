@@ -16,9 +16,9 @@ class MapGUI:
         box = gtk.VBox()
         button = gtk.Button("Turn Me")
         button.connect("clicked", self.map_turn_event_cb)
-        
+
         self.map_area = gtk.DrawingArea()
-        
+
         box.pack_start(self.map_area)
         box.pack_start(button, False)
         self.window.add(box)
@@ -26,13 +26,13 @@ class MapGUI:
         self.map_area.connect("expose-event", self.map_expose_event_cb)
         self.window.resize(750, 750)
         self.window.connect("destroy", gtk.main_quit)
-        
+
         # Initialize the world
         self.world = world.World(LIFESPAN)
         self.wt = worldtalker.WorldTalker(self.world)
         self.AI = []
         self.colors = {}
-        
+
     def add_ai(self, ai):
         a = ai(self.wt)
         self.AI.append(a)
@@ -40,7 +40,7 @@ class MapGUI:
 
     def draw_grid(self):
         allocation = self.map_area.get_allocation()
-        
+
         width = allocation.width
         height = allocation.height
         deltax = float(width)/self.world.mapSize
@@ -52,16 +52,16 @@ class MapGUI:
             self.cairo_context.move_to(deltax*i, 0)
             self.cairo_context.line_to(deltax*i, height)
             self.cairo_context.stroke()
-            
-        
-    
+
+
+
     def draw_map(self):
         allocation = self.map_area.get_allocation()
         self.pango_context = self.map_area.create_pango_context()
         self.gc = self.map_area.window.new_gc()
         self.cairo_context = self.map_area.window.cairo_create()
         self.surface = self.cairo_context.get_target()
-        
+
         width = allocation.width
         height = allocation.height
         deltax = float(width)/self.world.mapSize
@@ -71,11 +71,11 @@ class MapGUI:
         self.cairo_context.fill()
         self.cairo_context.set_source_rgb(0,0,0)
         self.cairo_context.set_line_width(1.0)
-        
+
         #self.draw_grid()
 
 #       Draw the squares a unit sees ( using circle) in a really light unit color.
-#        
+#
         # try getting the color from our color dictionary.
         for unit in self.world.units:
             stats = self.world.units[unit]
@@ -105,7 +105,7 @@ class MapGUI:
             for x,y in path:
                 self.cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
                 self.cairo_context.fill()
-        
+
         # Draw the bullet paths
         self.cairo_context.set_source_rgb(.75, .75, .75)
         for unit in self.world.bulletpaths:
@@ -113,7 +113,7 @@ class MapGUI:
                 for x,y in path:
                     self.cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
                     self.cairo_context.fill()
-        
+
         # Draw the mapobjects in different colors (based on whether it is a bullet or unit)
         for unit in self.world.map.getAllObjects():
             if unit.__class__ == mapobject.Unit:
@@ -128,8 +128,8 @@ class MapGUI:
 
     def map_expose_event_cb(self, widget, event):
         self.draw_map()
-        
-        
+
+
     def map_turn_event_cb(self, object):
         for ai in self.AI:
             print ""
@@ -140,12 +140,12 @@ class MapGUI:
 #                print "AI raised exception %s, skipping this turn for it" % (e)
         self.world.Turn()
         self.draw_map()
-        
+
     def auto_spinner(self):
         self.map_turn_event_cb(None)
         return True
 
-    
+
 if __name__ == "__main__":
     import sys
     import os
@@ -161,6 +161,6 @@ if __name__ == "__main__":
     m.add_ai(randomai.RandomAI)
     m.add_ai(cornerai.CornerAI)
     m.add_ai(sharkai.SharkAI)
-    gobject.timeout_add(200, m.auto_spinner)
+    gobject.timeout_add(100, m.auto_spinner)
     gtk.main()
 

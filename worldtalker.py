@@ -17,7 +17,7 @@ class WorldTalker:
 
     def __getOwner(self, unit):
         return self.__getStats(unit).ai_id
-        
+
     def isAlive(self, unit):
         return self.__world.alive[unit]
 
@@ -67,20 +67,20 @@ class WorldTalker:
 
             # create unit, biatch
             return self.__world.createUnit(stats, self.__bases[stats.ai_id])
-        
+
     # Get functions
     def getBulletPath(self, unit, square):
         ai_id = self.getID()
         if not unit in self.getVisibleUnits() and not unit in self.getUnits():
             return []
         return self.__world.map.getBulletPath(self.__world.map.getPosition(unit), square, self.__world.bulletRange)
-        
+
     def getBulletRange(self):
         return self.__world.bulletRange
 
     def getCurrentTurn(self):
         return self.__world.getLifeTime()
-        
+
     def getDistance(self, unit, square):
         ai_id = self.getID()
         if self.isVisible(unit, ai_id) or unit in self.getUnits():
@@ -98,7 +98,7 @@ class WorldTalker:
         position = self.__world.map.getPosition(unit)
         if self.__getOwner(unit) == ai_id or position in self.getVisibleSquares():
             return position
-        
+
     def getStats(self, unit):
         ai_id = self.getID()
         stats = copy.copy(self.__world.units[unit])
@@ -114,15 +114,15 @@ class WorldTalker:
         for unit in self.__world.units:
             if self.__getOwner(unit) == ai_id:
                 units.append(unit)
-                
+
         return units
-        
+
     def getUnitPath(self, unit, square):
         ai_id = self.getID()
         if not unit in self.getVisibleUnits() and unit not in self.getUnits():
             return []
         return self.__world.map.getUnitPath(self.__world.map.getPosition(unit), square)
-        
+
     # Return all the units that would be hit by a bullet shot at target square.
     # (Assuming they stay still)
     def getVictims(self, unit, square):
@@ -134,7 +134,7 @@ class WorldTalker:
             if self.__world.map.getPosition(unit) in path:
                 victims.append(unit)
         return victims
-       
+
     # If unit is none, return all squares visible to the AI
     # else return only visible squares to the unit
     def getVisibleSquares(self, unit=None):
@@ -183,18 +183,18 @@ class WorldTalker:
                     del frame
                 except:
                     pass
-    
+
     # Unit Helper functions
     def checkOwner(self, unit):
         ai_id = self.getID()
         if self.__getOwner(unit) != ai_id:
             raise InvalidOwnerException("You don't own this unit")
-    
+
     def checkAlive(self, unit):
         ai_id = self.getID()
         if not self.__world.alive[unit]:
             raise DeadUnitException("This unit is deceased")
-            
+
     def checkQueue(self, unit):
         for event in self.__world.events:
             if event.getUnit() == unit:

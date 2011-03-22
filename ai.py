@@ -7,8 +7,8 @@ class AI:
         self.wt = worldtalker
         self.ai_id = random.randint(-100000000, 100000000)
         self.teamName = "Default AI"
-        
-        
+
+
     def pathsIntersect(self, path1, path2):
         for x,y in path1:
             for m, n in path2:
@@ -24,7 +24,7 @@ class AI:
 
     def getVisibleUnits(self):
         return self.wt.getVisibleUnits()
-        
+
     # Overrode definitions
     def _init(self):
         """Needs to be implemented"""

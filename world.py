@@ -10,7 +10,7 @@ class DeadUnitException(Exception):
         self.value = value
     def __str__(self):
         return repr(self.value)
-        
+
 class IllegalSquareException(Exception):
     def __init__(self, value):
         self.value = value
@@ -28,16 +28,16 @@ class InvalidOwnerException(Exception):
         self.value = value
     def __str__(self):
         return repr(self.value)
-        
+
 class IllegalCaptureEvent(Exception):
     def __init__(self, value):
         self.value = value
     def __str__(self):
         return repr(self.value)
-        
 
 
-# There are three types of events that can exist: 
+
+# There are three types of events that can exist:
 # capture event
 # move event
 # shoot event
@@ -57,31 +57,31 @@ class CaptureEvent:
         self.__building = building
         self.__type = 'Capture'
         self.__count = counter
-        
+
     def getType(self):
         return self.__type
-        
+
     def getUnit(self):
         return self.__unit
-    
+
 # Consists of a unit and an end square.
 class MoveEvent:
     def __init__(self, unit, (x, y)):
         self.__unit = unit
         self.__endsquare = (x, y)
         self.__type = 'Move'
-    
+
     def getType(self):
         return self.__type
     def getUnit(self):
         return self.__unit
-    
+
     def getUnit(self):
         return self.__unit
-        
+
     def getEndSquare(self):
         return self.__endsquare
-    
+
 # Consists of a unit and a target square.
 class ShootEvent:
     def __init__(self, unit, (x, y), range):
@@ -89,15 +89,15 @@ class ShootEvent:
         self.__unit = unit
         self.__target = (x, y)
 
-        
+
     def getType(self):
         return self.__type
     def getUnit(self):
         return self.__unit
-        
+
     def getUnit(self):
         return self.__unit
-    
+
     def getTarget(self):
         return self.__target
 
@@ -116,14 +116,14 @@ class Stats:
         self.team = team
         self.ai_id = ai_id
         #LOOK THE TEAM
-        
+
 # The world is responsible for maintaining the world
 # as well as running each turn, checking for end conditions
 # and maintaining units and the map.
 class World:
     def __init__(self, lifespan=10, mapsize=100):
         self.AI = []
-        self.units = {} # instead of a list, it will point to the unit's attributes. 
+        self.units = {} # instead of a list, it will point to the unit's attributes.
         self.mapSize = mapsize
         self.map = map.Map(self.mapSize)
         self.bullets = []
@@ -140,21 +140,21 @@ class World:
         self.bulletRange = self.mapSize/8
         self.bulletSpeed = self.mapSize/10
 
-    
+
     # Private Functions
     def __handleShootEvent(self, event, garbage):
         unit = event.getUnit()
         target = event.getTarget()
         # Build the bullet with shooter, target square and range
         bullet = mapobject.Bullet(unit, target)
-        
+
         self.bullets[bullet] = self.bulletRange # set the bullets range
         self.map.placeObject(bullet, self.map.getPosition(unit))
         print "%s shoots towards %s" % (unit, target)
-        
+
         garbage.append(event)
-        
-        
+
+
     def __handleMoveEvent(self, event, garbage):
         unit = event.getUnit()
         endsquare = event.getEndSquare()
@@ -169,7 +169,7 @@ class World:
         #print self.unitpaths
         if pathlong == pathshort:
             garbage.append(event)
-        
+
     def __handleCaptureEvent(self, event, garbage):
         #garbage.append(event)
         pass
@@ -187,17 +187,17 @@ class World:
             elif event.getType() == 'Move':
                 self.__handleMoveEvent(event, garbage)
 
-        # Events are placed in the garbage in the handler and 
+        # Events are placed in the garbage in the handler and
         # are trashed at the end of all processing
         for event in garbage:
             events.remove(event)
-            
-                        
+
+
     def __isDead(self, unit):
         if unit in self.units:
             if self.units[unit].energy < 1:
                 self.alive[unit] = False
-            
+
                 if not unit in self.died:
                     print "%s died" % (unit)
                     self.died.append(unit)
@@ -213,7 +213,7 @@ class World:
                 del event
         if unit in self.unitpaths:
             del self.unitpaths[unit]
-                
+
 
     def __dealBulletDamage(self):
         victims = []
@@ -223,7 +223,7 @@ class World:
             for (x, y) in self.unitpaths[unit]:
                 for guy in self.bulletpaths.keys():
                     for path in self.bulletpaths[guy]:
-                        for (m, n) in path:    
+                        for (m, n) in path:
                             if (x == m and y == n):
                                 victims.append(unit)
                                 attackers.append(guy)
@@ -246,20 +246,20 @@ class World:
         for unit in victims:
             self.__isDead(unit)
             #at this point we want to delete dead units
-            
+
     def __cleanupDead(self):
         for unit in self.died:
             self.__unitCleanup(unit)
         self.died = []
 
-    
+
     # Generate unit paths for units that haven't moved this turn, so when
     # we are doing bullet/path intersections stationary units will get hit.
     def __createUnitPaths(self):
         for unit in self.units:
             if not unit in self.unitpaths:
                 self.unitpaths[unit] = [self.map.getPosition(unit)]
-    
+
     # Create bullet paths and move bullets to their proper place on the map.
     def __createBulletPaths(self):
         bullets = {}
@@ -271,7 +271,7 @@ class World:
             target = bullet.getTarget()
             unit = bullet.getUnit()
             range = self.bullets[bullet]
-        
+
             # Build the bullet path from the event's current position to the
             # target, with the range being the minimum of the range left on the
             # bullet and the allowed range (mapsize/10) of bullets.
@@ -281,16 +281,16 @@ class World:
             except KeyError:
                 self.bulletpaths[unit] = [path]
             endsquare = path[-1]
-        
+
             range -= self.mapSize / 10
-        
-            # If the bullet has no more range left on it, we don't put it back 
+
+            # If the bullet has no more range left on it, we don't put it back
             # in our bullet list, otherwise it goes back in.
             if range > 0:
                 bullets[bullet] = range
             else:
                 oldbullets.append(bullet)
-                
+
             # modify the bullet to reflect its new location
             self.map.placeObject(bullet, endsquare)
         self.bullets = bullets
@@ -304,39 +304,39 @@ class World:
     # Public Functions
     # Creaters
     def createUnit(self, stats, square):
-        
+
         unit = mapobject.Unit(self.wt, stats)
         self.units[unit] = stats
-        
+
         stats.unit = unit
         self.alive[unit] = True
 
         # This is only temporary, but place the units at the 0, 0 square.
         self.map.placeObject(unit, square)
         return unit
-    
+
     def createShootEvent(self, unit, square, range):
-        print "Creating ShootEvent: Unit %s to Square %s" % (unit, square) 
+        print "Creating ShootEvent: Unit %s to Square %s" % (unit, square)
         if isValidSquare(square, self.mapSize):
             e = ShootEvent(unit, square, range)
             self.events.append(e)
         else:
             raise IllegalSquareException(square)
             #print "Target square for %s is out of range" % (unit)
-            
+
     def createMoveEvent(self, unit, square):
-        print "Creating MoveEvent: Unit %s to Square %s" % (unit, square) 
+        print "Creating MoveEvent: Unit %s to Square %s" % (unit, square)
         if isValidSquare(square, self.mapSize):
             e = MoveEvent(unit, square)
             self.events.append(e)
         else:
             raise IllegalSquareException(square)
-    
+
     def createCaptureEvent(self, unit, building, counter):
-        print "Creating CaptureEvent: Unit %s to Building %s" % (unit, square) 
+        print "Creating CaptureEvent: Unit %s to Building %s" % (unit, square)
         if self.map.getPosition(unit) is self.map.getPosition(building):
         #I'm trying to check if the unit is inside the building
-        #we will also have to check if there are enemies inside 
+        #we will also have to check if there are enemies inside
         #the building, but I'm not sure how
             e = CaptureEvent(unit, building, counter)
             self.events.append(e)
@@ -345,8 +345,8 @@ class World:
 
     # GETTERS
     def getPendingEvents(self):
-        return self.events    
-    
+        return self.events
+
     def getQueue(self):
         return self.eventQueue
 
@@ -363,12 +363,12 @@ class World:
         self.__processPendingEvents()
         self.__createUnitPaths()
         self.__createBulletPaths()
-        self.__dealBulletDamage() 
+        self.__dealBulletDamage()
         self.__cleanupDead()
         self.currentTurn += 1
-        
-        
-        
+
+
+
 #Map1 = {unit:position, building:position}
 #2Map = {}
 #for key in Map1.keys():
