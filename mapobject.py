@@ -90,8 +90,8 @@ class Unit(MapObject):
 
 
     # Main events
-    def capture(self, (x, y)):
-        return self.__wt.capture(self, (x, y))
+    def capture(self, b):
+        return self.__wt.capture(self, b)
 
     def move(self, (x,y)):
         return self.__wt.move(self, (x, y))

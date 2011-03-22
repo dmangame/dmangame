@@ -127,13 +127,12 @@ class Stats:
         self.unit = None
         self.team = team
         self.ai_id = ai_id
-        #LOOK THE TEAM
 
 # The world is responsible for maintaining the world
 # as well as running each turn, checking for end conditions
 # and maintaining units and the map.
 class World:
-    def __init__(self, lifespan=10, mapsize=100, num_buildings=3):
+    def __init__(self, mapsize=100, num_buildings=10):
         self.AI = []
         self.units = {} # instead of a list, it will point to the unit's attributes.
         self.mapSize = mapsize
@@ -149,7 +148,6 @@ class World:
           self.buildings[b] = None
           self.map.placeObject(b, self.map.getRandomSquare())
         #self.eventQueue = EventQueue(self.events, self.mapSize)
-        self.lifeSpan = lifespan
         self.unitpaths = {}
         self.bulletpaths = {}
         self.bullets = {}
@@ -198,6 +196,7 @@ class World:
           building = event.getBuilding()
           building.setOwner(unit.getTeam(), self)
           self.capturing[unit] = False
+          self.buildings[building] = unit.getTeam()
           garbage.append(event)
 
 
@@ -375,9 +374,6 @@ class World:
 
     def getQueue(self):
         return self.eventQueue
-
-    def getLifeSpan(self):
-        return self.lifeSpan
 
     def getLifeTime(self):
         return self.currentTurn

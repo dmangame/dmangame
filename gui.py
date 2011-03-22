@@ -1,3 +1,12 @@
+
+try:
+  import pyximport
+  print 'Gearing up with Cython'
+  pyximport.install(pyimport=True)
+except Exception, e:
+  print e
+
+
 import ai
 import gobject
 import gtk
@@ -6,21 +15,18 @@ import random
 import world
 import worldtalker
 
-LIFESPAN=10
 AI_COLORS = [ (1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1) ]
+
 
 class MapGUI:
     def __init__(self):
         # Initialize Widgets
         self.window = gtk.Window()
         box = gtk.VBox()
-        button = gtk.Button("Turn Me")
-        button.connect("clicked", self.map_turn_event_cb)
 
         self.map_area = gtk.DrawingArea()
 
         box.pack_start(self.map_area)
-        box.pack_start(button, False)
         self.window.add(box)
         self.window.show_all()
         self.map_area.connect("expose-event", self.map_expose_event_cb)
@@ -28,7 +34,7 @@ class MapGUI:
         self.window.connect("destroy", gtk.main_quit)
 
         # Initialize the world
-        self.world = world.World(LIFESPAN)
+        self.world = world.World()
         self.wt = worldtalker.WorldTalker(self.world)
         self.AI = []
         self.colors = {}
