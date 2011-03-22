@@ -1,14 +1,18 @@
 # A map class, responsible for map functions, like
 # finding the square a unit is on or what occupies a square
 import math
+import random
 
 class Map:
     def __init__(self, N):
         self.size = N
         self.objectMap = {}
         self.squareMap = {}
-    
-    # Place a map object onto the map 
+
+    def getRandomSquare(self):
+        return (random.randint(0, self.size), random.randint(0, self.size))
+
+    # Place a map object onto the map
     def placeObject(self, mapobject, square):
         if self.isValidSquare(square):
             self.objectMap[mapobject] = square
@@ -16,13 +20,13 @@ class Map:
                 self.squareMap[square].append(mapobject)
             except KeyError:
                 self.squareMap[square] = [mapobject]
-  
+
     # Remove the object from the map
     def removeObject(self, mapobject):
         if mapobject in self.objectMap:
             self.squareMap[self.objectMap[mapobject]].remove(mapobject)
             del self.objectMap[mapobject]
-        
+
     # Returns the square mapobject is on
     def getPosition(self, mapobject):
         try:
@@ -32,21 +36,21 @@ class Map:
             #raise KeyError(key)
             #print type(e)
             return None
-        
-    
+
+
     # Returns the mapobject on square
     def getOccupants(self, square):
         if self.isValidSquare(square):
             return self.squareMap[square]
         # Raise an exception
-    
+
     # Returns all the object on the map
     def getAllObjects(self):
         return self.objectMap.keys()
-    
+
     def isValidSquare(self, (x,y)):
         return x < self.size and x >= 0 and y < self.size and y >= 0
-            
+
     # Get all squares within radius n of square
     def getLegalMoves(self, square, n):
         d = {}
@@ -64,11 +68,11 @@ class Map:
                     if (x-i >= 0) and (y-j >= 0):
                         d[(x-i, y-j)] = 1
         return d.keys()
-       
+
     # Get the distance between x,y and m,n
     def getDistance(self, (x, y), (m, n)):
         return math.sqrt((m-x)**2 + (n-y)**2)
-   
+
     # Get the path a bullet takes from x,y to m,n
     # R is the range on the bullets...why is this here?
     def getBulletPath(self, (x, y), (m, n), R):
@@ -100,8 +104,8 @@ class Map:
                         path.append((int(x), int(y)))
                         index += 1
         #print path
-        return path     
-    
+        return path
+
     # Get the path a unit takes when travelling from (x,y) to (m,n)
     def getUnitPath(self, (x, y), (m, n)):
         print "Calculating path from %s to %s" % ((x, y), (m, n))
@@ -123,16 +127,16 @@ class Map:
         else:
             xmovement = 1/slope
             ymovement = 1
-        
+
         #print xmovement, ymovement
         if (x > m):
             xmovement = -xmovement
             xdir = -1
-        if (y > n): 
+        if (y > n):
             ymovement = -ymovement
             ydir = -1
-            
-        
+
+
         while x != m or y != n:
             #print (x,y), (m,n)
             if x - m != 0:
@@ -142,7 +146,7 @@ class Map:
                     if x == m:
                         break
                 i = (xmovement+i)-int(xmovement+i)
-               
+
             if y - n != 0:
                 for a in xrange(abs(int(ymovement+j))):
                     y += ydir

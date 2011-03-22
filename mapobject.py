@@ -61,17 +61,20 @@ class Unit(MapObject):
     def isAlive(self):
         return self.__wt.isAlive(self)
 
-    def getVictims(self, target):
-        return self.__wt.getVictims(self, target)
+    def isCapturing(self):
+        return self.__wt.isCapturing(self)
 
-    def getDistance(self, target):
-        return self.__wt.getDistance(self, target)
+    def getVictims(self, target_square):
+        return self.__wt.getVictims(self, target_square)
 
-    def getBulletPath(self, target):
-        return self.__wt.getBulletPath(self, target)
+    def getDistance(self, target_square):
+        return self.__wt.getDistance(self, target_square)
 
-    def getUnitPath(self, target):
-        return self.__wt.getUnitPath(self, target)
+    def getBulletPath(self, target_square):
+        return self.__wt.getBulletPath(self, target_square)
+
+    def getUnitPath(self, target_square):
+        return self.__wt.getUnitPath(self, target_square)
 
     def getVisibleSquares(self):
         return self.__wt.getVisibleSquares(self)

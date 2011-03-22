@@ -3,7 +3,9 @@ import copy
 import map
 import mapobject
 import math
+from collections import defaultdict
 
+CAPTURE_LENGTH=3
 # Exceptions
 class DeadUnitException(Exception):
     def __init__(self, value):
@@ -64,6 +66,16 @@ class CaptureEvent:
     def getUnit(self):
         return self.__unit
 
+    def getBuilding(self):
+        return self.__building
+
+    def spinCounter(self):
+        self.__count -= 1
+
+    def isFinished(self):
+        print "Count", self.__count
+        return self.__count <= 0
+
 # Consists of a unit and an end square.
 class MoveEvent:
     def __init__(self, unit, (x, y)):
@@ -121,7 +133,7 @@ class Stats:
 # as well as running each turn, checking for end conditions
 # and maintaining units and the map.
 class World:
-    def __init__(self, lifespan=10, mapsize=100):
+    def __init__(self, lifespan=10, mapsize=100, num_buildings=3):
         self.AI = []
         self.units = {} # instead of a list, it will point to the unit's attributes.
         self.mapSize = mapsize
@@ -129,6 +141,13 @@ class World:
         self.bullets = []
         self.currentTurn = 0
         self.events = []
+
+        self.capturing = defaultdict(bool)
+        self.buildings = {}
+        for i in xrange(num_buildings):
+          b = mapobject.Building(self)
+          self.buildings[b] = None
+          self.map.placeObject(b, self.map.getRandomSquare())
         #self.eventQueue = EventQueue(self.events, self.mapSize)
         self.lifeSpan = lifespan
         self.unitpaths = {}
@@ -171,8 +190,14 @@ class World:
             garbage.append(event)
 
     def __handleCaptureEvent(self, event, garbage):
-        #garbage.append(event)
-        pass
+        event.spinCounter()
+        unit = event.getUnit()
+        self.capturing[unit] = True
+        if event.isFinished():
+          print "Finished capturing square"
+          self.buildings[event.getBuilding()] = event.getUnit()
+          self.capturing[unit] = False
+          garbage.append(event)
 
 
     def __processPendingEvents(self):
@@ -332,13 +357,13 @@ class World:
         else:
             raise IllegalSquareException(square)
 
-    def createCaptureEvent(self, unit, building, counter):
-        print "Creating CaptureEvent: Unit %s to Building %s" % (unit, square)
-        if self.map.getPosition(unit) is self.map.getPosition(building):
+    def createCaptureEvent(self, unit, building):
+        print "Creating CaptureEvent: Unit %s to Building %s" % (unit, building)
+        if self.map.getPosition(unit) == self.map.getPosition(building):
         #I'm trying to check if the unit is inside the building
         #we will also have to check if there are enemies inside
         #the building, but I'm not sure how
-            e = CaptureEvent(unit, building, counter)
+            e = CaptureEvent(unit, building, CAPTURE_LENGTH)
             self.events.append(e)
         else:
             raise IllegalCaptureEvent("The unit is not in the building.")

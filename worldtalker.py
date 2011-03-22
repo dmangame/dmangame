@@ -16,10 +16,16 @@ class WorldTalker:
         return self.__world.units[unit]
 
     def __getOwner(self, unit):
-        return self.__getStats(unit).ai_id
+        if unit.__class__ == mapobject.Unit:
+            return self.__getStats(unit).ai_id
+        elif unit.__class__ == mapobject.Building:
+            return self.__world.buildings[unit]
 
     def isAlive(self, unit):
         return self.__world.alive[unit]
+
+    def isCapturing(self, unit):
+        return self.__world.capturing[unit]
 
     def isVisible(self, unit):
         squares = self.getVisibleSquares()
@@ -69,6 +75,7 @@ class WorldTalker:
             return self.__world.createUnit(stats, self.__bases[stats.ai_id])
 
     # Get functions
+
     def getBulletPath(self, unit, square):
         ai_id = self.getID()
         if not unit in self.getVisibleUnits() and not unit in self.getUnits():
@@ -96,7 +103,12 @@ class WorldTalker:
         ai_id = self.getID()
         # Need to make sure the unit is still visible to the guy calling this function, I think.
         position = self.__world.map.getPosition(unit)
-        if self.__getOwner(unit) == ai_id or position in self.getVisibleSquares():
+        if unit.__class__ == mapobject.Building:
+            return position
+        elif self.__getOwner(unit) == ai_id:
+            return position
+
+        if position in self.getVisibleSquares():
             return position
 
     def getStats(self, unit):
@@ -154,6 +166,15 @@ class WorldTalker:
             stats = self.__getStats(unit)
             square = self.getPosition(unit)
             return self.__world.map.getLegalMoves(square, stats.sight)
+
+    def getVisibleBuildings(self, unit):
+        ai_id = self.getID()
+        squares = self.getVisibleSquares(unit)
+        buildings = []
+        for b in self.__world.buildings.keys():
+            if self.__world.map.getPosition(b) in squares:
+                buildings.append(b)
+        return buildings
 
     def getVisibleUnits(self, unit=None):
         ai_id = self.getID()

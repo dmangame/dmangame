@@ -53,8 +53,6 @@ class MapGUI:
             self.cairo_context.line_to(deltax*i, height)
             self.cairo_context.stroke()
 
-
-
     def draw_map(self):
         allocation = self.map_area.get_allocation()
         self.pango_context = self.map_area.create_pango_context()
@@ -120,8 +118,10 @@ class MapGUI:
                 owner = self.world.units[unit].ai_id
                 color = self.colors[owner]
                 self.cairo_context.set_source_rgb(*color)
-            if unit.__class__ == mapobject.Bullet:
+            elif unit.__class__ == mapobject.Bullet:
                 self.cairo_context.set_source_rgb(0, 0, 0)
+            else:
+                self.cairo_context.set_source_rgb(0, 1, 0)
             x,y = self.world.map.getPosition(unit)
             self.cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
             self.cairo_context.fill()
@@ -161,6 +161,7 @@ if __name__ == "__main__":
     m.add_ai(randomai.RandomAI)
     m.add_ai(cornerai.CornerAI)
     m.add_ai(sharkai.SharkAI)
+    m.add_ai(captureai.CaptureAI)
     gobject.timeout_add(100, m.auto_spinner)
     gtk.main()
 
