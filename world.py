@@ -195,7 +195,8 @@ class World:
         self.capturing[unit] = True
         if event.isFinished():
           print "Finished capturing square"
-          self.buildings[event.getBuilding()] = event.getUnit()
+          building = event.getBuilding()
+          building.setOwner(unit.getTeam(), self)
           self.capturing[unit] = False
           garbage.append(event)
 

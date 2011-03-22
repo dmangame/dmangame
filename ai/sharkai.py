@@ -6,7 +6,7 @@ AIClass = "SharkAI"
 class SharkAI(ai.AI):
     def __init__(self, *args, **kwargs):
         ai.AI.__init__(self, *args, **kwargs)
-        
+
     def _init(self):
         stats = world.Stats(armor=1, attack=1, sight=1, energy=1, speed=5, team=self.teamName, ai_id=self.ai_id)
         self.unit1 = self.wt.createUnit(stats)
@@ -18,11 +18,11 @@ class SharkAI(ai.AI):
         self.unit3.name = 'bigtooth'
         self.unit4.name = 'hump'
         self.ms = self.wt.getMapSize() - 1
-        self.corners = { 
-                            self.unit1 : (0, 0), 
+        self.corners = {
+                            self.unit1 : (0, 0),
                             self.unit2 : (self.ms, 0),
                             self.unit3 : (0, self.ms),
-                            self.unit4 : (self.ms, self.ms) 
+                            self.unit4 : (self.ms, self.ms)
         }
         self.torandom = { self.unit1 : False,
                           self.unit2 : False,
@@ -31,7 +31,7 @@ class SharkAI(ai.AI):
         }
 
         self.squares = {}
-    
+
     def prey(self, unit):
         victims = unit.inRange()
         if len(victims) == 0:
@@ -39,7 +39,7 @@ class SharkAI(ai.AI):
         unit.shoot(victims[0].getPosition())
         return True
 
-        
+
     def patrol(self, unit):
         corner = self.corners[unit]
         if unit.isAlive():
@@ -54,7 +54,7 @@ class SharkAI(ai.AI):
                         self.torandom[unit] = False
                 except KeyError:
                     pass
-                
+
                 if self.prey(unit):
                     pass
                 else:
@@ -62,12 +62,12 @@ class SharkAI(ai.AI):
                         unit.move(self.squares[unit])
                     else:
                         unit.move(self.corners[unit])
-                
+
     def _spin(self):
-        print "Spinning my AI and my AI tells me that it is the %s iteration" % (self.wt.getCurrentTurn()) 
+        print "Spinning my AI and my AI tells me that it is the %s iteration" % (self.wt.getCurrentTurn())
         print "I own these units: ", self.getMyUnits()
         # I am gonna tell my AI to randomly shoot in a direction or move to a random square.
-        # Cool, right? 
+        # Cool, right?
 
         for unit in self.getMyUnits():
             self.patrol(unit)
