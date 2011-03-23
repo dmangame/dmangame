@@ -9,6 +9,7 @@ class WorldTalker:
     def __init__(self, world):
         self.__world = world
         self.__world.wt = self
+        self.__cached_turn = None
         #self.__eq = world.getQueue()
 
     def __getStats(self, unit):
@@ -127,6 +128,10 @@ class WorldTalker:
     # If unit is none, return all squares visible to the AI
     # else return only visible squares to the unit
     def getVisibleSquares(self, unit=None):
+        if not self.__cached_turn == self.getCurrentTurn():
+            self.__cached_visible_squares = {}
+            self.__cached_turn = self.getCurrentTurn()
+
         if not unit:
             ai_id = self.getID()
             squares = {}
@@ -137,12 +142,16 @@ class WorldTalker:
                 moves = self.__world.map.getLegalMoves(square, stats.sight)
                 for s in moves:
                     squares[s] = True
+            self.__cached_visible_squares[ai_id] = squares.keys()
             return squares.keys()
         else:
             self.checkOwner(unit)
             stats = self.__getStats(unit)
             square = self.getPosition(unit)
-            return self.__world.map.getLegalMoves(square, stats.sight)
+            squares = self.__world.map.getLegalMoves(square, stats.sight)
+            self.__cached_visible_squares[unit] = squares
+            return squares
+
 
     def getVisibleBuildings(self, unit):
         ai_id = self.getID()
