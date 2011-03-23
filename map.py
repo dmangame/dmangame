@@ -12,6 +12,7 @@ class Map:
         self.squareMap = {}
         self.__bullet_paths = {}
         self.__unit_paths = {}
+        self.__legal_moves = {}
 
     def getRandomSquare(self):
         return (random.randint(0, self.size), random.randint(0, self.size))
@@ -57,21 +58,24 @@ class Map:
 
     # Get all squares within radius n of square
     def getLegalMoves(self, square, n):
-        d = {}
-        x,y = square
-        d[(x,y)] = 1
-        for i in xrange (0, n+1):
-            for j in xrange(0, n+1):
-                if i + j <= n:
-                    if (x+i < self.size) and (y+j < self.size):
-                        d[(x+i, y+j)] = 1
-                    if (x+i < self.size) and (y-j >= 0):
-                        d[(x+i, y-j)] = 1
-                    if (x-i >= 0) and (y+j < self.size):
-                        d[(x-i, y+j)] = 1
-                    if (x-i >= 0) and (y-j >= 0):
-                        d[(x-i, y-j)] = 1
-        return d.keys()
+        lm_key = ",".join(map(str, [square, n]))
+        if not lm_key in self.__legal_moves:
+          d = {}
+          x,y = square
+          d[(x,y)] = 1
+          for i in xrange (0, n+1):
+              for j in xrange(0, n+1):
+                  if i + j <= n:
+                      if (x+i < self.size) and (y+j < self.size):
+                          d[(x+i, y+j)] = 1
+                      if (x+i < self.size) and (y-j >= 0):
+                          d[(x+i, y-j)] = 1
+                      if (x-i >= 0) and (y+j < self.size):
+                          d[(x-i, y+j)] = 1
+                      if (x-i >= 0) and (y-j >= 0):
+                          d[(x-i, y-j)] = 1
+          self.__legal_moves[lm_key] = d.keys()
+        return self.__legal_moves[lm_key]
 
     # Get the distance between x,y and m,n
     def getDistance(self, (x, y), (m, n)):

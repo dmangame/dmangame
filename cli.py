@@ -8,7 +8,7 @@ import world
 import worldtalker
 import itertools
 
-LIFESPAN = 1000
+LIFESPAN = 100
 
 import sys
 import os
@@ -18,7 +18,7 @@ def main(ai_classes=[]):
   wt = worldtalker.WorldTalker(w)
 
   AI = []
-  
+
   for ai in ai_classes:
     AI.append(ai(wt))
 
