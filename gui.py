@@ -9,6 +9,13 @@ import random
 import world
 import worldtalker
 
+try:
+  import pyxbuild
+  print 'Gearing up with Cython'
+  pyximport.install(pyimport=True)
+except Exception, e:
+  print e
+
 AI_COLORS = [ (1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1) ]
 
 
