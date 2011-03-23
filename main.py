@@ -1,10 +1,13 @@
 #! /usr/bin/env python
+
+import logging
+log = logging.getLogger("MAIN")
 try:
   import pyximport
-  print 'Gearing up with Cython'
+  log.info('Gearing up with Cython')
   pyximport.install(pyimport=True)
 except Exception, e:
-  print e
+  log.info(e)
 
 
 import glob
@@ -37,13 +40,13 @@ def loadAI(ais):
     sys.path.append("ai")
     for f in ais:
         try:
-            print "Loading %s..." % (f),
+            log.info("Loading %s..." % (f),)
             file, pathname, desc = imp.find_module(f)
             m = imp.load_module(f, file, pathname, desc)
             ai_modules.append(m)
-            print "Done"
+            log.info("Done")
         except Exception, e:
-            print e
+            log.info("Load Exception", e)
 
     ai_classes = map(lambda m: getattr(m, m.AIClass),
                      ai_modules)
@@ -51,20 +54,24 @@ def loadAI(ais):
 
 def main():
   options, args = parseOptions()
-  print options
+  log.info(options)
   ais = loadAI(args)
   if options.gui:
     try:
       gui.main(ais)
     except KeyboardInterrupt, e:
+      pass
+    finally:
       gui.end_game()
   else:
     try:
       cli.main(ais)
     except KeyboardInterrupt, e:
+      pass
+    finally:
       cli.end_game()
 
 if __name__ == "__main__":
-  import cProfile
-  cProfile.run("main()", "mainprof")
-#  main()
+#  import cProfile
+#  cProfile.run("main()", "mainprof")
+  main()

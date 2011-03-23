@@ -154,6 +154,7 @@ class World:
         self.bullets = {}
         self.alive = {}
         self.died = []
+        self.dead_units = {}
         self.oldbullets = []
         self.bulletRange = self.mapSize/8
         self.bulletSpeed = self.mapSize/10
@@ -219,7 +220,7 @@ class World:
             events.remove(event)
 
 
-    def __isDead(self, unit):
+    def __isDead(self, unit, attacker=None):
         if unit in self.units:
             if self.units[unit].energy < 1:
                 self.alive[unit] = False
@@ -227,6 +228,11 @@ class World:
                 if not unit in self.died:
                     log.info("%s died", (unit))
                     self.died.append(unit)
+                    if attacker:
+                        unit.killer = set((attacker,))
+                else:
+                    if attacker:
+                        unit.killer.add(attacker)
 
     def __spawnUnit(self, statsdict, owner, square):
         stats = Stats(**statsdict)
@@ -236,7 +242,8 @@ class World:
         try:
           owner._new_unit(unit)
         except Exception, e:
-          print e
+          log.info("Spawn exception")
+          log.info(e)
         return unit
 
     def __spawnUnits(self):
@@ -274,7 +281,6 @@ class World:
     def __dealBulletDamage(self):
         victims = []
         attackers = []
-        #print self.bulletpaths
         for victim in self.unitpaths.keys():
             for (x, y) in self.unitpaths[victim]:
                 for attacker in self.bulletpaths.keys():
@@ -292,20 +298,15 @@ class World:
             attacker = attackers[index]
             attack = self.units[attacker].attack
             armor = self.units[victim].armor
-            #print self.units[victim].energy
-            #print attack
             damage = attack * math.log(self.mapSize) - armor
-            #print damage
             if damage > 0:
                 self.units[victim].energy -= int(damage)
-            #print self.units[victim].energy
             index += 1
-        for unit in victims:
-            self.__isDead(unit)
-            #at this point we want to delete dead units
+            self.__isDead(victim, attacker)
 
     def __cleanupDead(self):
         for unit in self.died:
+            self.dead_units[unit] = copy.copy(self.units[unit]) 
             self.__unitCleanup(unit)
         self.died = []
 
@@ -395,7 +396,7 @@ class World:
             raise IllegalSquareException(square)
 
     def createCaptureEvent(self, unit, building):
-        print log.debug("Creating CaptureEvent: Unit %s to Building %s", unit, building)
+        log.debug("Creating CaptureEvent: Unit %s to Building %s", unit, building)
         if self.map.getPosition(unit) == self.map.getPosition(building):
         #I'm trying to check if the unit is inside the building
         #we will also have to check if there are enemies inside
@@ -415,6 +416,12 @@ class World:
     def getLifeTime(self):
         return self.currentTurn
 
+    def getStats(self, unit):
+      if unit in self.units:
+        return self.units[unit]
+      if unit in self.dead_units:
+        return self.dead_units[unit]
+
     # Runs the world one iteration
     def Turn(self):
         log.debug("Turning the World, %s", self.currentTurn)
@@ -427,7 +434,19 @@ class World:
         self.__spawnUnits()
         self.currentTurn += 1
 
+    def calculateScore(self, ai_id):
+        alive = 0
+        for unit in self.units:
+          if self.wt.getOwner(unit) == ai_id:
+            alive += 1
 
+        kills = 0
+        for unit in self.dead_units:
+          for killer in unit.killer:
+            if self.wt.getOwner(killer) == ai_id:
+              kills += 1
+
+        return alive+kills
 
 #Map1 = {unit:position, building:position}
 #2Map = {}

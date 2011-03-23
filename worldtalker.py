@@ -13,7 +13,7 @@ class WorldTalker:
         #self.__eq = world.getQueue()
 
     def __getStats(self, unit):
-        return self.__world.units[unit]
+        return self.__world.getStats(unit)
 
     def __getOwner(self, unit):
         if unit.__class__ == mapobject.Unit:
@@ -230,4 +230,7 @@ class WorldTalker:
         self.__world.createShootEvent(unit, square, self.__world.bulletRange)
 
 
+    def calculateScore(self, ai_id):
+        if ai_id == self.getID():
+            return self.__world.calculateScore(ai_id)
 # vim: set expandtab shiftwidth=4 softtabstop=4 textwidth=79:

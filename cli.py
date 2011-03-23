@@ -7,17 +7,18 @@ import mapobject
 import world
 import worldtalker
 import itertools
+import logging 
+log = logging.getLogger("CLI")
 
 LIFESPAN = 1000
 
 import sys
 import os
 
+AI = []
 def main(ai_classes=[]):
   w = world.World()
   wt = worldtalker.WorldTalker(w)
-
-  AI = []
 
   for ai in ai_classes:
     AI.append(ai(wt))
@@ -39,11 +40,15 @@ def main(ai_classes=[]):
   #            try:
   #                ai.spin()
   #            except Exception, e:
-  #                print "AI raised exception %s, skipping this turn for it" % (e)
+  #                log.info("AI raised exception %s, skipping this turn for it" % (e))
 
       w.Turn()
-  print "Finished simulating the world, press Enter to exit"
+  log.info("Finished simulating the world, press Enter to exit")
   raw_input()
+
+def end_game():
+  for ai in AI:
+    log.info("%s:%s", ai.__class__, ai.calculateScore())
 
 if __name__ == "__main__":
   main()

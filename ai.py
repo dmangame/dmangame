@@ -25,6 +25,9 @@ class AI:
     def getVisibleUnits(self):
         return self.wt.getVisibleUnits()
 
+    def calculateScore(self):
+        return self.wt.calculateScore(self.ai_id)
+
     # Overrode definitions
     def _init(self):
         """Needs to be implemented"""

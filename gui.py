@@ -10,7 +10,9 @@ import random
 import world
 import worldtalker
 
-AI_COLORS = [(1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1) ]
+import logging
+log = logging.getLogger("GUI")
+
 
 
 def random_ai_color():
@@ -102,9 +104,9 @@ class MapGUI:
             stats = self.world.units[unit]
             owner = stats.ai_id
             if not owner in self.colors:
-                color = random.choice(AI_COLORS)
+                color = random_ai_color()
                 while color in self.colors.values():
-                    color = random.choice(AI_COLORS)
+                    color = random_ai_color()
                 self.colors[owner] = color
 
         for unit in self.world.units:
@@ -166,7 +168,7 @@ class MapGUI:
 #            try:
 #               ai.spin()
 #            except Exception, e:
-#                print "AI raised exception %s, skipping this turn for it" % (e)
+#                log.info("AI raised exception %s, skipping this turn for it", e)
         self.world.Turn()
         self.draw_map()
 
@@ -179,6 +181,7 @@ def main(ais=[]):
     import sys
     import os
 
+    global m
     m = MapGUI()
     for ai in ais:
       m.add_ai(ai)
@@ -190,7 +193,7 @@ def main(ais=[]):
 
 def end_game():
   for ai in m.AI:
-    print ai.calculateScore()
+    log.info("%s:%s", ai.__class__, ai.calculateScore())
 
 if __name__ == "__main__":
   main()

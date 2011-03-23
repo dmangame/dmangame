@@ -38,8 +38,6 @@ class Map:
             return self.objectMap[mapobject]
         except KeyError, e:
             log.debug("Get Position errored with: %s", e)
-            #raise KeyError(key)
-            #print type(e)
             return None
 
 
@@ -129,7 +127,6 @@ class Map:
                     while index <= R and self.isValidSquare((x,y)):
                             x += xmovement
                             y += ymovement
-                            #print x,y
                             path.append((int(x), int(y)))
                             index += 1
 
@@ -196,15 +193,14 @@ class Map:
 
 if __name__ == "__main__":
     m = Map(200)
-    print m.getUnitPath((11, 13),(0, 193))
+    m.getUnitPath((11, 13),(0, 193))
     #x = "Just a unit"
     #m.placeObject(x, (0,0))
-    #print m.getPosition(x)
-    #print m.getOccupant((0,0))
-    #print m.getAllObjects()
+    #m.getPosition(x)
+    #m.getOccupant((0,0))
+    #m.getAllObjects()
     #m.removeObject(x)
-    #print m.getAllObjects()
-    #print m.getPosition(x)
+    #m.getAllObjects()
+    #m.getPosition(x)
     path = m.getBulletPath((6, 16), (6, 70), int(m.size/8))
-    print path
-    #print m.getlegalmoves((5,5), 2)
+    #m.getlegalmoves((5,5), 2)
