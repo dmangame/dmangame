@@ -174,7 +174,7 @@ class MapGUI:
         self.map_turn_event_cb(None)
         return True
 
-
+m = None
 def main(ais=[]):
     import sys
     import os
@@ -187,6 +187,10 @@ def main(ais=[]):
       m.add_building()
     gobject.timeout_add(100, m.auto_spinner)
     gtk.main()
+
+def end_game():
+  for ai in m.AI:
+    print ai.calculateScore()
 
 if __name__ == "__main__":
   main()

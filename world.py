@@ -417,7 +417,7 @@ class World:
 
     # Runs the world one iteration
     def Turn(self):
-        log.debug("Turning the World")
+        log.debug("Turning the World, %s", self.currentTurn)
         self.__clearPaths()
         self.__processPendingEvents()
         self.__createUnitPaths()

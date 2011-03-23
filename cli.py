@@ -8,7 +8,7 @@ import world
 import worldtalker
 import itertools
 
-LIFESPAN = 100
+LIFESPAN = 1000
 
 import sys
 import os

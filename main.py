@@ -54,11 +54,17 @@ def main():
   print options
   ais = loadAI(args)
   if options.gui:
-    gui.main(ais)
+    try:
+      gui.main(ais)
+    except KeyboardInterrupt, e:
+      gui.end_game()
   else:
-    cli.main(ais)
+    try:
+      cli.main(ais)
+    except KeyboardInterrupt, e:
+      cli.end_game()
 
 if __name__ == "__main__":
-#  import cProfile
-#  cProfile.run("main()", "mainprof")
-  main()
+  import cProfile
+  cProfile.run("main()", "mainprof")
+#  main()

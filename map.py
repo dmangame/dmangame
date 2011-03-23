@@ -53,13 +53,15 @@ class Map:
     def getAllObjects(self):
         return self.objectMap.keys()
 
-    def isValidSquare(self, (x,y)):
+    def isValidSquare(self, square):
+        x,y = square
         return x < self.size and x >= 0 and y < self.size and y >= 0
 
     # Get all squares within radius n of square
     def getLegalMoves(self, square, n):
-        lm_key = (square, n, )
+        lm_key = str((square, n, ))
         if not lm_key in self.__legal_moves:
+          log.debug("Calculating legal moves for %s",(str(lm_key)))
           d = set()
           x,y = square
           d.add((x,y))
@@ -87,15 +89,21 @@ class Map:
                       d.add((x-j, y-i))
 
           self.__legal_moves[lm_key] = d
+        else:
+          log.debug("Using cached legal moves for %s",(str(lm_key)))
         return self.__legal_moves[lm_key]
 
     # Get the distance between x,y and m,n
-    def getDistance(self, (x, y), (m, n)):
+    def getDistance(self, start, end):
+        x,y = start
+        m,n = end
         return math.sqrt((m-x)**2 + (n-y)**2)
 
     # Get the path a bullet takes from x,y to m,n
     # R is the range on the bullets...why is this here?
-    def getBulletPath(self, (x, y), (m, n), R):
+    def getBulletPath(self, start, end, R):
+        x, y = start
+        m, n = end
         bp_key = ",".join(map(str, (x,y,m,n)))
         if not bp_key in self.__bullet_paths:
             path = []
@@ -130,7 +138,9 @@ class Map:
         return self.__bullet_paths[bp_key]
 
     # Get the path a unit takes when travelling from (x,y) to (m,n)
-    def getUnitPath(self, (x, y), (m, n)):
+    def getUnitPath(self, start, end):
+        x,y = start
+        m,n = end
         up_key = ",".join(map(str, (x,y,m,n)))
         if not up_key in self.__unit_paths:
             log.debug("Calculating path from %s to %s", (x, y), (m, n))
