@@ -244,8 +244,8 @@ class World:
           log.info("Spawning Units")
           for b in self.buildings:
             owner = self.buildings[b]
-            if owner:
-              square = self.map.getPosition(b)
+            square = self.map.getPosition(b)
+            if owner and square:
               self.__spawnUnit(b.getStats(), owner, square)
 
 
