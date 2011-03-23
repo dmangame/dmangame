@@ -7,7 +7,7 @@ from collections import defaultdict
 
 import logging
 log = logging.getLogger("WORLD")
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 CAPTURE_LENGTH=3
 UNIT_SPAWN_MOD=CAPTURE_LENGTH*10
@@ -204,7 +204,7 @@ class World:
         events = self.events #self.__eventQueue.getPendingEvents()
         garbage = [] # Put events to be removed in here
         for event in events:
-            log.info("Handling %s", event)
+            log.debug("Handling %s", event)
             if event.getType() == 'Capture':
                 self.__handleCaptureEvent(event, garbage)
             elif event.getType() == 'Shoot':
@@ -239,10 +239,10 @@ class World:
         return unit
 
     def __spawnUnits(self):
-        for b in self.buildings:
-          if self.currentTurn % UNIT_SPAWN_MOD == 0:
+        if self.currentTurn % UNIT_SPAWN_MOD == 0:
+          log.info("Spawning Units")
+          for b in self.buildings:
             owner = self.buildings[b]
-            log.info("Spawning Units")
             if owner:
               square = self.map.getPosition(b)
               self.__spawnUnit(b.getStats(), owner, square)
@@ -283,8 +283,8 @@ class World:
                                 victims.append(victim)
                                 attackers.append(attacker)
                                 break
-        log.info("Attackers: %s", attackers)
-        log.info("Victims:   %s", victims)
+        log.debug("Attackers: %s", attackers)
+        log.debug("Victims:   %s", victims)
         index = 0
         while index < len(victims):
             victim = victims[index]

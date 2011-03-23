@@ -1,6 +1,7 @@
 
 
 import ai
+import glob
 import gobject
 import gtk
 import mapobject
@@ -45,7 +46,6 @@ class MapGUI:
         a = ai(self.wt)
         self.AI.append(a)
         a._init()
-        print a.ai_id
 
     def add_building(self, ai=None):
         b = mapobject.Building(self.wt)
@@ -144,7 +144,7 @@ class MapGUI:
                 self.cairo_context.set_source_rgb(0, 0, 0)
             elif unit.__class__ == mapobject.Building:
                 owner = unit.getOwner()
-                if owner:
+                if owner in self.colors:
                     color = self.colors[owner]
                     self.cairo_context.set_source_rgb(*color)
                 else:
@@ -161,7 +161,6 @@ class MapGUI:
 
     def map_turn_event_cb(self, object):
         for ai in self.AI:
-            print ""
             ai._spin()
 #            try:
 #               ai.spin()
@@ -179,10 +178,11 @@ if __name__ == "__main__":
     import sys
     import os
     sys.path.append("ai")
-    for f in os.listdir("ai/"):
-        print f
+    for f in glob.glob("ai/*.py"):
         try:
-            exec "import %s" % (os.path.splitext(f)[0])
+            print "Loading %s..." % (f),
+            exec "import %s" % (os.path.basename(os.path.splitext(f)[0]))
+            print "Done"
         except Exception, e:
             print e
 

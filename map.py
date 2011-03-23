@@ -2,6 +2,8 @@
 # finding the square a unit is on or what occupies a square
 import math
 import random
+import logging
+log = logging.getLogger("MAP")
 
 class Map:
     def __init__(self, N):
@@ -34,7 +36,7 @@ class Map:
         try:
             return self.objectMap[mapobject]
         except KeyError, e:
-            print e
+            log.debug("Get Position errored with: %s", e)
             #raise KeyError(key)
             #print type(e)
             return None
@@ -78,7 +80,6 @@ class Map:
     # Get the path a bullet takes from x,y to m,n
     # R is the range on the bullets...why is this here?
     def getBulletPath(self, (x, y), (m, n), R):
-        #print "Calculating bullet path from %s to %s" % ((x,y), (m,n))
         bp_key = ",".join(map(str, (x,y,m,n)))
         if not bp_key in self.__bullet_paths:
             path = []
@@ -116,7 +117,7 @@ class Map:
     def getUnitPath(self, (x, y), (m, n)):
         up_key = ",".join(map(str, (x,y,m,n)))
         if not up_key in self.__unit_paths:
-            print "Calculating path from %s to %s" % ((x, y), (m, n))
+            log.debug("Calculating path from %s to %s", (x, y), (m, n))
             if x == m:
                 if y == n:
                     return [(m,n)]
@@ -136,7 +137,6 @@ class Map:
                 xmovement = 1/slope
                 ymovement = 1
 
-            #print xmovement, ymovement
             if (x > m):
                 xmovement = -xmovement
                 xdir = -1
@@ -147,7 +147,6 @@ class Map:
 
             # [TODO] Generate this the right way
             while x != m or y != n:
-                #print (x,y), (m,n)
                 if x - m != 0:
                     for b in xrange(abs(int(xmovement+i))):
                         x += xdir
