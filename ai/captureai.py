@@ -33,8 +33,6 @@ class CaptureAI(ai.AI):
           return True
 
     def search_for_buildings(self, unit):
-        if not unit in self.corners:
-          self.corners[unit] = next(self.corner_cycler)
         corner = self.corners[unit]
         if unit.isAlive():
             if unit.getEnergy() > 0:
@@ -58,12 +56,8 @@ class CaptureAI(ai.AI):
                         unit.move(self.corners[unit])
 
     def _spin(self):
-        print "Spinning my AI and my AI tells me that it is the %s iteration" % (self.wt.getCurrentTurn())
-        print "I own these units: ", self.getMyUnits()
-        # I am gonna tell my AI to randomly shoot in a direction or move to a random square.
-        # Cool, right?
-
         for unit in self.getMyUnits():
             self.search_for_buildings(unit)
-        #print "and I can see these squares: %s" % self.getVisibleSquares()
-        print "and I can see these units: %s" % self.getVisibleUnits()
+
+    def _new_unit(self, unit):
+        self.corners[unit] = next(self.corner_cycler)

@@ -38,14 +38,8 @@ class CornerAI(ai.AI):
                         unit.shoot((self.ms/2, self.ms/2), )
 
     def _spin(self):
-        print "Spinning my AI and my AI tells me that it is the %s iteration" % (self.wt.getCurrentTurn())
-        print "I own these units: ", self.getMyUnits()
-        print "and I can see these units: %s" % self.getVisibleUnits()
-        for vunit in self.getMyUnits():
-          if not vunit in self.unitsquares:
-            self.unitsquares[vunit] = next(self.corner_cycler)
         for unit in self.getMyUnits():
           self.moveToCorner(unit)
 
-    def _new_unit(self, unit):
-      print "Yay! I just got a new unit! %s" % (unit)
+    def _new_unit(self, vunit):
+      self.unitsquares[vunit] = next(self.corner_cycler)

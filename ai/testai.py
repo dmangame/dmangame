@@ -7,9 +7,7 @@ class TestAI(ai.AI):
         ai.AI.__init__(self, *args, **kwargs)
         
     def _init(self):
-        stats = world.Stats(armor=1, attack=1, sight=1, energy=1, speed=5, team=self.teamName, ai_id=self.ai_id)
-        self.unit1 = self.wt.createUnit(stats)
-        self.unit1.name = "Joebe"
+        print "Initializing"
 
     def _spin(self):
         print "Spinning my AI and my AI tells me that it is the %s iteration" % (self.wt.getCurrentTurn()) 
@@ -17,3 +15,6 @@ class TestAI(ai.AI):
         print "and I can see these units: %s" % self.getVisibleUnits()
         print self.unit1.testFunc()
         print self.wt.getID()
+
+    def _new_unit(self, unit):
+        print "Yay, I received a new unit: %s" % (unit)

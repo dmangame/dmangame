@@ -108,8 +108,8 @@ class Map:
                           #print x,y
                           path.append((int(x), int(y)))
                           index += 1
-          
-          
+
+
           self.__bullet_paths[bp_key] = path
         return self.__bullet_paths[bp_key]
 

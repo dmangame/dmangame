@@ -30,9 +30,6 @@ class SharkAI(ai.AI):
 
 
     def patrol(self, unit):
-        if not unit in self.unit_corners:
-            self.unit_corners[unit] = next(self.corner_cycler)
-
         if not unit in self.squares:
             x = random.randint(0, self.wt.getMapSize()-1)
             y = random.randint(0, self.wt.getMapSize()-1)
@@ -60,12 +57,9 @@ class SharkAI(ai.AI):
                         unit.move(self.unit_corners[unit])
 
     def _spin(self):
-        print "Spinning my AI and my AI tells me that it is the %s iteration" % (self.wt.getCurrentTurn())
-        print "I own these units: ", self.getMyUnits()
-        # I am gonna tell my AI to randomly shoot in a direction or move to a random square.
-        # Cool, right?
-
         for unit in self.getMyUnits():
             self.patrol(unit)
-        #print "and I can see these squares: %s" % self.getVisibleSquares()
-        print "and I can see these units: %s" % self.getVisibleUnits()
+
+    def _new_unit(self, unit):
+        self.unit_corners[unit] = next(self.corner_cycler)
+
