@@ -1,5 +1,6 @@
 # The unit class for the game.
 import random
+import copy
 
 class MapObject:
     def __init__():
@@ -11,10 +12,22 @@ class MapObject:
 class Building(MapObject):
     def __init__(self, worldtalker):
         self.__wt = worldtalker
-        self.__owner = None
+        self.__stats = {
+                        "armor"   : 1,
+                        "attack"  : 1,
+                        "sight"   : 5,
+                        "energy"  : 1,
+                        "speed"   : 5
+                       }
 
     def getOwner(self):
         return self.__wt.getOwner(self)
+
+    def getStats(self):
+        return copy.copy(self.__stats)
+
+    def spawnUnit(self):
+        pass
 
 class Bullet(MapObject):
     def __init__(self, unit, target):
@@ -33,12 +46,6 @@ class Unit(MapObject):
     def __init__(self, worldtalker, stats):
         self.__wt = worldtalker
         self.__stats = stats
-
-    def __repr__(self):
-        if "name" in self.__dict__:
-            return self.name
-        else:
-            return "unnamed unit"
 
     def testFunc(self):
         return self.__wt.getID()

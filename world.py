@@ -6,6 +6,7 @@ import math
 from collections import defaultdict
 
 CAPTURE_LENGTH=3
+UNIT_SPAWN_MOD=10
 # Exceptions
 class DeadUnitException(Exception):
     def __init__(self, value):
@@ -132,7 +133,7 @@ class Stats:
 # as well as running each turn, checking for end conditions
 # and maintaining units and the map.
 class World:
-    def __init__(self, mapsize=100, num_buildings=10):
+    def __init__(self, mapsize=100):
         self.AI = []
         self.units = {} # instead of a list, it will point to the unit's attributes.
         self.mapSize = mapsize
@@ -191,7 +192,7 @@ class World:
           print "Finished capturing square"
           building = event.getBuilding()
           stats = self.units[unit]
-          owner = stats.ai_id
+          owner = stats.ai
           self.capturing[unit] = False
           self.buildings[building] = owner
           garbage.append(event)
@@ -224,11 +225,41 @@ class World:
                     print "%s died" % (unit)
                     self.died.append(unit)
 
+    def __spawnUnit(self, statsdict, owner, square):
+        stats = Stats(**statsdict)
+        stats.ai = owner
+        stats.ai_id = owner.ai_id
+        unit = self.createUnit(stats, square)
+        try:
+          owner._new_unit(unit)
+        except Exception, e:
+          print e
+        return unit
+
+    def __spawnUnits(self):
+        for b in self.buildings:
+          if self.currentTurn % UNIT_SPAWN_MOD == 0:
+            owner = self.buildings[b]
+            print "Spawn units time"
+            if owner:
+              square = self.map.getPosition(b)
+              self.__spawnUnit(b.getStats(), owner, square)
+
+
     def __unitCleanup(self, unit):
         del self.units[unit]
         self.map.removeObject(unit)
 
         # Delete any events pertaining to this nucka.
+        remove_bullets = []
+        for bullet in self.bullets:
+            if bullet.getUnit() == unit:
+              remove_bullets.append(bullet)
+
+        for bullet in remove_bullets:
+            self.map.removeObject(bullet)
+            del self.bullets[bullet]
+            del bullet
         for event in self.events:
             if event.getUnit() == unit:
                 self.events.remove(event)
@@ -241,14 +272,14 @@ class World:
         victims = []
         attackers = []
         #print self.bulletpaths
-        for unit in self.unitpaths.keys():
-            for (x, y) in self.unitpaths[unit]:
-                for guy in self.bulletpaths.keys():
-                    for path in self.bulletpaths[guy]:
+        for victim in self.unitpaths.keys():
+            for (x, y) in self.unitpaths[victim]:
+                for attacker in self.bulletpaths.keys():
+                    for path in self.bulletpaths[attacker]:
                         for (m, n) in path:
                             if (x == m and y == n):
-                                victims.append(unit)
-                                attackers.append(guy)
+                                victims.append(victim)
+                                attackers.append(attacker)
                                 break
         print "Attackers: %s\nVictims: %s" % (attackers, victims)
         index = 0
@@ -384,6 +415,7 @@ class World:
         self.__createBulletPaths()
         self.__dealBulletDamage()
         self.__cleanupDead()
+        self.__spawnUnits()
         self.currentTurn += 1
 
 

@@ -1,6 +1,8 @@
 import ai
 import random
 import world
+from collections import defaultdict
+import itertools
 AIClass = "SharkAI"
 
 class SharkAI(ai.AI):
@@ -8,28 +10,15 @@ class SharkAI(ai.AI):
         ai.AI.__init__(self, *args, **kwargs)
 
     def _init(self):
-        stats = world.Stats(armor=1, attack=1, sight=1, energy=1, speed=5, team=self.teamName, ai_id=self.ai_id)
-        self.unit1 = self.wt.createUnit(stats)
-        self.unit2 = self.wt.createUnit(stats)
-        self.unit3 = self.wt.createUnit(stats)
-        self.unit4 = self.wt.createUnit(stats)
-        self.unit1.name = 'jaws'
-        self.unit2.name = 'whitey'
-        self.unit3.name = 'bigtooth'
-        self.unit4.name = 'hump'
         self.ms = self.wt.getMapSize() - 1
-        self.corners = {
-                            self.unit1 : (0, 0),
-                            self.unit2 : (self.ms, 0),
-                            self.unit3 : (0, self.ms),
-                            self.unit4 : (self.ms, self.ms)
-        }
-        self.torandom = { self.unit1 : False,
-                          self.unit2 : False,
-                          self.unit3 : False,
-                          self.unit4 : False
-        }
-
+        self.corners = [
+                       (0, 0),
+                       (self.ms, 0),
+                       (0, self.ms),
+                       (self.ms, self.ms) ]
+        self.torandom = defaultdict(bool)
+        self.unit_corners = {}
+        self.corner_cycler = itertools.cycle(self.corners)
         self.squares = {}
 
     def prey(self, unit):
@@ -41,7 +30,14 @@ class SharkAI(ai.AI):
 
 
     def patrol(self, unit):
-        corner = self.corners[unit]
+        if not unit in self.unit_corners:
+            self.unit_corners[unit] = next(self.corner_cycler)
+
+        if not unit in self.squares:
+            x = random.randint(0, self.wt.getMapSize()-1)
+            y = random.randint(0, self.wt.getMapSize()-1)
+            self.squares[unit] = (x,y)
+        corner = self.unit_corners[unit]
         if unit.isAlive():
             if unit.getEnergy() > 0:
                 if unit.getPosition() == corner:
@@ -61,7 +57,7 @@ class SharkAI(ai.AI):
                     if self.torandom[unit]:
                         unit.move(self.squares[unit])
                     else:
-                        unit.move(self.corners[unit])
+                        unit.move(self.unit_corners[unit])
 
     def _spin(self):
         print "Spinning my AI and my AI tells me that it is the %s iteration" % (self.wt.getCurrentTurn())

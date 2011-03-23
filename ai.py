@@ -31,4 +31,8 @@ class AI:
 
     def _spin(self):
         """ Needs to be implemented """
+
+    def _new_unit(self, unit):
+        """ Needs to be implemented """
+
 # vim: set expandtab shiftwidth=4 softtabstop=4 textwidth=79:

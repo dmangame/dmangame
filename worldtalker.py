@@ -19,7 +19,7 @@ class WorldTalker:
         if unit.__class__ == mapobject.Unit:
             return self.__getStats(unit).ai_id
         elif unit.__class__ == mapobject.Building:
-            return self.__world.buildings[unit]
+            return self.__world.buildings[unit].ai_id
 
     def getOwner(self, unit):
         return self.__getOwner(unit)

@@ -2,6 +2,8 @@
 import ai
 import random
 import world
+import itertools
+from collections import defaultdict
 AIClass = "CaptureAI"
 
 class CaptureAI(ai.AI):
@@ -9,27 +11,10 @@ class CaptureAI(ai.AI):
         ai.AI.__init__(self, *args, **kwargs)
 
     def _init(self):
-        stats = world.Stats(armor=1, attack=1, sight=1, energy=1, speed=5, team=self.teamName, ai_id=self.ai_id)
-        self.unit1 = self.wt.createUnit(stats)
-        self.unit2 = self.wt.createUnit(stats)
-        self.unit3 = self.wt.createUnit(stats)
-        self.unit4 = self.wt.createUnit(stats)
-        self.unit1.name = 'dumpy'
-        self.unit2.name = 'grumpy'
-        self.unit3.name = 'lumpy'
-        self.unit4.name = 'numpy'
         self.ms = self.wt.getMapSize() - 1
-        self.corners = {
-                            self.unit1 : (0, 0),
-                            self.unit2 : (self.ms, 0),
-                            self.unit3 : (0, self.ms),
-                            self.unit4 : (self.ms, self.ms)
-        }
-        self.torandom = { self.unit1 : False,
-                          self.unit2 : False,
-                          self.unit3 : False,
-                          self.unit4 : False
-        }
+        self.corner_cycler = itertools.cycle([ (0, 0), (self.ms, 0), (0, self.ms), (self.ms, self.ms) ])
+        self.corners = {}
+        self.torandom = defaultdict(bool)
 
         self.squares = {}
 
@@ -48,6 +33,8 @@ class CaptureAI(ai.AI):
           return True
 
     def search_for_buildings(self, unit):
+        if not unit in self.corners:
+          self.corners[unit] = next(self.corner_cycler)
         corner = self.corners[unit]
         if unit.isAlive():
             if unit.getEnergy() > 0:

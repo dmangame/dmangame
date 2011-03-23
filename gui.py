@@ -1,16 +1,10 @@
 
-try:
-  import pyximport
-  print 'Gearing up with Cython'
-  pyximport.install(pyimport=True)
-except Exception, e:
-  print e
-
 
 import ai
 import gobject
 import gtk
 import mapobject
+import itertools
 import random
 import world
 import worldtalker
@@ -37,16 +31,18 @@ class MapGUI:
         self.world = world.World()
         self.wt = worldtalker.WorldTalker(self.world)
         self.AI = []
+        self.ai_cycler = itertools.cycle(self.AI)
         self.colors = {}
 
     def add_ai(self, ai):
         a = ai(self.wt)
         self.AI.append(a)
         a._init()
+        print a.ai_id
 
-    def add_building(self):
+    def add_building(self, ai=None):
         b = mapobject.Building(self.wt)
-        self.world.buildings[b] = None
+        self.world.buildings[b] = next(self.ai_cycler)
         self.world.map.placeObject(b,
           self.world.map.getRandomSquare())
 
@@ -87,6 +83,13 @@ class MapGUI:
 #       Draw the squares a unit sees ( using circle) in a really light unit color.
 #
         # try getting the color from our color dictionary.
+        for owner in self.AI:
+          if not owner in self.colors:
+              color = random.choice(AI_COLORS)
+              while color in self.colors.values():
+                  color = random.choice(AI_COLORS)
+              self.colors[owner] = color
+
         for unit in self.world.units:
             stats = self.world.units[unit]
             owner = stats.ai_id
@@ -177,13 +180,12 @@ if __name__ == "__main__":
             print e
 
     m = MapGUI()
-    m.add_ai(randomai.RandomAI)
+#    m.add_ai(randomai.RandomAI)
     m.add_ai(cornerai.CornerAI)
     m.add_ai(sharkai.SharkAI)
-    m.add_ai(captureai.CaptureAI)
-    m.add_building()
-    m.add_building()
-    m.add_building()
+#    m.add_ai(captureai.CaptureAI)
+    for ai in m.AI:
+      m.add_building()
     gobject.timeout_add(100, m.auto_spinner)
     gtk.main()
 

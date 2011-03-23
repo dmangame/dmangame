@@ -137,6 +137,7 @@ class Map:
             ydir = -1
 
 
+        # [TODO] Generate this the right way
         while x != m or y != n:
             #print (x,y), (m,n)
             if x - m != 0:
