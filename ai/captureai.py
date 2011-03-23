@@ -19,7 +19,7 @@ class CaptureAI(ai.AI):
         self.squares = {}
 
     def prey(self, unit):
-        buildings = self.wt.getVisibleBuildings(unit)
+        buildings = unit.getVisibleBuildings()
         for b in buildings:
           pos = self.wt.getPosition(b)
           if b.getOwner() == self.ai_id:

@@ -34,15 +34,15 @@ class SharkAI(ai.AI):
             self.unit_corners[unit] = next(self.corner_cycler)
 
         if not unit in self.squares:
-            x = random.randint(0, self.wt.getMapSize()-1)
-            y = random.randint(0, self.wt.getMapSize()-1)
+            x = random.randint(0, self.ms)
+            y = random.randint(0, self.ms)
             self.squares[unit] = (x,y)
         corner = self.unit_corners[unit]
         if unit.isAlive():
             if unit.getEnergy() > 0:
                 if unit.getPosition() == corner:
-                    x = random.randint(0, self.wt.getMapSize()-1)
-                    y = random.randint(0, self.wt.getMapSize()-1)
+                    x = random.randint(0, self.ms)
+                    y = random.randint(0, self.ms)
                     self.squares[unit] = (x,y)
                     self.torandom[unit] = True
                 try:

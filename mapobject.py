@@ -82,6 +82,9 @@ class Unit(MapObject):
     def getVisibleSquares(self):
         return self.__wt.getVisibleSquares(self)
 
+    def getVisibleBuildings(self):
+        return self.__wt.getVisibleBuildings(self)
+
     def isVisible(self, unit):
         return self.__wt.isVisible(unit)
 

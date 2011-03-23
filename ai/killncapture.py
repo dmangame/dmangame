@@ -22,7 +22,7 @@ class KillNCapture(ai.AI):
         self.squares = {}
 
     def prey(self, unit):
-        buildings = self.wt.getVisibleBuildings(unit)
+        buildings = unit.getVisibleBuildings()
         if unit.isCapturing():
           return True
 
