@@ -118,7 +118,6 @@ class WorldTalker:
     def getVictims(self, unit, square):
         ai_id = self.getID()
         path = self.__world.map.getBulletPath(self.__world.map.getPosition(unit), square, self.__world.bulletRange)
-        print self.__world.map.getPosition(unit), square, path
         victims = []
         for unit in self.__world.units:
             if self.__world.map.getPosition(unit) in path:
@@ -128,29 +127,32 @@ class WorldTalker:
     # If unit is none, return all squares visible to the AI
     # else return only visible squares to the unit
     def getVisibleSquares(self, unit=None):
-        if not self.__cached_turn == self.getCurrentTurn():
+        if self.__cached_turn < self.getCurrentTurn():
             self.__cached_visible_squares = {}
             self.__cached_turn = self.getCurrentTurn()
 
-        if not unit:
-            ai_id = self.getID()
-            squares = {}
-            for unit in self.getUnits():
+        vs_key = unit or self.getID()
+
+        if not vs_key in self.__cached_visible_squares:
+            if not unit:
+                ai_id = self.getID()
+                squares = set()
+                for unit in self.getUnits():
+                    stats = self.__getStats(unit)
+                    square = self.getPosition(unit)
+                    # TODO Properly calculate the sight of the unit.
+                    moves = self.__world.map.getLegalMoves(square, stats.sight)
+                    squares.update(moves)
+
+                self.__cached_visible_squares[vs_key] = squares
+                return squares
+            else:
+                self.checkOwner(unit)
                 stats = self.__getStats(unit)
                 square = self.getPosition(unit)
-                # TODO Properly calculate the sight of the unit.
-                moves = self.__world.map.getLegalMoves(square, stats.sight)
-                for s in moves:
-                    squares[s] = True
-            self.__cached_visible_squares[ai_id] = squares.keys()
-            return squares.keys()
-        else:
-            self.checkOwner(unit)
-            stats = self.__getStats(unit)
-            square = self.getPosition(unit)
-            squares = self.__world.map.getLegalMoves(square, stats.sight)
-            self.__cached_visible_squares[unit] = squares
-            return squares
+                squares = self.__world.map.getLegalMoves(square, stats.sight)
+                self.__cached_visible_squares[vs_key] = squares
+        return self.__cached_visible_squares[vs_key]
 
 
     def getVisibleBuildings(self, unit):

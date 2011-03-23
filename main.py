@@ -49,7 +49,7 @@ def loadAI(ais):
                      ai_modules)
     return ai_classes
 
-if __name__ == "__main__":
+def main():
   options, args = parseOptions()
   print options
   ais = loadAI(args)
@@ -57,3 +57,8 @@ if __name__ == "__main__":
     gui.main(ais)
   else:
     cli.main(ais)
+
+if __name__ == "__main__":
+#  import cProfile
+#  cProfile.run("main()", "mainprof")
+  main()

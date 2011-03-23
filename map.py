@@ -58,23 +58,35 @@ class Map:
 
     # Get all squares within radius n of square
     def getLegalMoves(self, square, n):
-        lm_key = ",".join(map(str, [square, n]))
+        lm_key = (square, n, )
         if not lm_key in self.__legal_moves:
-          d = {}
+          d = set()
           x,y = square
-          d[(x,y)] = 1
+          d.add((x,y))
+
           for i in xrange (0, n+1):
-              for j in xrange(0, n+1):
-                  if i + j <= n:
-                      if (x+i < self.size) and (y+j < self.size):
-                          d[(x+i, y+j)] = 1
-                      if (x+i < self.size) and (y-j >= 0):
-                          d[(x+i, y-j)] = 1
-                      if (x-i >= 0) and (y+j < self.size):
-                          d[(x-i, y+j)] = 1
-                      if (x-i >= 0) and (y-j >= 0):
-                          d[(x-i, y-j)] = 1
-          self.__legal_moves[lm_key] = d.keys()
+              for j in xrange(min(n-i, i+1), max(n-i, i+1)):
+                  # i in x, j in y
+                  if (x+i < self.size) and (y+j < self.size):
+                      d.add((x+i, y+j))
+                  if (x+i < self.size) and (y-j >= 0):
+                      d.add((x+i, y-j))
+                  if (x-i >= 0) and (y+j < self.size):
+                      d.add((x-i, y+j))
+                  if (x-i >= 0) and (y-j >= 0):
+                      d.add((x-i, y-j))
+
+                  # j in x, i in y
+                  if (x+j < self.size) and (y+i < self.size):
+                      d.add((x+j, y+i))
+                  if (x+j < self.size) and (y-i >= 0):
+                      d.add((x+j, y-i))
+                  if (x-j >= 0) and (y+i < self.size):
+                      d.add((x-j, y+i))
+                  if (x-j >= 0) and (y-i >= 0):
+                      d.add((x-j, y-i))
+
+          self.__legal_moves[lm_key] = d
         return self.__legal_moves[lm_key]
 
     # Get the distance between x,y and m,n
@@ -126,9 +138,10 @@ class Map:
                 if y == n:
                     return [(m,n)]
                 else:
-                        slope = 1.0
+                    slope = 1.0
             else:
-                    slope = float(n-y)/float(m-x)
+                slope = float(n-y)/float(m-x)
+
             path = []
             i = 0.0
             j = 0.0

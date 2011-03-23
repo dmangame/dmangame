@@ -10,7 +10,15 @@ import random
 import world
 import worldtalker
 
-AI_COLORS = [ (1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1) ]
+AI_COLORS = [(1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1) ]
+
+
+def random_ai_color():
+  r = random.randint(0, 10)
+  g = random.randint(0, 10)
+  b = random.randint(0, 10)
+  return map(lambda x: x/float(10), [r,g,b])
+
 
 
 class MapGUI:
@@ -85,9 +93,9 @@ class MapGUI:
         # try getting the color from our color dictionary.
         for owner in self.AI:
           if not owner in self.colors:
-              color = random.choice(AI_COLORS)
+              color = random_ai_color()
               while color in self.colors.values():
-                  color = random.choice(AI_COLORS)
+                  color = random_ai_color()
               self.colors[owner] = color
 
         for unit in self.world.units:
