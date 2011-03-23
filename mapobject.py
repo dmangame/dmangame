@@ -15,7 +15,7 @@ class Building(MapObject):
         self.__stats = {
                         "armor"   : 1,
                         "attack"  : 1,
-                        "sight"   : 5,
+                        "sight"   : 1,
                         "energy"  : 1,
                         "speed"   : 5
                        }

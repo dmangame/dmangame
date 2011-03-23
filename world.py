@@ -5,6 +5,10 @@ import mapobject
 import math
 from collections import defaultdict
 
+import logging
+log = logging.getLogger("WORLD")
+logging.basicConfig(level=logging.DEBUG)
+
 CAPTURE_LENGTH=3
 UNIT_SPAWN_MOD=CAPTURE_LENGTH*10
 # Exceptions
@@ -74,7 +78,6 @@ class CaptureEvent:
         self.__count -= 1
 
     def isFinished(self):
-        print "Count", self.__count
         return self.__count <= 0
 
 # Consists of a unit and an end square.
@@ -164,7 +167,7 @@ class World:
 
         self.bullets[bullet] = self.bulletRange # set the bullets range
         self.map.placeObject(bullet, self.map.getPosition(unit))
-        print "%s shoots towards %s" % (unit, target)
+        log.debug("%s shoots towards %s", unit, target)
 
         garbage.append(event)
 
@@ -178,9 +181,8 @@ class World:
         pathshort = pathlong[:speed]
         self.unitpaths[unit] = pathshort
         endsquare = pathshort[-1]
-        print "Moving %s from %s to %s" % (unit, self.map.getPosition(unit), endsquare)
+        log.debug("Moving %s from %s to %s" , unit, self.map.getPosition(unit), endsquare)
         self.map.placeObject(unit, endsquare)
-        #print self.unitpaths
         if pathlong == pathshort:
             garbage.append(event)
 
@@ -189,7 +191,7 @@ class World:
         unit = event.getUnit()
         self.capturing[unit] = True
         if event.isFinished():
-          print "Finished capturing square"
+          log.debug("Finished capturing square")
           building = event.getBuilding()
           stats = self.units[unit]
           owner = stats.ai
@@ -202,7 +204,7 @@ class World:
         events = self.events #self.__eventQueue.getPendingEvents()
         garbage = [] # Put events to be removed in here
         for event in events:
-            print "Handling %s" % event
+            log.info("Handling %s", event)
             if event.getType() == 'Capture':
                 self.__handleCaptureEvent(event, garbage)
             elif event.getType() == 'Shoot':
@@ -222,7 +224,7 @@ class World:
                 self.alive[unit] = False
 
                 if not unit in self.died:
-                    print "%s died" % (unit)
+                    log.info("%s died", (unit))
                     self.died.append(unit)
 
     def __spawnUnit(self, statsdict, owner, square):
@@ -240,7 +242,7 @@ class World:
         for b in self.buildings:
           if self.currentTurn % UNIT_SPAWN_MOD == 0:
             owner = self.buildings[b]
-            print "Spawn units time"
+            log.info("Spawning Units")
             if owner:
               square = self.map.getPosition(b)
               self.__spawnUnit(b.getStats(), owner, square)
@@ -281,7 +283,8 @@ class World:
                                 victims.append(victim)
                                 attackers.append(attacker)
                                 break
-        print "Attackers: %s\nVictims: %s" % (attackers, victims)
+        log.info("Attackers: %s", attackers)
+        log.info("Victims:   %s", victims)
         index = 0
         while index < len(victims):
             victim = victims[index]
@@ -358,6 +361,12 @@ class World:
     # Creaters
     def createUnit(self, stats, square):
 
+        # modify the stats and copy them for our world.
+        stats = copy.copy(stats)
+        stats.energy = stats.energy * 50
+        stats.attack = stats.attack/2.0
+        stats.sight = stats.sight*3 + self.bulletRange
+
         unit = mapobject.Unit(self.wt, stats)
         self.units[unit] = stats
 
@@ -369,16 +378,15 @@ class World:
         return unit
 
     def createShootEvent(self, unit, square, range):
-        print "Creating ShootEvent: Unit %s to Square %s" % (unit, square)
+        log.debug("Creating ShootEvent: Unit %s to Square %s", unit, square)
         if isValidSquare(square, self.mapSize):
             e = ShootEvent(unit, square, range)
             self.events.append(e)
         else:
             raise IllegalSquareException(square)
-            #print "Target square for %s is out of range" % (unit)
 
     def createMoveEvent(self, unit, square):
-        print "Creating MoveEvent: Unit %s to Square %s" % (unit, square)
+        log.debug("Creating MoveEvent: Unit %s to Square %s", unit, square)
         if isValidSquare(square, self.mapSize):
             e = MoveEvent(unit, square)
             self.events.append(e)
@@ -386,7 +394,7 @@ class World:
             raise IllegalSquareException(square)
 
     def createCaptureEvent(self, unit, building):
-        print "Creating CaptureEvent: Unit %s to Building %s" % (unit, building)
+        print log.debug("Creating CaptureEvent: Unit %s to Building %s", unit, building)
         if self.map.getPosition(unit) == self.map.getPosition(building):
         #I'm trying to check if the unit is inside the building
         #we will also have to check if there are enemies inside
@@ -408,7 +416,7 @@ class World:
 
     # Runs the world one iteration
     def Turn(self):
-        print "Turning the World"
+        log.debug("Turning the World")
         self.__clearPaths()
         self.__processPendingEvents()
         self.__createUnitPaths()

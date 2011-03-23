@@ -9,7 +9,6 @@ class WorldTalker:
     def __init__(self, world):
         self.__world = world
         self.__world.wt = self
-        self.__bases = {}
         #self.__eq = world.getQueue()
 
     def __getStats(self, unit):
@@ -51,31 +50,6 @@ class WorldTalker:
                     square) <= self.__world.bulletRange:
                 units.append(vunit)
         return units
-
-
-
-
-
-    def createUnit(self, stats):
-        if (stats.armor + stats.attack + stats.energy + stats.sight + stats.speed) > self.__world.mapSize/10:
-                raise InvalidStatsException("Stats total more than allowed")
-        # check energy stat to make sure it is greater than 1.
-        elif stats.energy < 1:
-                # game it end
-                pass
-        else:
-            # modify the stats and copy them for our world.
-            stats = copy.copy(stats)
-            stats.energy = stats.energy * 50
-            stats.attack = stats.attack/2.0
-            stats.sight = stats.sight*3 + self.__world.bulletRange
-            if not stats.ai_id in self.__bases:
-                x = random.randint(0, self.__world.mapSize-1)
-                y = random.randint(0, self.__world.mapSize-1)
-                self.__bases[stats.ai_id] = (x, y)
-
-            # create unit, biatch
-            return self.__world.createUnit(stats, self.__bases[stats.ai_id])
 
     # Get functions
 

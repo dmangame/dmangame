@@ -81,91 +81,90 @@ class Map:
         #print "Calculating bullet path from %s to %s" % ((x,y), (m,n))
         bp_key = ",".join(map(str, (x,y,m,n)))
         if not bp_key in self.__bullet_paths:
+            path = []
+            if x-m is 0:
+                    path = [(x, i+1) for i in xrange(min(y, n), min(y, n) + R)]
+            elif y-n is 0:
+                    path = [(j+1, y) for j in xrange(min(x, m), min(x, m) + R)]
+            else:
+                    slope = abs(float(n-y)/float(m-x))
+                    if slope < 1:
+                            xmovement = 1
+                            ymovement = slope
+                    else:
+                            xmovement = 1/slope
+                            ymovement = 1
+                    if x > m:
+                            xmovement = -xmovement
+                    if y > n:
+                            ymovement = -ymovement
+                    index = 0
+                    x += .5
+                    y += .5
+                    while index <= R and self.isValidSquare((x,y)):
+                            x += xmovement
+                            y += ymovement
+                            #print x,y
+                            path.append((int(x), int(y)))
+                            index += 1
 
-          path = []
-          if x-m is 0:
-                  path = [(x, i+1) for i in xrange(min(y, n), min(y, n) + R)]
-          elif y-n is 0:
-                  path = [(j+1, y) for j in xrange(min(x, m), min(x, m) + R)]
-          else:
-                  slope = abs(float(n-y)/float(m-x))
-                  if slope < 1:
-                          xmovement = 1
-                          ymovement = slope
-                  else:
-                          xmovement = 1/slope
-                          ymovement = 1
-                  if x > m:
-                          xmovement = -xmovement
-                  if y > n:
-                          ymovement = -ymovement
-                  index = 0
-                  x += .5
-                  y += .5
-                  while index <= R and self.isValidSquare((x,y)):
-                          x += xmovement
-                          y += ymovement
-                          #print x,y
-                          path.append((int(x), int(y)))
-                          index += 1
 
-
-          self.__bullet_paths[bp_key] = path
+            self.__bullet_paths[bp_key] = path
         return self.__bullet_paths[bp_key]
 
     # Get the path a unit takes when travelling from (x,y) to (m,n)
     def getUnitPath(self, (x, y), (m, n)):
         up_key = ",".join(map(str, (x,y,m,n)))
         if not up_key in self.__unit_paths:
-          print "Calculating path from %s to %s" % ((x, y), (m, n))
-          if x == m:
-              if y == n:
-                  return [(m,n)]
-              else:
-                      slope = 1.0
-          else:
-                  slope = float(n-y)/float(m-x)
-          path = []
-          i = 0.0
-          j = 0.0
-          xdir = 1
-          ydir = 1
-          if abs(slope) < 1:
-                  xmovement = 1
-                  ymovement = slope
-          else:
-              xmovement = 1/slope
-              ymovement = 1
+            print "Calculating path from %s to %s" % ((x, y), (m, n))
+            if x == m:
+                if y == n:
+                    return [(m,n)]
+                else:
+                        slope = 1.0
+            else:
+                    slope = float(n-y)/float(m-x)
+            path = []
+            i = 0.0
+            j = 0.0
+            xdir = 1
+            ydir = 1
+            if abs(slope) < 1:
+                    xmovement = 1
+                    ymovement = slope
+            else:
+                xmovement = 1/slope
+                ymovement = 1
 
-          #print xmovement, ymovement
-          if (x > m):
-              xmovement = -xmovement
-              xdir = -1
-          if (y > n):
-              ymovement = -ymovement
-              ydir = -1
+            #print xmovement, ymovement
+            if (x > m):
+                xmovement = -xmovement
+                xdir = -1
+            if (y > n):
+                ymovement = -ymovement
+                ydir = -1
 
 
-          # [TODO] Generate this the right way
-          while x != m or y != n:
-              #print (x,y), (m,n)
-              if x - m != 0:
-                  for b in xrange(abs(int(xmovement+i))):
-                      x += xdir
-                      path.append((x,y))
-                      if x == m:
-                          break
-                  i = (xmovement+i)-int(xmovement+i)
+            # [TODO] Generate this the right way
+            while x != m or y != n:
+                #print (x,y), (m,n)
+                if x - m != 0:
+                    for b in xrange(abs(int(xmovement+i))):
+                        x += xdir
+                        path.append((x,y))
+                        if x == m:
+                            break
+                    i = (xmovement+i)-int(xmovement+i)
 
-              if y - n != 0:
-                  for a in xrange(abs(int(ymovement+j))):
-                      y += ydir
-                      path.append((x,y))
-                      if y == n:
-                          break
-                  j = (ymovement+j)-int(ymovement+j)
+                if y - n != 0:
+                    for a in xrange(abs(int(ymovement+j))):
+                        y += ydir
+                        path.append((x,y))
+                        if y == n:
+                            break
+                    j = (ymovement+j)-int(ymovement+j)
 
-          self.__unit_paths[up_key] = path
+            self.__unit_paths[up_key] = path
         return self.__unit_paths[up_key]
 
 
