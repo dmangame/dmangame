@@ -35,7 +35,7 @@ class MapGUI:
         self.window.add(box)
         self.window.show_all()
         self.map_area.connect("expose-event", self.map_expose_event_cb)
-        self.window.resize(750, 750)
+        self.window.resize(250, 250)
         self.window.connect("destroy", gtk.main_quit)
 
         # Initialize the world

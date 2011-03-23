@@ -4,13 +4,12 @@ import map
 import mapobject
 import math
 from collections import defaultdict
+import settings
 
 import logging
 log = logging.getLogger("WORLD")
 logging.basicConfig(level=logging.INFO)
 
-CAPTURE_LENGTH=3
-UNIT_SPAWN_MOD=CAPTURE_LENGTH*10
 
 # Exceptions
 class DeadUnitException(Exception):
@@ -247,7 +246,7 @@ class World:
         return unit
 
     def __spawnUnits(self):
-        if self.currentTurn % UNIT_SPAWN_MOD == 0:
+        if self.currentTurn % settings.UNIT_SPAWN_MOD == 0:
           log.info("Spawning Units")
           for b in self.buildings:
             owner = self.buildings[b]
@@ -306,7 +305,7 @@ class World:
 
     def __cleanupDead(self):
         for unit in self.died:
-            self.dead_units[unit] = copy.copy(self.units[unit]) 
+            self.dead_units[unit] = copy.copy(self.units[unit])
             self.__unitCleanup(unit)
         self.died = []
 
@@ -365,9 +364,10 @@ class World:
 
         # modify the stats and copy them for our world.
         stats = copy.copy(stats)
-        stats.energy = stats.energy * 50
-        stats.attack = stats.attack/2.0
-        stats.sight = stats.sight*3 + self.bulletRange
+        stats.armor  = int(stats.armor  * settings.ARMOR_MODIFIER)
+        stats.energy = int(stats.energy * settings.ENERGY_MODIFIER)
+        stats.attack = int(stats.attack * settings.ATTACK_MODIFIER)
+        stats.sight  = int((stats.sight * self.bulletRange) * settings.SIGHT_MODIFIER)
 
         unit = mapobject.Unit(self.wt, stats)
         self.units[unit] = stats
@@ -401,7 +401,7 @@ class World:
         #I'm trying to check if the unit is inside the building
         #we will also have to check if there are enemies inside
         #the building, but I'm not sure how
-            e = CaptureEvent(unit, building, CAPTURE_LENGTH)
+            e = CaptureEvent(unit, building, settings.CAPTURE_LENGTH)
             self.events.append(e)
         else:
             raise IllegalCaptureEvent("The unit is not in the building.")
