@@ -18,6 +18,7 @@ from optparse import OptionParser
 
 import cli
 import gui
+import world
 
 def parseOptions():
     parser = OptionParser()
@@ -72,6 +73,6 @@ def main():
       cli.end_game()
 
 if __name__ == "__main__":
-#  import cProfile
-#  cProfile.run("main()", "mainprof")
-  main()
+  import cProfile
+  cProfile.run("main()", "mainprof")
+#  main()

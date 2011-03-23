@@ -82,34 +82,31 @@ class CaptureEvent:
 
 # Consists of a unit and an end square.
 class MoveEvent:
-    def __init__(self, unit, (x, y)):
+    def __init__(self, unit, square):
         self.__unit = unit
-        self.__endsquare = (x, y)
+        self.__endsquare = square
         self.__type = 'Move'
 
     def getType(self):
         return self.__type
-    def getUnit(self):
-        return self.__unit
 
     def getUnit(self):
         return self.__unit
+
 
     def getEndSquare(self):
         return self.__endsquare
 
 # Consists of a unit and a target square.
 class ShootEvent:
-    def __init__(self, unit, (x, y), range):
+    def __init__(self, unit, square, range):
         self.__type = 'Shoot'
         self.__unit = unit
-        self.__target = (x, y)
+        self.__target = square
 
 
     def getType(self):
         return self.__type
-    def getUnit(self):
-        return self.__unit
 
     def getUnit(self):
         return self.__unit
@@ -118,7 +115,8 @@ class ShootEvent:
         return self.__target
 
 
-def isValidSquare((x,y), N):
+def isValidSquare(square, N):
+    x, y = square
     return x < N and x >= 0 and y < N and y >= 0
 
 class Stats:
@@ -268,11 +266,10 @@ class World:
         for bullet in remove_bullets:
             self.map.removeObject(bullet)
             del self.bullets[bullet]
-            del bullet
+
         for event in self.events:
             if event.getUnit() == unit:
                 self.events.remove(event)
-                del event
         if unit in self.unitpaths:
             del self.unitpaths[unit]
 
@@ -417,10 +414,15 @@ class World:
         return self.currentTurn
 
     def getStats(self, unit):
-      if unit in self.units:
-        return self.units[unit]
-      if unit in self.dead_units:
-        return self.dead_units[unit]
+      # Doing the actual exception check is way slower than
+      # doing the exception handling, for some reason
+      try:
+        try:
+          return self.units[unit]
+        except:
+          return self.dead_units[unit]
+      except:
+        pass
 
     # Runs the world one iteration
     def Turn(self):
