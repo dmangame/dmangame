@@ -10,13 +10,6 @@ import random
 import world
 import worldtalker
 
-try:
-  import pyxbuild
-  print 'Gearing up with Cython'
-  pyximport.install(pyimport=True)
-except Exception, e:
-  print e
-
 AI_COLORS = [ (1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1) ]
 
 
@@ -174,25 +167,18 @@ class MapGUI:
         return True
 
 
-if __name__ == "__main__":
+def main(ais=[]):
     import sys
     import os
-    sys.path.append("ai")
-    for f in glob.glob("ai/*.py"):
-        try:
-            print "Loading %s..." % (f),
-            exec "import %s" % (os.path.basename(os.path.splitext(f)[0]))
-            print "Done"
-        except Exception, e:
-            print e
 
     m = MapGUI()
-#    m.add_ai(randomai.RandomAI)
-    m.add_ai(cornerai.CornerAI)
-    m.add_ai(sharkai.SharkAI)
-#    m.add_ai(captureai.CaptureAI)
+    for ai in ais:
+      m.add_ai(ai)
+
     for ai in m.AI:
       m.add_building()
     gobject.timeout_add(100, m.auto_spinner)
     gtk.main()
 
+if __name__ == "__main__":
+  main()

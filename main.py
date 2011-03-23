@@ -1,44 +1,62 @@
 #! /usr/bin/env python
+try:
+  import pyximport
+  print 'Gearing up with Cython'
+  pyximport.install(pyimport=True)
+except Exception, e:
+  print e
 
-import ai
+
+import glob
 import os
-import world
-import worldtalker
+import sys
+import imp
+from optparse import OptionParser
 
-LIFESPAN = 10
+import cli
+import gui
+
+def parseOptions():
+    parser = OptionParser()
+    parser.add_option("-g", "--gui", dest="gui",
+                      help="Display GUI", default=False,
+                      action="store_true")
+    parser.add_option("-q", "--quiet",
+                      action="store_false", dest="verbose", default=True,
+                      help="don't print status messages to stdout")
+
+    (options, args) = parser.parse_args()
+    return options,args
+
+
+def loadAI(ais):
+    if not ais:
+      return
+
+    ai_modules = []
+    sys.path.append("ai")
+    for f in ais:
+        try:
+            print "Loading %s..." % (f),
+            file, pathname, desc = imp.find_module(f)
+            print file, pathname, desc
+            m = imp.load_module(f, file, pathname, desc)
+            ai_modules.append(m)
+            print "Done"
+            print m
+        except Exception, e:
+            print e
+
+    ai_classes = map(lambda m: getattr(m, m.AIClass),
+                     ai_modules)
+    print ai_classes
+    return ai_classes
+
 if __name__ == "__main__":
-    try:
-        for file in os.listdir("ai"):
-            print file
-    except WindowsError, e:
-        print "Couldn't find AI directory"
-
-
-    w = world.World(LIFESPAN)
-    wt = worldtalker.WorldTalker(w)
-    AI = []
-    AI.append(ai.AI(wt))
-
-    stats = world.Stats()
-    unit1 = wt.createUnit(stats)
-    unit1.name = "goomba"
-    w.map.placeObject(unit1, (1, 2))
-
-    unit2 = wt.createUnit(stats)
-    unit2.name = "koopa"
-    w.map.placeObject(unit2, (5, 5))
-
-
-    # Create AI
-    for turn in xrange(w.getLifeSpan()):
-        for ai in AI:
-            print ""
-            ai._spin()
-#            try:
-#                ai.spin()
-#            except Exception, e:
-#                print "AI raised exception %s, skipping this turn for it" % (e)
-
-        w.Turn()
-    print "Finished simulating the world, press Enter to exit"
-    raw_input()
+  options, args = parseOptions()
+  print options
+  ais = loadAI(args)
+  if options.gui:
+    gui.main(ais)
+  else:
+    cli.main(ais)

@@ -11,6 +11,7 @@ logging.basicConfig(level=logging.INFO)
 
 CAPTURE_LENGTH=3
 UNIT_SPAWN_MOD=CAPTURE_LENGTH*10
+
 # Exceptions
 class DeadUnitException(Exception):
     def __init__(self, value):
