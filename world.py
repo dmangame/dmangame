@@ -364,9 +364,9 @@ class World:
 
         # modify the stats and copy them for our world.
         stats = copy.copy(stats)
-        stats.armor  = int(stats.armor  * settings.ARMOR_MODIFIER)
-        stats.energy = int(stats.energy * settings.ENERGY_MODIFIER)
-        stats.attack = int(stats.attack * settings.ATTACK_MODIFIER)
+        stats.armor  = stats.armor  * settings.ARMOR_MODIFIER
+        stats.energy = stats.energy * settings.ENERGY_MODIFIER
+        stats.attack = stats.attack * settings.ATTACK_MODIFIER
         stats.sight  = int((stats.sight * self.bulletRange) * settings.SIGHT_MODIFIER)
 
         unit = mapobject.Unit(self.wt, stats)
