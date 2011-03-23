@@ -21,6 +21,9 @@ class WorldTalker:
         elif unit.__class__ == mapobject.Building:
             return self.__world.buildings[unit]
 
+    def getOwner(self, unit):
+        return self.__getOwner(unit)
+
     def isAlive(self, unit):
         return self.__world.alive[unit]
 

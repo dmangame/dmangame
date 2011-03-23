@@ -143,10 +143,6 @@ class World:
 
         self.capturing = defaultdict(bool)
         self.buildings = {}
-        for i in xrange(num_buildings):
-          b = mapobject.Building(self)
-          self.buildings[b] = None
-          self.map.placeObject(b, self.map.getRandomSquare())
         #self.eventQueue = EventQueue(self.events, self.mapSize)
         self.unitpaths = {}
         self.bulletpaths = {}
@@ -194,9 +190,10 @@ class World:
         if event.isFinished():
           print "Finished capturing square"
           building = event.getBuilding()
-          building.setOwner(unit.getTeam(), self)
+          stats = self.units[unit]
+          owner = stats.ai_id
           self.capturing[unit] = False
-          self.buildings[building] = unit.getTeam()
+          self.buildings[building] = owner
           garbage.append(event)
 
 

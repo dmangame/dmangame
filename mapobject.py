@@ -9,16 +9,12 @@ class MapObject:
 # therefore, we are going to use the world as a key when trying to set the owner, so for each building instantiated,
 # it should be passed the World in the constructor
 class Building(MapObject):
-    def __init__(self, world):
-        self.__world = world
+    def __init__(self, worldtalker):
+        self.__wt = worldtalker
         self.__owner = None
 
-    def setOwner(self, owner, id):
-        if id == self.__world:
-            self.__owner = owner
-
     def getOwner(self):
-        return self.__owner
+        return self.__wt.getOwner(self)
 
 class Bullet(MapObject):
     def __init__(self, unit, target):

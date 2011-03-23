@@ -44,6 +44,12 @@ class MapGUI:
         self.AI.append(a)
         a._init()
 
+    def add_building(self):
+        b = mapobject.Building(self.wt)
+        self.world.buildings[b] = None
+        self.world.map.placeObject(b,
+          self.world.map.getRandomSquare())
+
     def draw_grid(self):
         allocation = self.map_area.get_allocation()
 
@@ -126,8 +132,15 @@ class MapGUI:
                 self.cairo_context.set_source_rgb(*color)
             elif unit.__class__ == mapobject.Bullet:
                 self.cairo_context.set_source_rgb(0, 0, 0)
+            elif unit.__class__ == mapobject.Building:
+                owner = unit.getOwner()
+                if owner:
+                    color = self.colors[owner]
+                    self.cairo_context.set_source_rgb(*color)
+                else:
+                    self.cairo_context.set_source_rgb(0.2,0.2,0.2)
             else:
-                self.cairo_context.set_source_rgb(0, 1, 0)
+                self.cairo_context.set_source_rgb(0,0,0)
             x,y = self.world.map.getPosition(unit)
             self.cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
             self.cairo_context.fill()
@@ -168,6 +181,9 @@ if __name__ == "__main__":
     m.add_ai(cornerai.CornerAI)
     m.add_ai(sharkai.SharkAI)
     m.add_ai(captureai.CaptureAI)
+    m.add_building()
+    m.add_building()
+    m.add_building()
     gobject.timeout_add(100, m.auto_spinner)
     gtk.main()
 

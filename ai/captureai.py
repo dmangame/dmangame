@@ -37,7 +37,7 @@ class CaptureAI(ai.AI):
         buildings = self.wt.getVisibleBuildings(unit)
         for b in buildings:
           pos = self.wt.getPosition(b)
-          if b.getOwner() == self.teamName:
+          if b.getOwner() == self.ai_id:
             continue
 
           if not unit.isCapturing():
