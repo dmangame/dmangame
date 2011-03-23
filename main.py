@@ -39,17 +39,14 @@ def loadAI(ais):
         try:
             print "Loading %s..." % (f),
             file, pathname, desc = imp.find_module(f)
-            print file, pathname, desc
             m = imp.load_module(f, file, pathname, desc)
             ai_modules.append(m)
             print "Done"
-            print m
         except Exception, e:
             print e
 
     ai_classes = map(lambda m: getattr(m, m.AIClass),
                      ai_modules)
-    print ai_classes
     return ai_classes
 
 if __name__ == "__main__":
