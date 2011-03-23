@@ -6,7 +6,7 @@ import math
 from collections import defaultdict
 
 CAPTURE_LENGTH=3
-UNIT_SPAWN_MOD=10
+UNIT_SPAWN_MOD=CAPTURE_LENGTH*10
 # Exceptions
 class DeadUnitException(Exception):
     def __init__(self, value):
