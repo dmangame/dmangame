@@ -39,7 +39,7 @@ class KillNCapture(ai.AI):
 
           return True
 
-        victims = unit.inRange() # Only returns enemies
+        victims = unit.getVisibleEnemies() # Only returns enemies
         if victims:
           unit.shoot(victims[0].getPosition())
           return True

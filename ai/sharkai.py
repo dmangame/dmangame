@@ -22,7 +22,7 @@ class SharkAI(ai.AI):
         self.squares = {}
 
     def prey(self, unit):
-        victims = unit.inRange()
+        victims = unit.getVisibleEnemies()
         if len(victims) == 0:
             return False
         unit.shoot(victims[0].getPosition())

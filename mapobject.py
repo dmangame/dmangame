@@ -57,33 +57,11 @@ class Unit(MapObject):
     def getPosition(self):
         return self.__wt.getPosition(self)
 
-    def inRange(self):
-        # Returns all (enemy?) units in shooting range
-        return self.__wt.inRange(self)
-
     def isAlive(self):
         return self.__wt.isAlive(self)
 
     def isCapturing(self):
         return self.__wt.isCapturing(self)
-
-    def getVictims(self, target_square):
-        return self.__wt.getVictims(self, target_square)
-
-    def getDistance(self, target_square):
-        return self.__wt.getDistance(self, target_square)
-
-    def getBulletPath(self, target_square):
-        return self.__wt.getBulletPath(self, target_square)
-
-    def getUnitPath(self, target_square):
-        return self.__wt.getUnitPath(self, target_square)
-
-    def getVisibleSquares(self):
-        return self.__wt.getVisibleSquares(self)
-
-    def getVisibleBuildings(self):
-        return self.__wt.getVisibleBuildings(self)
 
     def isVisible(self, unit):
         return self.__wt.isVisible(unit)
@@ -93,6 +71,28 @@ class Unit(MapObject):
 
     def getTeam(self):
         return self.__wt.getTeam(self)
+
+    def getBulletPath(self, target_square):
+        return self.__wt.getBulletPath(self, target_square)
+
+    def getDistance(self, target_square):
+        return self.__wt.getDistance(self, target_square)
+
+    def getUnitPath(self, target_square):
+        return self.__wt.getUnitPath(self, target_square)
+
+    def getVictims(self, target_square):
+        return self.__wt.getVictims(self, target_square)
+
+    def getVisibleSquares(self):
+        return self.__wt.getVisibleSquares(self)
+
+    def getVisibleBuildings(self):
+        return self.__wt.getVisibleBuildings(self)
+
+    def getVisibleEnemies(self):
+        # Returns all (enemy?) units in shooting range
+        return self.__wt.inRange(self)
 
 
     # Main events
