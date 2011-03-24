@@ -19,15 +19,17 @@ class CaptureAI(ai.AI):
 
     def prey(self, unit):
         buildings = unit.visible_buildings
+        if unit.is_capturing:
+          return True
+
         for b in buildings:
           if b.owner == self.ai_id:
             continue
 
-          if not unit.is_capturing:
-            if unit.position == b.position:
-              unit.capture(b)
-            else:
-              unit.move(b.position)
+          if unit.position == b.position:
+            unit.capture(b)
+          else:
+            unit.move(b.position)
           return True
 
     def search_for_buildings(self, unit):
