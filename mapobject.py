@@ -6,9 +6,6 @@ class MapObject:
     def __init__():
         pass
 
-# Buildings have to have owners, but the owner should only be settable by the World,
-# therefore, we are going to use the world as a key when trying to set the owner, so for each building instantiated,
-# it should be passed the World in the constructor
 class Building(MapObject):
     def __init__(self, worldtalker):
         self.__wt = worldtalker
@@ -21,10 +18,12 @@ class Building(MapObject):
                        }
 
     def getOwner(self):
+        " Returns the owner of the building"
         return self.__wt.getOwner(self)
     owner = property(getOwner)
 
     def getStats(self):
+        " Returns a copy of this building's unit stat generation"
         return copy.copy(self.__stats)
     stats = property(getStats)
 
@@ -46,7 +45,7 @@ class Bullet(MapObject):
     target = property(getTarget)
 
 class Unit(MapObject):
-    """ 
+    """
     Represents a Unit on the map. A Unit can move, shoot or capture for events, at the moment
     """
     # What can a unit do?
@@ -108,8 +107,11 @@ class Unit(MapObject):
         return self.__wt.inRange(self)
     visible_enemies = property(getVisibleEnemies)
 
-    # Helpers
     def calcBulletPath(self, target_square):
+        """
+        Calculates the path a bullet takes to get from the
+        unit's position to target_square
+        """
         return self.__wt.calcBulletPath(self, target_square)
 
     def calcDistance(self, target_square):

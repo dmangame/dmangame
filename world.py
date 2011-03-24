@@ -235,7 +235,7 @@ class World:
         stats = Stats(**statsdict)
         stats.ai = owner
         stats.ai_id = owner.ai_id
-        unit = self.createUnit(stats, square)
+        unit = self.__createUnit(stats, square)
         try:
           owner._new_unit(unit)
         except Exception, e:
@@ -307,6 +307,28 @@ class World:
         self.died = []
 
 
+    # Creates a unit with stats on square.
+    # This is not a validated creation, so it will always
+    # create the unit
+    def __createUnit(self, stats, square):
+
+        # modify the stats and copy them for our world.
+        stats = copy.copy(stats)
+        stats.armor  = stats.armor  * settings.ARMOR_MODIFIER
+        stats.energy = stats.energy * settings.ENERGY_MODIFIER
+        stats.attack = stats.attack * settings.ATTACK_MODIFIER
+        stats.sight  = int((stats.sight * self.bulletRange) * settings.SIGHT_MODIFIER)
+
+        unit = mapobject.Unit(self.wt, stats)
+        self.units[unit] = stats
+
+        stats.unit = unit
+        self.alive[unit] = True
+
+        # This is only temporary, but place the units at the 0, 0 square.
+        self.map.placeObject(unit, square)
+        return unit
+
     # Generate unit paths for units that haven't moved this turn, so when
     # we are doing bullet/path intersections stationary units will get hit.
     def __createUnitPaths(self):
@@ -357,24 +379,6 @@ class World:
 
     # Public Functions
     # Creaters
-    def createUnit(self, stats, square):
-
-        # modify the stats and copy them for our world.
-        stats = copy.copy(stats)
-        stats.armor  = stats.armor  * settings.ARMOR_MODIFIER
-        stats.energy = stats.energy * settings.ENERGY_MODIFIER
-        stats.attack = stats.attack * settings.ATTACK_MODIFIER
-        stats.sight  = int((stats.sight * self.bulletRange) * settings.SIGHT_MODIFIER)
-
-        unit = mapobject.Unit(self.wt, stats)
-        self.units[unit] = stats
-
-        stats.unit = unit
-        self.alive[unit] = True
-
-        # This is only temporary, but place the units at the 0, 0 square.
-        self.map.placeObject(unit, square)
-        return unit
 
     def createShootEvent(self, unit, square, range):
         log.debug("Creating ShootEvent: Unit %s to Square %s", unit, square)
@@ -436,7 +440,7 @@ class World:
         self.__spawnUnits()
         self.currentTurn += 1
 
-    def calculateScore(self, ai_id):
+    def calcScore(self, ai_id):
         alive = 0
         for unit in self.units:
           if self.wt.getOwner(unit) == ai_id:

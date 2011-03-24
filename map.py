@@ -14,6 +14,7 @@ class Map:
         self.__unit_paths = {}
         self.__legal_moves = {}
 
+    # Returns a random valid square on the map
     def getRandomSquare(self):
         return (random.randint(0, self.size), random.randint(0, self.size))
 
@@ -51,6 +52,7 @@ class Map:
     def getAllObjects(self):
         return self.objectMap.keys()
 
+    # Returns if the square falls within map boundaries
     def isValidSquare(self, square):
         x,y = square
         return x < self.size and x >= 0 and y < self.size and y >= 0

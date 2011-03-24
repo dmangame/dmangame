@@ -239,7 +239,7 @@ class WorldTalker:
         self.__world.createShootEvent(unit, square, self.__world.bulletRange)
 
 
-    def calculateScore(self, ai_id):
+    def calcScore(self, ai_id):
         if ai_id == self.getID():
-            return self.__world.calculateScore(ai_id)
+            return self.__world.calcScore(ai_id)
 # vim: set expandtab shiftwidth=4 softtabstop=4 textwidth=79:

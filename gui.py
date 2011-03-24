@@ -201,7 +201,7 @@ def main(ais=[]):
 
 def end_game():
   for ai in m.AI:
-    log.info("%s:%s", ai.__class__, ai.calculateScore())
+    log.info("%s:%s", ai.__class__, ai.score)
 
 if __name__ == "__main__":
   main()

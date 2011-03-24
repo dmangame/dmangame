@@ -46,13 +46,13 @@ class AI:
         return self.wt.getVisibleUnits()
     visible_enemies = property(getVisibleUnits)
 
-    def calculateScore(self):
+    def calcScore(self):
         """ 
         Returns the AI's current score - number of units killed + number of
         units still alive
         """
-        return self.wt.calculateScore(self.ai_id)
-    score = property(calculateScore)
+        return self.wt.calcScore(self.ai_id)
+    score = property(calcScore)
 
     def currentTurn(self):
         """
