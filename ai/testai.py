@@ -1,5 +1,5 @@
 import ai
-AIClass = "CornerAI"
+AIClass = "TestAI"
 
 import logging
 log = logging.getLogger("TestAI")
