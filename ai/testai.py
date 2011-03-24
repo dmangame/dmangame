@@ -8,7 +8,7 @@ log = logging.getLogger("TestAI")
 class TestAI(ai.AI):
     def __init__(self, *args, **kwargs):
         ai.AI.__init__(self, *args, **kwargs)
-        
+
     def _init(self):
         log.info( "Initializing")
 

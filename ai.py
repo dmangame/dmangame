@@ -10,13 +10,6 @@ class AI:
         self.teamName = "Default AI"
 
 
-    def pathsIntersect(self, path1, path2):
-        for x,y in path1:
-            for m, n in path2:
-                if x == m and y == n:
-                    return True
-        return False
-
     def getMyUnits(self):
         return self.wt.getUnits()
     my_units = property(getMyUnits)

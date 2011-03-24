@@ -3,6 +3,14 @@ import world
 import itertools
 AIClass = "CornerAI"
 
+# TODO: put this in a utility library or something
+def pathsIntersect(self, path1, path2):
+    for x,y in path1:
+        for m, n in path2:
+            if x == m and y == n:
+                return True
+    return False
+
 class CornerAI(ai.AI):
     def __init__(self, *args, **kwargs):
         ai.AI.__init__(self, *args, **kwargs)
@@ -29,7 +37,7 @@ class CornerAI(ai.AI):
                         continue
                     unit_square = self.unitsquares[vunit]
                     vunitpath = vunit.getUnitPath(unit_square, )
-                    if self.pathsIntersect(bulletpath, vunitpath):
+                    if pathsIntersect(bulletpath, vunitpath):
                         shoot = False
                         break
                 if shoot:
