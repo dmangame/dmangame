@@ -98,6 +98,15 @@ class WorldTalker:
     def getTeam(self, unit):
         return self.__world.units[unit].team
 
+    def getBuildings(self):
+        ai_id = self.getID()
+        buildings = []
+        for building in self.__world.buildings:
+            if self.__getOwner(building) == ai_id:
+                buildings.append(building)
+
+        return buildings
+
     def getUnits(self):
         ai_id = self.getID()
         units = []
@@ -155,7 +164,7 @@ class WorldTalker:
         return self.__cached_visible_squares[vs_key]
 
 
-    def getVisibleBuildings(self, unit):
+    def getVisibleBuildings(self, unit=None):
         ai_id = self.getID()
         squares = self.getVisibleSquares(unit)
         buildings = []

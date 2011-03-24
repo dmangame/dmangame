@@ -14,6 +14,14 @@ class AI:
         return self.wt.getUnits()
     my_units = property(getMyUnits)
 
+    def getMyBuildings(self):
+        return self.wt.getBuildings()
+    my_buildings = property(getMyBuildings)
+
+    def getVisibleBuildings(self):
+        return self.wt.getVisibleBuildings()
+    visible_buildings = property(getVisibleBuildings)
+
     def getVisibleSquares(self):
         return self.wt.getVisibleSquares()
     visible_squares = property(getVisibleSquares)
