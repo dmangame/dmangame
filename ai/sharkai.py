@@ -5,6 +5,7 @@ import itertools
 AIClass = "SharkAI"
 
 class SharkAI(ai.AI):
+    color = (0,0,0)
     def __init__(self, *args, **kwargs):
         ai.AI.__init__(self, *args, **kwargs)
 

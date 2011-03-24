@@ -1,6 +1,7 @@
 
 
 import ai
+import gc
 import glob
 import gobject
 import gtk
@@ -93,21 +94,20 @@ class MapGUI:
 #       Draw the squares a unit sees ( using circle) in a really light unit color.
 #
         # try getting the color from our color dictionary.
-        for owner in self.AI:
-          if not owner in self.colors:
-              color = random_ai_color()
-              while color in self.colors.values():
-                  color = random_ai_color()
-              self.colors[owner] = color
-
-        for unit in self.world.units:
-            stats = self.world.units[unit]
-            owner = stats.ai_id
-            if not owner in self.colors:
+        for ai in self.AI:
+          if not ai.ai_id in self.colors:
+              try:
+                color = ai.__class__.color
+              except:
                 color = random_ai_color()
                 while color in self.colors.values():
                     color = random_ai_color()
-                self.colors[owner] = color
+              self.colors[ai.ai_id] = color
+
+        for unit in self.world.units:
+            stats = self.world.units[unit]
+            ai_id = stats.ai_id
+            color = self.colors[ai_id]
 
         for building in self.world.buildings:
             owner = building.owner
@@ -132,8 +132,8 @@ class MapGUI:
         # Draw the unit paths
         for unit in self.world.unitpaths:
             path = self.world.unitpaths[unit]
-            owner = self.world.units[unit].ai_id
-            color = map(lambda x: x/2.0, self.colors[owner])
+            ai_id = self.world.units[unit].ai_id
+            color = map(lambda x: x/2.0, self.colors[ai_id])
             self.cairo_context.set_source_rgb(*color)
             for x,y in path:
                 self.cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
@@ -151,15 +151,15 @@ class MapGUI:
         for unit in self.world.map.getAllObjects():
             x,y = self.world.map.getPosition(unit)
             if unit.__class__ == mapobject.Unit:
-                owner = self.world.units[unit].ai_id
-                color = self.colors[owner]
+                ai_id = self.world.units[unit].ai_id
+                color = self.colors[ai_id]
                 self.cairo_context.set_source_rgb(*color)
             elif unit.__class__ == mapobject.Bullet:
                 self.cairo_context.set_source_rgb(0, 0, 0)
             elif unit.__class__ == mapobject.Building:
-                owner = unit.owner
-                if owner in self.colors:
-                    color = self.colors[owner]
+                ai_id = unit.owner
+                if ai_id in self.colors:
+                    color = self.colors[ai_id]
                     self.cairo_context.set_source_rgb(*color)
                 else:
                     self.cairo_context.set_source_rgb(0.2,0.2,0.2)
