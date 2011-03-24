@@ -72,6 +72,9 @@ class Map:
 
         for i in xrange (0, n+1):
             for j in xrange(min(n-i, i+1), max(n-i, i+1)):
+                if (x + i) > self.size:
+                  continue
+
                 # i in x, j in y
                 if (x+i < self.size) and (y+j < self.size):
                     d.add((x+i, y+j))

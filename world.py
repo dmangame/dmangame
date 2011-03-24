@@ -107,7 +107,6 @@ class World:
         self.units = {} # instead of a list, it will point to the unit's attributes.
         self.mapSize = mapsize
         self.map = map.Map(self.mapSize)
-        self.bullets = []
         self.currentTurn = 0
         self.events = []
 
@@ -121,6 +120,7 @@ class World:
         self.died = []
         self.dead_units = {}
         self.oldbullets = []
+        self.bullet_endings = defaultdict(bool)
         self.bulletRange = self.mapSize/8
         self.bulletSpeed = self.mapSize/10
 
@@ -130,11 +130,16 @@ class World:
         unit = event.getUnit()
         target = event.getTarget()
         # Build the bullet with shooter, target square and range
-        bullet = mapobject.Bullet(unit, target)
-
-        self.bullets[bullet] = self.bulletRange # set the bullets range
-        self.map.placeObject(bullet, self.map.getPosition(unit))
         log.debug("%s shoots towards %s", unit, target)
+        bullet = mapobject.Bullet(unit, target)
+        position = self.map.getPosition(unit)
+        range = self.bulletRange
+
+        path = self.map.calcBulletPath(position, target, min(range, self.bulletSpeed))
+        log.debug("Path is: %s", path)
+
+        self.bullets[bullet] = path
+        self.map.placeObject(bullet, position)
 
         garbage.append(event)
 
@@ -315,27 +320,22 @@ class World:
         for bullet in self.oldbullets:
             self.map.removeObject(bullet)
         for bullet in self.bullets:
-            position = self.map.getPosition(bullet)
-            target = bullet.getTarget()
+            path = self.bullets[bullet]
             unit = bullet.getUnit()
-            range = self.bullets[bullet]
+            traversed_path = path[:self.bulletSpeed]
+            remaining_path = path[self.bulletSpeed+1:]
 
-            # Build the bullet path from the event's current position to the
-            # target, with the range being the minimum of the range left on the
-            # bullet and the allowed range (mapsize/10) of bullets.
-            path = self.map.calcBulletPath(position, target, min(range, self.bulletSpeed))
-            try:
-                self.bulletpaths[unit].append(path)
-            except KeyError:
-                self.bulletpaths[unit] = [path]
-            endsquare = path[-1]
+            if traversed_path:
 
-            range -= self.mapSize / 10
+              try:
+                  self.bulletpaths[unit].append(traversed_path)
+              except KeyError:
+                  self.bulletpaths[unit] = [traversed_path]
 
-            # If the bullet has no more range left on it, we don't put it back
-            # in our bullet list, otherwise it goes back in.
-            if range > 0:
-                bullets[bullet] = range
+              endsquare = traversed_path[-1]
+
+            if remaining_path:
+                bullets[bullet] = remaining_path
             else:
                 oldbullets.append(bullet)
 
@@ -402,7 +402,7 @@ class World:
 
     # Runs the world one iteration
     def Turn(self):
-        log.debug("Turning the World, %s", self.currentTurn)
+        log.info("Turning the World, %s", self.currentTurn)
         self.__clearPaths()
         self.__processPendingEvents()
         self.__createUnitPaths()
