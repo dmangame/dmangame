@@ -3,7 +3,7 @@ import itertools
 AIClass = "CornerAI"
 
 # TODO: put this in a utility library or something
-def pathsIntersect(self, path1, path2):
+def pathsIntersect(path1, path2):
     for x,y in path1:
         for m, n in path2:
             if x == m and y == n:
