@@ -37,8 +37,8 @@ class Map:
         try:
             return self.objectMap[mapobject]
         except KeyError, e:
-            log.debug("Get Position errored with: %s", e)
-            return None
+            pass
+#            log.debug("Get Position errored with: %s", e)
 
 
     # Returns the mapobject on square

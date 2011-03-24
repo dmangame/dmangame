@@ -96,7 +96,7 @@ class WorldTalker:
         return stats
 
     def getTeam(self, unit):
-        return self.__getStats(unit).team
+        return self.__world.units[unit].team
 
     def getUnits(self):
         ai_id = self.getID()
