@@ -58,37 +58,39 @@ class Map:
     # Get all squares within radius n of square
     def getLegalMoves(self, square, n):
         lm_key = str((square, n, ))
-        if not lm_key in self.__legal_moves:
-          log.debug("Calculating legal moves for %s",(str(lm_key)))
-          d = set()
-          x,y = square
-          d.add((x,y))
+        try:
+          return self.__legal_moves[lm_key]
+        except:
+          pass
 
-          for i in xrange (0, n+1):
-              for j in xrange(min(n-i, i+1), max(n-i, i+1)):
-                  # i in x, j in y
-                  if (x+i < self.size) and (y+j < self.size):
-                      d.add((x+i, y+j))
-                  if (x+i < self.size) and (y-j >= 0):
-                      d.add((x+i, y-j))
-                  if (x-i >= 0) and (y+j < self.size):
-                      d.add((x-i, y+j))
-                  if (x-i >= 0) and (y-j >= 0):
-                      d.add((x-i, y-j))
+        log.debug("Calculating legal moves for %s",(str(lm_key)))
+        d = set()
+        x,y = square
+        d.add((x,y))
 
-                  # j in x, i in y
-                  if (x+j < self.size) and (y+i < self.size):
-                      d.add((x+j, y+i))
-                  if (x+j < self.size) and (y-i >= 0):
-                      d.add((x+j, y-i))
-                  if (x-j >= 0) and (y+i < self.size):
-                      d.add((x-j, y+i))
-                  if (x-j >= 0) and (y-i >= 0):
-                      d.add((x-j, y-i))
+        for i in xrange (0, n+1):
+            for j in xrange(min(n-i, i+1), max(n-i, i+1)):
+                # i in x, j in y
+                if (x+i < self.size) and (y+j < self.size):
+                    d.add((x+i, y+j))
+                if (x+i < self.size) and (y-j >= 0):
+                    d.add((x+i, y-j))
+                if (x-i >= 0) and (y+j < self.size):
+                    d.add((x-i, y+j))
+                if (x-i >= 0) and (y-j >= 0):
+                    d.add((x-i, y-j))
 
-          self.__legal_moves[lm_key] = d
-        else:
-          log.debug("Using cached legal moves for %s",(str(lm_key)))
+                # j in x, i in y
+                if (x+j < self.size) and (y+i < self.size):
+                    d.add((x+j, y+i))
+                if (x+j < self.size) and (y-i >= 0):
+                    d.add((x+j, y-i))
+                if (x-j >= 0) and (y+i < self.size):
+                    d.add((x-j, y+i))
+                if (x-j >= 0) and (y-i >= 0):
+                    d.add((x-j, y-i))
+
+        self.__legal_moves[lm_key] = d
         return self.__legal_moves[lm_key]
 
     # Get the distance between x,y and m,n

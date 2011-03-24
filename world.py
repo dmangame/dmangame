@@ -134,7 +134,7 @@ class Stats:
 # as well as running each turn, checking for end conditions
 # and maintaining units and the map.
 class World:
-    def __init__(self, mapsize=100):
+    def __init__(self, mapsize=settings.MAP_SIZE):
         self.AI = []
         self.units = {} # instead of a list, it will point to the unit's attributes.
         self.mapSize = mapsize
