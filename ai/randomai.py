@@ -13,7 +13,7 @@ class RandomAI(ai.AI):
     def _spin(self):
         # I am gonna tell my AI to randomly shoot in a direction or move to a random square.
         # Cool, right?
-        for unit in self.getMyUnits():
+        for unit in self.my_units:
             func = random.choice([unit.move, unit.shoot])
             while True:
                 try:

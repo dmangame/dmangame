@@ -13,7 +13,7 @@ class TestAI(ai.AI):
         log.info( "Initializing")
 
     def _spin(self):
-        log.info( "Spinning my AI and my AI tells me that it is the %s iteration" % (self.wt.getCurrentTurn()) )
+        log.info( "Spinning my AI and my AI tells me that it is the %s iteration" % (self.current_turn))
         log.info( "I own these units: ", self.getMyUnits())
         log.info( "and I can see these units: %s" % self.getVisibleUnits())
         log.info( self.unit1.testFunc())

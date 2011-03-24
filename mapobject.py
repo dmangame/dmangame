@@ -28,6 +28,11 @@ class Building(MapObject):
         return copy.copy(self.__stats)
     stats = property(getStats)
 
+    def getPosition(self):
+        " Returns the position of this Unit on the map"
+        return self.__wt.getPosition(self)
+    position = property(getPosition)
+
 class Bullet(MapObject):
     def __init__(self, unit, target):
         self.__target = target

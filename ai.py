@@ -5,6 +5,7 @@ import world
 class AI:
     def __init__(self, worldtalker):
         self.wt = worldtalker
+        self.mapsize = self.wt.getMapSize() - 1
         self.ai_id = random.randint(-100000000, 100000000)
         self.teamName = "Default AI"
 

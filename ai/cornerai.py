@@ -8,37 +8,35 @@ class CornerAI(ai.AI):
         ai.AI.__init__(self, *args, **kwargs)
 
     def _init(self):
-        self.ms = self.wt.getMapSize() - 1
         self.unitsquares = {}
         self.corner_cycler = itertools.cycle([(0, 0),
-                                              (self.ms, 0),
-                                              (0, self.ms),
-                                              (self.ms, self.ms)])
+                                              (self.mapsize, 0),
+                                              (0, self.mapsize),
+                                              (self.mapsize, self.mapsize)])
 
 
     def moveToCorner(self, unit):
         corner = self.unitsquares[unit]
-        if unit.isAlive():
-            if unit.getEnergy() > 0:
-                if unit.getPosition() != corner:
-                    unit.move(corner, )
-                else:
-                    shoot = True
-                    target = (self.ms/2, self.ms/2)
-                    bulletpath = unit.getBulletPath(target, )[:self.wt.getBulletRange()]
-                    for vunit in self.getMyUnits():
-                        if unit == vunit:
-                            continue
-                        unit_square = self.unitsquares[vunit]
-                        vunitpath = vunit.getUnitPath(unit_square, )
-                        if self.pathsIntersect(bulletpath, vunitpath):
-                            shoot = False
-                            break
-                    if shoot:
-                        unit.shoot((self.ms/2, self.ms/2), )
+        if unit.is_alive:
+            if unit.position != corner:
+                unit.move(corner, )
+            else:
+                shoot = True
+                target = (self.mapsize/2, self.mapsize/2)
+                bulletpath = unit.getBulletPath(target, )[:self.wt.getBulletRange()]
+                for vunit in self.my_units:
+                    if unit == vunit:
+                        continue
+                    unit_square = self.unitsquares[vunit]
+                    vunitpath = vunit.getUnitPath(unit_square, )
+                    if self.pathsIntersect(bulletpath, vunitpath):
+                        shoot = False
+                        break
+                if shoot:
+                    unit.shoot((self.mapsize/2, self.mapsize/2), )
 
     def _spin(self):
-        for unit in self.getMyUnits():
+        for unit in self.my_units:
           self.moveToCorner(unit)
 
     def _new_unit(self, vunit):
