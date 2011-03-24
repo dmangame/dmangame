@@ -106,7 +106,7 @@ class Map:
     def calcBulletPath(self, start, end, R):
         x, y = start
         m, n = end
-        bp_key = ",".join(map(str, (x,y,m,n)))
+        bp_key = ",".join(map(str, (x,y,m,n,R)))
         if not bp_key in self.__bullet_paths:
             path = []
             if x-m is 0:
@@ -198,6 +198,7 @@ class Map:
 if __name__ == "__main__":
     m = Map(200)
     m.calcUnitPath((11, 13),(0, 193))
+    print m.calcBulletPath((0,0,), (5,5), 4)
     #x = "Just a unit"
     #m.placeObject(x, (0,0))
     #m.getPosition(x)

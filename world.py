@@ -277,9 +277,13 @@ class World:
     def __dealBulletDamage(self):
         victims = []
         attackers = []
-        for victim in self.unitpaths.keys():
+        for victim in self.unitpaths:
             for (x, y) in self.unitpaths[victim]:
-                for attacker in self.bulletpaths.keys():
+                for attacker in self.bulletpaths:
+                    # No direct fire at self.
+                    if attacker == victim:
+                      continue
+
                     for path in self.bulletpaths[attacker]:
                         for (m, n) in path:
                             if (x == m and y == n):
