@@ -13,10 +13,9 @@ class TestAI(ai.AI):
 
     def _spin(self):
         log.info( "Spinning my AI and my AI tells me that it is the %s iteration" % (self.current_turn))
-        log.info( "I own these units: ", self.my_units)
-        log.info( "and I can see these units: %s" % self.visible_units)
-        log.info( self.unit1.testFunc())
+        log.info( "I own these units: %s", self.my_units)
+        log.info( "and I can see these units: %s", self.visible_enemies)
         log.info( self.wt.getID())
 
     def _new_unit(self, unit):
-        log.info( "Yay, I received a new unit: %s" % (unit))
+        log.info( "Yay, I received a new unit: %s", unit)
