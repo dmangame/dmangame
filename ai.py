@@ -11,6 +11,9 @@ class AI:
 
 
     def getMyUnits(self):
+        """
+        Returns living units that belong to this AI instance
+        """
         return self.wt.getUnits()
     my_units = property(getMyUnits)
 
