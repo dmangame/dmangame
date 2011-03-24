@@ -18,15 +18,23 @@ class AI:
 
     def getMyUnits(self):
         return self.wt.getUnits()
+    my_units = property(getMyUnits)
 
     def getVisibleSquares(self):
         return self.wt.getVisibleSquares()
+    visible_squares = property(getVisibleSquares)
 
     def getVisibleUnits(self):
         return self.wt.getVisibleUnits()
+    visible_units = property(getVisibleUnits)
 
     def calculateScore(self):
         return self.wt.calculateScore(self.ai_id)
+    score = property(calculateScore)
+
+    def currentTurn(self):
+        return self.wt.getCurrentTurn()
+    current_turn = property(currentTurn)
 
     # Overrode definitions
     def _init(self):
