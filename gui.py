@@ -1,7 +1,6 @@
 
 
 import ai
-import gc
 import glob
 import gobject
 import gtk
@@ -75,7 +74,6 @@ class MapGUI:
     def draw_map(self):
         allocation = self.map_area.get_allocation()
         self.pango_context = self.map_area.create_pango_context()
-        self.gc = self.map_area.window.new_gc()
         self.cairo_context = self.map_area.window.cairo_create()
         self.surface = self.cairo_context.get_target()
 
