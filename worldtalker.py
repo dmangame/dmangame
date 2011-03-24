@@ -47,18 +47,18 @@ class WorldTalker:
                 continue
 #            if self.getPosition(vunit) in squares:
 #                print "%s is visible to %s" % (vunit, unit)
-            if square in squares and self.__world.map.getDistance(origin,
+            if square in squares and self.__world.map.calcDistance(origin,
                     square) <= self.__world.bulletRange:
                 units.append(vunit)
         return units
 
     # Get functions
 
-    def getBulletPath(self, unit, square):
+    def calcBulletPath(self, unit, square):
         ai_id = self.getID()
         if not unit in self.getVisibleUnits() and not unit in self.getUnits():
             return []
-        return self.__world.map.getBulletPath(self.__world.map.getPosition(unit), square, self.__world.bulletRange)
+        return self.__world.map.calcBulletPath(self.__world.map.getPosition(unit), square, self.__world.bulletRange)
 
     def getBulletRange(self):
         return self.__world.bulletRange
@@ -66,11 +66,11 @@ class WorldTalker:
     def getCurrentTurn(self):
         return self.__world.getLifeTime()
 
-    def getDistance(self, unit, square):
+    def calcDistance(self, unit, square):
         ai_id = self.getID()
         if self.isVisible(unit, ai_id) or unit in self.getUnits():
             unit_square = self.__world.map.getPosition(unit)
-            return self.__world.map.getDistance(unit_square, square)
+            return self.__world.map.calcDistance(unit_square, square)
         else:
             return None
 
@@ -116,17 +116,17 @@ class WorldTalker:
 
         return units
 
-    def getUnitPath(self, unit, square):
+    def calcUnitPath(self, unit, square):
         ai_id = self.getID()
         if not unit in self.getVisibleUnits() and unit not in self.getUnits():
             return []
-        return self.__world.map.getUnitPath(self.__world.map.getPosition(unit), square)
+        return self.__world.map.calcUnitPath(self.__world.map.getPosition(unit), square)
 
     # Return all the units that would be hit by a bullet shot at target square.
     # (Assuming they stay still)
-    def getVictims(self, unit, square):
+    def calcVictims(self, unit, square):
         ai_id = self.getID()
-        path = self.__world.map.getBulletPath(self.__world.map.getPosition(unit), square, self.__world.bulletRange)
+        path = self.__world.map.calcBulletPath(self.__world.map.getPosition(unit), square, self.__world.bulletRange)
         victims = []
         for unit in self.__world.units:
             if self.__world.map.getPosition(unit) in path:

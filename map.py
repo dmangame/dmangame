@@ -94,14 +94,14 @@ class Map:
         return self.__legal_moves[lm_key]
 
     # Get the distance between x,y and m,n
-    def getDistance(self, start, end):
+    def calcDistance(self, start, end):
         x,y = start
         m,n = end
         return math.sqrt((m-x)**2 + (n-y)**2)
 
     # Get the path a bullet takes from x,y to m,n
     # R is the range on the bullets...why is this here?
-    def getBulletPath(self, start, end, R):
+    def calcBulletPath(self, start, end, R):
         x, y = start
         m, n = end
         bp_key = ",".join(map(str, (x,y,m,n)))
@@ -137,7 +137,7 @@ class Map:
         return self.__bullet_paths[bp_key]
 
     # Get the path a unit takes when travelling from (x,y) to (m,n)
-    def getUnitPath(self, start, end):
+    def calcUnitPath(self, start, end):
         x,y = start
         m,n = end
         up_key = ",".join(map(str, (x,y,m,n)))
@@ -195,7 +195,7 @@ class Map:
 
 if __name__ == "__main__":
     m = Map(200)
-    m.getUnitPath((11, 13),(0, 193))
+    m.calcUnitPath((11, 13),(0, 193))
     #x = "Just a unit"
     #m.placeObject(x, (0,0))
     #m.getPosition(x)
@@ -204,5 +204,5 @@ if __name__ == "__main__":
     #m.removeObject(x)
     #m.getAllObjects()
     #m.getPosition(x)
-    path = m.getBulletPath((6, 16), (6, 70), int(m.size/8))
+    path = m.calcBulletPath((6, 16), (6, 70), int(m.size/8))
     #m.getlegalmoves((5,5), 2)

@@ -176,7 +176,7 @@ class World:
         endsquare = event.getEndSquare()
         speed = self.units[unit].speed
 
-        pathlong = self.map.getUnitPath(self.map.getPosition(unit), endsquare)
+        pathlong = self.map.calcUnitPath(self.map.getPosition(unit), endsquare)
         pathshort = pathlong[:speed]
         self.unitpaths[unit] = pathshort
         endsquare = pathshort[-1]
@@ -329,7 +329,7 @@ class World:
             # Build the bullet path from the event's current position to the
             # target, with the range being the minimum of the range left on the
             # bullet and the allowed range (mapsize/10) of bullets.
-            path = self.map.getBulletPath(position, target, min(range, self.bulletSpeed))
+            path = self.map.calcBulletPath(position, target, min(range, self.bulletSpeed))
             try:
                 self.bulletpaths[unit].append(path)
             except KeyError:

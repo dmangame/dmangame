@@ -31,12 +31,12 @@ class CornerAI(ai.AI):
             else:
                 shoot = True
                 target = (self.mapsize/2, self.mapsize/2)
-                bulletpath = unit.getBulletPath(target, )[:self.wt.getBulletRange()]
+                bulletpath = unit.calcBulletPath(target, )[:self.wt.getBulletRange()]
                 for vunit in self.my_units:
                     if unit == vunit:
                         continue
                     unit_square = self.unitsquares[vunit]
-                    vunitpath = vunit.getUnitPath(unit_square, )
+                    vunitpath = vunit.calcUnitPath(unit_square, )
                     if pathsIntersect(bulletpath, vunitpath):
                         shoot = False
                         break

@@ -46,6 +46,9 @@ class Bullet(MapObject):
     target = property(getTarget)
 
 class Unit(MapObject):
+    """ 
+    Represents a Unit on the map. A Unit can move, shoot or capture for events, at the moment
+    """
     # What can a unit do?
     # It can shoot, move and capture a square. Can two units occupy the same
     # square? I forget.
@@ -54,13 +57,11 @@ class Unit(MapObject):
         self.__wt = worldtalker
         self.__stats = stats
 
-    def testFunc(self):
-        return self.__wt.getID()
+    # Some functions the unit has access to.  The way it will
+    # use all these functions is by asking the worldtalker to
+    # do all teh dirty business.
 
-    # Some functions the unit has access to.
-    # The way it will use all these functions is by asking the worldtalker to do all
-    # teh dirty business.
-
+    # Properties
     def getPosition(self):
         " Returns the position of this Unit on the map"
         return self.__wt.getPosition(self)
@@ -72,7 +73,7 @@ class Unit(MapObject):
     is_alive = property(isAlive)
 
     def isCapturing(self):
-        " Returns if this unit is currently 'capturing' "
+        " Returns if this unit is currently capturing a building "
         return self.__wt.isCapturing(self)
     is_capturing = property(isCapturing)
 
@@ -91,21 +92,6 @@ class Unit(MapObject):
         return self.__wt.getTeam(self)
     team = property(getTeam)
 
-    def getBulletPath(self, target_square):
-        return self.__wt.getBulletPath(self, target_square)
-
-    def getDistance(self, target_square):
-        "Calculate distance from this unit to target square"
-        return self.__wt.getDistance(self, target_square)
-
-    def getUnitPath(self, target_square):
-        "Calculate the path this unit would take to get to target square"
-        return self.__wt.getUnitPath(self, target_square)
-
-    def getVictims(self, target_square):
-        "If the unit shot at target square, who would be hit?"
-        return self.__wt.getVictims(self, target_square)
-
     def getVisibleSquares(self):
         "Return all squares that are in the range of sight of this unit"
         return self.__wt.getVisibleSquares(self)
@@ -122,16 +108,48 @@ class Unit(MapObject):
         return self.__wt.inRange(self)
     visible_enemies = property(getVisibleEnemies)
 
-    # Main events
+    # Helpers
+    def calcBulletPath(self, target_square):
+        return self.__wt.calcBulletPath(self, target_square)
+
+    def calcDistance(self, target_square):
+        "Calculate distance from this unit to target square"
+        return self.__wt.calcDistance(self, target_square)
+
+    def calcUnitPath(self, target_square):
+        "Calculate the path this unit would take to get to target square"
+        return self.__wt.calcUnitPath(self, target_square)
+
+    def calcVictims(self, target_square):
+        "If the unit shot at target square, who would be hit?"
+        return self.__wt.calcVictims(self, target_square)
+
+    # Main actions
     def capture(self, b):
-        "Queue a capture event on building b"
+        """
+        this initiates a capture of the building if the unit
+        is occuping the same square as the building.  For a
+        capture to happen successfully, the Unit must stay in
+        the building for CAPTURE_LENGTH time after initiating
+        the capture.
+        """
         return self.__wt.capture(self, b)
 
     def move(self, (x,y)):
-        "Queue a move event to x,y"
+        """
+        this will move the unit towards (x,y) by their speed
+        amount in this round. You can continually call
+        unit.move(dest) until the unit arrives there.
+        """
+
         return self.__wt.move(self, (x, y))
 
     def shoot(self, (x, y)):
-        "Shoot a bullet towards x,y"
+        """
+          shoot a bullet towards (x,y), even if (x,y) is not
+          in range. The bullet will travel as far as it can
+          go. Any units who are in the path of the bullet at
+          the end of the round will take damage.
+        """
         return self.__wt.shoot(self, (x, y))
 

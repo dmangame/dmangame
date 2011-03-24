@@ -44,7 +44,6 @@ How far a unit can see on the map.
 ####ARMOR####
 Modifies much damage a unit absorbs when being hit by a bullet
 
-
 It is possible to have a map with multiple buildings spawning multiple units
 with different attributes, but it is not implemented yet.
 
@@ -67,66 +66,13 @@ inadvertently, an exception will be raised.
   square as the building.  For a capture to happen successfully, the Unit must
   stay in the building for a length of time after initiating the capture.
 
-### Properties ###
-
-####unit.position####
-The units current position on the map
-
-####unit.is_alive####
-If the unit is still alive on the map
-
-####unit.is_capturing####
-If the unit is in the middle of a capture event.
-
-####unit.energy####
-The unit's remaining health
-
-####unit.team####
-The string representing what team the unit is on
-
-####unit.visible_squares####
-All squares within SIGHT distance from unit
-
-####unit.visible_buildings####
-All buildings within SIGHT distance from unit
-
-####unit.visible_enemies####
-All enemies within SIGHT distance from the unit
-
-### Helpers ###
-
-####unit.isVisible(unit2)####
-Can unit see unit2?
-
-####unit.getBulletPath((x,y))####
-Give the path a bullet would take to get to x,y
-
-####unit.getDistance((x,y))####
-The distance to (x,y) for unit
-
-####unit.getVictims((x,y))####
-If the unit shot towards (x,y), who would be hit? Friendly fire is enabled, so
-be careful.
+See the pydocs for mapobject.py for more information on what
+a Unit can do.
 
 ## AI API ##
 
-### User Implemented ###
-
-####_init####
-####_spin####
-####\_new\_unit####
-
-### Properties ###
-
-####ai.visible_buildings####
-####ai.visible_enemies####
-####ai.visible_squares####
-####ai.my_units####
-####ai.my_buildings####
-####ai.current_turn####
-####ai.score####
-
-See ai/ for example implemented AIs.
+See ai.py for the available AI functions, and look in ai/ for
+example AIs.
 
 
 See Also:

@@ -15,26 +15,46 @@ class AI:
     my_units = property(getMyUnits)
 
     def getMyBuildings(self):
+        """
+        Returns all buildings that belong to this AI instance
+        """
+
         return self.wt.getBuildings()
     my_buildings = property(getMyBuildings)
 
     def getVisibleBuildings(self):
+        """
+        Returns all visible buildings
+        """
         return self.wt.getVisibleBuildings()
     visible_buildings = property(getVisibleBuildings)
 
     def getVisibleSquares(self):
+        """
+        Returns all visible squares to the AI (the set of all squares visible to the AI's units)
+        """
         return self.wt.getVisibleSquares()
     visible_squares = property(getVisibleSquares)
 
     def getVisibleUnits(self):
+        """
+        Returns all visible enemy units to the AI
+        """
         return self.wt.getVisibleUnits()
-    visible_units = property(getVisibleUnits)
+    visible_enemies = property(getVisibleUnits)
 
     def calculateScore(self):
+        """ 
+        Returns the AI's current score - number of units killed + number of
+        units still alive
+        """
         return self.wt.calculateScore(self.ai_id)
     score = property(calculateScore)
 
     def currentTurn(self):
+        """
+        Returns the world's current iteration
+        """
         return self.wt.getCurrentTurn()
     current_turn = property(currentTurn)
 
