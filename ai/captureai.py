@@ -17,7 +17,7 @@ class CaptureAI(ai.AI):
 
         self.squares = {}
 
-    def prey(self, unit):
+    def capture_building(self, unit):
         buildings = unit.visible_buildings
         if unit.is_capturing:
           return True
@@ -46,9 +46,7 @@ class CaptureAI(ai.AI):
             except KeyError:
                 pass
 
-            if self.prey(unit):
-                pass
-            else:
+            if not self.capture_building(unit):
                 if self.torandom[unit]:
                     unit.move(self.squares[unit])
                 else:
