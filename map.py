@@ -69,33 +69,37 @@ class Map:
         d = set()
         x,y = square
         d.add((x,y))
+        nd = set()
+        nd.add((x,y))
 
-        for i in xrange (0, n+1):
-            for j in xrange(min(n-i, i+1), max(n-i, i+1)):
-                if (x + i) > self.size:
-                  continue
 
-                # i in x, j in y
-                if (x+i < self.size) and (y+j < self.size):
-                    d.add((x+i, y+j))
-                if (x+i < self.size) and (y-j >= 0):
-                    d.add((x+i, y-j))
-                if (x-i >= 0) and (y+j < self.size):
-                    d.add((x-i, y+j))
-                if (x-i >= 0) and (y-j >= 0):
-                    d.add((x-i, y-j))
+        # All ways of getting moves N distance away:
+        for m in xrange(0, n+1):
+          # m is distance of move we are looking for
+          for i in xrange(0, m):
+            j = m - i
+            # i in x, j in y
+            if (x+i < self.size) and (y+j < self.size):
+                nd.add((x+i, y+j))
+            if (x+i < self.size) and (y-j >= 0):
+                nd.add((x+i, y-j))
+            if (x-i >= 0) and (y+j < self.size):
+                nd.add((x-i, y+j))
+            if (x-i >= 0) and (y-j >= 0):
+                nd.add((x-i, y-j))
 
-                # j in x, i in y
-                if (x+j < self.size) and (y+i < self.size):
-                    d.add((x+j, y+i))
-                if (x+j < self.size) and (y-i >= 0):
-                    d.add((x+j, y-i))
-                if (x-j >= 0) and (y+i < self.size):
-                    d.add((x-j, y+i))
-                if (x-j >= 0) and (y-i >= 0):
-                    d.add((x-j, y-i))
+            # j in x, i in y
+            if (x+j < self.size) and (y+i < self.size):
+                nd.add((x+j, y+i))
+            if (x+j < self.size) and (y-i >= 0):
+                nd.add((x+j, y-i))
+            if (x-j >= 0) and (y+i < self.size):
+                nd.add((x-j, y+i))
+            if (x-j >= 0) and (y-i >= 0):
+                nd.add((x-j, y-i))
 
-        self.__legal_moves[lm_key] = d
+
+        self.__legal_moves[lm_key] = nd
         return self.__legal_moves[lm_key]
 
     # Get the distance between x,y and m,n
@@ -201,7 +205,8 @@ class Map:
 if __name__ == "__main__":
     m = Map(200)
     m.calcUnitPath((11, 13),(0, 193))
-    print m.calcBulletPath((0,0,), (5,5), 4)
+    m.calcBulletPath((0,0,), (5,5), 4)
+    m.getLegalMoves((50, 50), 5)
     #x = "Just a unit"
     #m.placeObject(x, (0,0))
     #m.getPosition(x)
