@@ -7,11 +7,24 @@ You can find the latest version of the source code on [github][]
 
 [github]:http://github.com/okayzed/dmangame
 
+##Playing##
+
+Run:
+
+    # Run with graphics (you probably want this)
+    python main.py -g ai/captureai.py ai/killncapture.py
+    # Run without graphics
+    python main.py ai/capture.ai ai/killncapture.py
+    # Help
+    python main.py --help
+
+
 ##Purpose##
 
 To write an AI that competes against other AIs in a relatively simple world.
 The overall objective is to crush your enemies, see them driven before you, and
 to hear the lamentation of their pixels.
+
 
 ##Game Play##
 

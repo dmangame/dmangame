@@ -39,16 +39,20 @@ def loadAI(ais):
       return
 
     ai_modules = []
-    sys.path.append("ai")
-    for f in ais:
+    for filename in ais:
         try:
-            log.info("Loading %s..." % (f),)
-            file, pathname, desc = imp.find_module(f)
-            m = imp.load_module(f, file, pathname, desc)
+            log.info("Loading %s..." % (filename),)
+            file = open(filename)
+            split_ext = os.path.splitext(filename)
+            module_name = os.path.basename(split_ext[0])
+            module_type = filter(lambda x: x[0] == split_ext[1],
+                                 imp.get_suffixes())[0]
+
+            m = imp.load_module(module_name, file, filename, module_type)
             ai_modules.append(m)
             log.info("Done")
         except Exception, e:
-            log.info("Load Exception", e)
+            log.info("Error loading %s, %s", filename, e)
 
     ai_classes = map(lambda m: getattr(m, m.AIClass),
                      ai_modules)
