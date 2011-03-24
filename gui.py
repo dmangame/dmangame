@@ -139,6 +139,7 @@ class MapGUI:
 
         # Draw the mapobjects in different colors (based on whether it is a bullet or unit)
         for unit in self.world.map.getAllObjects():
+            x,y = self.world.map.getPosition(unit)
             if unit.__class__ == mapobject.Unit:
                 owner = self.world.units[unit].ai_id
                 color = self.colors[owner]
@@ -147,6 +148,9 @@ class MapGUI:
                 self.cairo_context.set_source_rgb(0, 0, 0)
             elif unit.__class__ == mapobject.Building:
                 owner = unit.getOwner()
+                self.cairo_context.set_source_rgb(0,0,0)
+                self.cairo_context.rectangle(deltax*x-2, deltay*y-2, deltax+4, deltay+4)
+                self.cairo_context.fill()
                 if owner in self.colors:
                     color = self.colors[owner]
                     self.cairo_context.set_source_rgb(*color)
@@ -154,7 +158,6 @@ class MapGUI:
                     self.cairo_context.set_source_rgb(0.2,0.2,0.2)
             else:
                 self.cairo_context.set_source_rgb(0,0,0)
-            x,y = self.world.map.getPosition(unit)
             self.cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
             self.cairo_context.fill()
 
