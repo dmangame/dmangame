@@ -111,10 +111,13 @@ class MapGUI:
 
         for building in self.world.buildings:
             owner = building.owner
-            x, y = self.world.map.getPosition(building)
-            self.cairo_context.set_source_rgb(0,0,0)
-            self.cairo_context.rectangle(deltax*x-(deltax/2), deltay*y-(deltay/2), 2*deltax, 2*deltay)
-            self.cairo_context.fill()
+            try:
+              x, y = self.world.map.getPosition(building)
+              self.cairo_context.set_source_rgb(0,0,0)
+              self.cairo_context.rectangle(deltax*x-(deltax/2), deltay*y-(deltay/2), 2*deltax, 2*deltay)
+              self.cairo_context.fill()
+            except TypeError:
+              pass
 
         for unit in self.world.units:
             if self.world.alive[unit]:

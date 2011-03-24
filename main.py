@@ -2,6 +2,7 @@
 
 import logging
 log = logging.getLogger("MAIN")
+
 try:
   import pyximport
   log.info('Gearing up with Cython')

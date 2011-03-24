@@ -10,7 +10,7 @@ import itertools
 import logging 
 log = logging.getLogger("CLI")
 
-LIFESPAN = 1000
+LIFESPAN = 300
 
 import sys
 import os
@@ -43,8 +43,7 @@ def main(ai_classes=[]):
   #                log.info("AI raised exception %s, skipping this turn for it" % (e))
 
       w.Turn()
-  log.info("Finished simulating the world, press Enter to exit")
-  raw_input()
+  log.info("Finished simulating the world")
 
 def end_game():
   for ai in AI:
