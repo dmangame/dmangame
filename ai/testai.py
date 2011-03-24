@@ -1,5 +1,4 @@
 import ai
-import world
 AIClass = "CornerAI"
 
 import logging
@@ -14,8 +13,8 @@ class TestAI(ai.AI):
 
     def _spin(self):
         log.info( "Spinning my AI and my AI tells me that it is the %s iteration" % (self.current_turn))
-        log.info( "I own these units: ", self.getMyUnits())
-        log.info( "and I can see these units: %s" % self.getVisibleUnits())
+        log.info( "I own these units: ", self.my_units)
+        log.info( "and I can see these units: %s" % self.visible_units)
         log.info( self.unit1.testFunc())
         log.info( self.wt.getID())
 

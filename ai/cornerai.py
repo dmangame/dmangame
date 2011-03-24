@@ -1,5 +1,4 @@
 import ai
-import world
 import itertools
 AIClass = "CornerAI"
 

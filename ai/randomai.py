@@ -1,6 +1,6 @@
 import ai
+import ai_exceptions
 import random
-import world
 AIClass = "RandomAI"
 
 class RandomAI(ai.AI):
@@ -21,5 +21,5 @@ class RandomAI(ai.AI):
                                 random.randint(0, self.wt.getMapSize()))
                     func(square)
                     break
-                except world.IllegalSquareException:
+                except ai_exception.IllegalSquareException:
                     pass

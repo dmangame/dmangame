@@ -1,5 +1,6 @@
 # The world class for the game.
 import copy
+import ai_exceptions
 import map
 import mapobject
 import math
@@ -9,39 +10,6 @@ import settings
 import logging
 log = logging.getLogger("WORLD")
 logging.basicConfig(level=logging.INFO)
-
-
-# Exceptions
-class DeadUnitException(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
-
-class IllegalSquareException(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
-
-class InvalidStatsException(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
-
-class InvalidOwnerException(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
-
-class IllegalCaptureEvent(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
-
 
 
 # There are three types of events that can exist:
@@ -390,7 +358,7 @@ class World:
             e = ShootEvent(unit, square, range)
             self.events.append(e)
         else:
-            raise IllegalSquareException(square)
+            raise ai_exceptions.IllegalSquareException(square)
 
     def createMoveEvent(self, unit, square):
         log.debug("Creating MoveEvent: Unit %s to Square %s", unit, square)
@@ -398,7 +366,7 @@ class World:
             e = MoveEvent(unit, square)
             self.events.append(e)
         else:
-            raise IllegalSquareException(square)
+            raise ai_exceptions.IllegalSquareException(square)
 
     def createCaptureEvent(self, unit, building):
         log.debug("Creating CaptureEvent: Unit %s to Building %s", unit, building)
@@ -409,7 +377,7 @@ class World:
             e = CaptureEvent(unit, building, settings.CAPTURE_LENGTH)
             self.events.append(e)
         else:
-            raise IllegalCaptureEvent("The unit is not in the building.")
+            raise ai_exceptions.IllegalCaptureEvent("The unit is not in the building.")
 
     # GETTERS
     def getPendingEvents(self):

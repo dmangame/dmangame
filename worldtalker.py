@@ -1,8 +1,10 @@
 # The world talker is how the AI and units talk to the world.
 import ai
+import ai_exceptions
 import copy
 import mapobject
 import random
+import world
 import sys
 
 class WorldTalker:
@@ -206,12 +208,12 @@ class WorldTalker:
     def checkOwner(self, unit):
         ai_id = self.getID()
         if self.__getOwner(unit) != ai_id:
-            raise InvalidOwnerException("You don't own this unit")
+            raise ai_exceptions.InvalidOwnerException("You don't own this unit")
 
     def checkAlive(self, unit):
         ai_id = self.getID()
         if not self.__world.alive[unit]:
-            raise DeadUnitException("This unit is deceased")
+            raise ai_exceptions.DeadUnitException("This unit is deceased")
 
     def checkQueue(self, unit):
         for event in self.__world.events:

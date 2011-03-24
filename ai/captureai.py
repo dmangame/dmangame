@@ -1,7 +1,6 @@
 
 import ai
 import random
-import world
 import itertools
 from collections import defaultdict
 AIClass = "CaptureAI"

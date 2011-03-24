@@ -1,6 +1,5 @@
 import ai
 import random
-import world
 from collections import defaultdict
 import itertools
 AIClass = "SharkAI"
