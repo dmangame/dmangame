@@ -109,6 +109,13 @@ class MapGUI:
                     color = random_ai_color()
                 self.colors[owner] = color
 
+        for building in self.world.buildings:
+            owner = building.getOwner()
+            x, y = self.world.map.getPosition(building)
+            self.cairo_context.set_source_rgb(0,0,0)
+            self.cairo_context.rectangle(deltax*x-(deltax/2), deltay*y-(deltay/2), 2*deltax, 2*deltay)
+            self.cairo_context.fill()
+
         for unit in self.world.units:
             if self.world.alive[unit]:
                 stats = self.world.units[unit]
@@ -147,10 +154,6 @@ class MapGUI:
             elif unit.__class__ == mapobject.Bullet:
                 self.cairo_context.set_source_rgb(0, 0, 0)
             elif unit.__class__ == mapobject.Building:
-                owner = unit.getOwner()
-                self.cairo_context.set_source_rgb(0,0,0)
-                self.cairo_context.rectangle(deltax*x-(deltax/2), deltay*y-(deltay/2), 2*deltax, 2*deltay)
-                self.cairo_context.fill()
                 if owner in self.colors:
                     color = self.colors[owner]
                     self.cairo_context.set_source_rgb(*color)
