@@ -12,9 +12,14 @@ You can find the latest version of the source code on [github][]
 Run:
 
     # Run with graphics (you probably want this)
-    python main.py -g ai/captureai.py ai/killncapture.py
+    python main.py ai/captureai.py ai/killncapture.py
+
     # Run without graphics
-    python main.py ai/capture.ai ai/killncapture.py
+    python main.py ai/capture.ai ai/killncapture.py -c
+
+    # Run on a specific map
+    python main ai/capture.ai ai/killncapture.py -m maps/micro.py
+
     # Help
     python main.py --help
 
