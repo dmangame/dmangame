@@ -7,6 +7,8 @@ import random
 import world
 import sys
 
+# TODO: add permissions checking for all commands that are issued on a unit.
+# Including visible_enemies, visible_units, etc
 class WorldTalker:
     def __init__(self, world):
         self.__world = world
