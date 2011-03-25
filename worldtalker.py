@@ -152,7 +152,7 @@ class WorldTalker:
 
     def getVisibleEnemies(self, unit=None):
         ai_id = self.getID()
-        self.checkOwner(unit, ai_id)
+        if unit: self.checkOwner(unit, ai_id)
         squares = self.getVisibleSquares(unit)
         units = []
         for vunit in self.__world.units:
