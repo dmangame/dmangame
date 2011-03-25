@@ -6,6 +6,7 @@ import mapobject
 import math
 from collections import defaultdict
 import settings
+from unit import Unit
 
 import logging
 log = logging.getLogger("WORLD")
@@ -303,7 +304,7 @@ class World:
         stats.attack = stats.attack * settings.ATTACK_MODIFIER
         stats.sight  = int((stats.sight * self.bulletRange) * settings.SIGHT_MODIFIER)
 
-        unit = mapobject.Unit(self.wt, stats)
+        unit = Unit(self.wt, stats)
         self.units[unit] = stats
 
         stats.unit = unit

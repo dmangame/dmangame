@@ -6,6 +6,7 @@ import math
 import random
 import logging
 import settings
+from unit import Unit
 
 log = logging.getLogger("MAP")
 
@@ -88,7 +89,7 @@ def draw_map(cairo_context, width, height, AI, world):
   # Draw the mapobjects in different colors (based on whether it is a bullet or unit)
   for unit in world.map.getAllObjects():
       x,y = world.map.getPosition(unit)
-      if unit.__class__ == mapobject.Unit:
+      if unit.__class__ == Unit:
           ai_id = world.units[unit].ai_id
           color = ai.AI_COLORS[ai_id]
           cairo_context.set_source_rgb(*color)

@@ -4,6 +4,7 @@ import ai_exceptions
 import copy
 import mapobject
 import random
+from unit import Unit
 import world
 import sys
 
@@ -20,7 +21,7 @@ class WorldTalker:
         return self.__world.getStats(unit)
 
     def __getOwner(self, unit):
-        if unit.__class__ == mapobject.Unit:
+        if unit.__class__ == Unit:
             return self.__getStats(unit).ai_id
         elif unit.__class__ == mapobject.Building:
             return self.__world.buildings[unit].ai_id

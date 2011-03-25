@@ -27,5 +27,7 @@ class TestSecurityFunctions(unittest.TestCase):
     self.assertEqual(self.map.getLegalMoves((50, 50), 3), 
                      three_sq_moves)
 
+  def test_
+
 if __name__ == "__main__":
   unittest.main()

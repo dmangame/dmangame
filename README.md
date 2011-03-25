@@ -36,14 +36,83 @@ to hear the lamentation of their pixels.
 
 ##Game Play##
 
-Each game has a number of AI contestants who are responsible for managing their
-Units. The game starts with no Units on the map and one building per AI.
+You write an AI that is responsible for controlling a team of
+units. Your AI should subclass ai.AI and can implement three functions:
 
-At a fixed interval, each building will spawn a unit to the team that currently
-owns the building. The end objective is to capture all enemy buildings and kill
-all enemy units. Every unit is capable of shooting towards a square, moving
-towards a square or capturing a building (If they are on the same square as a
-building).
+    def _init(self):
+    def _new_unit(self, unit):
+    def _spin(self):
+
+_init() is called when the AI is first created. Every turn of
+the game world, _spin() is called. During this time, the AI
+should interact with its units and issue commands. Whenever a
+unit is spawned by a building, its AI is notified via the
+_new_unit(unit) call.
+
+You can interact with your units via the properties defined
+in ai.AI (ai/base.py). For example, you can have all your
+units move to the top left of the world with:
+
+    for unit in self.units:
+        unit.move((0,0))
+
+or list which squares you can see, your visible enemies or which buildings are currently in view.
+
+    print self.visible_enemies
+    print self.visible_squares
+    print self.visible_buildings
+
+
+
+The game starts out with one building per AI. Each AI is then initialized with
+a call to _init(), and the game world starts running. On the first turn of the
+game, each building spawns a unit. Every UNIT_SPAWN_MOD (as defined in the map)
+turns, the buildings spawn a unit of whichever AI happens to be controlling
+them.
+
+The end objective is to capture all enemy buildings and kill all enemy units.
+Every unit is capable of shooting towards a square, moving towards a square or
+capturing a building (If they are on the same square as a building).
+
+### A simple example AI###
+
+    import ai
+    AIClass="SimpleAI"
+    class SimpleAI(ai.AI):
+        def _init(self):
+          print self.currentTurn
+
+        def _spin(self):
+          print self.my_units
+          print self.visible_enemies
+
+        def _new_unit(self, unit):
+          print "Received a new unit: %s" % unit
+
+This AI just prints world information as it turns. You'll notice that it dies
+very quickly, since it just stands there.
+
+### Building a more defensive AI: ###
+
+    import ai
+    import random
+    AIClass="TowerAI"
+    class TowerAI(ai.AI):
+      def _init(self):
+        self.moved_once = set()
+
+      def _spin(self):
+        for unit in self.my_units:
+          if unit.visible_enemies:
+            unit.shoot(unit.visible_enemies[0].position)
+          else:
+            if not unit in self.moved_once:
+              unit.move((random.randint(0, self.mapsize),
+                         random.randint(0, self.mapsize)))
+              self.moved_once.add(unit)
+
+
+## Game Mechanics ##
 
 ###Unit Attributes:###
   At the moment, all units have fixed attributes, but each building is capable
@@ -65,12 +134,12 @@ How far a unit can see on the map.
 ####ARMOR####
 Modifies much damage a unit absorbs when being hit by a bullet
 
-It is possible to have a map with multiple buildings spawning multiple units
-with different attributes, but it is not implemented yet.
-
 ##Unit API##
 
+The most up to date API information is in unit.py
+
 ### Actions ###
+
 Each unit can perform one action per turn. If multiple actions are enqueued
 inadvertently, an exception will be raised.
 
@@ -83,17 +152,14 @@ inadvertently, an exception will be raised.
   this will move the unit towards (x,y) by their speed amount
 
 ####unit.capture(building)####
-  this initiates a capture of the building if the unit is occuping the same
+  this initiates a capture of the building if the unit is occupying the same
   square as the building.  For a capture to happen successfully, the Unit must
   stay in the building for a length of time after initiating the capture.
 
-See the pydocs for mapobject.py for more information on what
-a Unit can do.
 
 ## AI API ##
 
-See ai.py for the available AI functions, and look in ai/ for
-example AIs.
+See ai/base.py for the available AI functions, and look in ai/ for more example AIs.
 
 
 See Also:
