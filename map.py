@@ -210,7 +210,7 @@ class Map:
         m, n = end
         bp_key = ",".join(map(str, (x,y,m,n,R)))
         if not bp_key in self.__bullet_paths:
-            path = []
+            path = [(x,y)]
             if x-m is 0:
                     path = [(x, i+1) for i in xrange(min(y, n), min(y, n) + R)]
             elif y-n is 0:
