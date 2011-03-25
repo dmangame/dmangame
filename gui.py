@@ -1,6 +1,7 @@
 
 
 import ai
+import cairo
 import glob
 import gobject
 import gtk
@@ -56,7 +57,7 @@ class MapGUI:
         self.world.map.placeObject(b,
           self.world.map.getRandomSquare())
 
-    def draw_grid(self):
+    def draw_grid(self, context):
         allocation = self.map_area.get_allocation()
 
         width = allocation.width
@@ -64,30 +65,30 @@ class MapGUI:
         deltax = float(width)/self.world.mapSize
         deltay = float(height)/self.world.mapSize
         for i in xrange(self.world.mapSize):
-            self.cairo_context.move_to(0, deltay*i)
-            self.cairo_context.line_to(width, deltay*i)
-            self.cairo_context.stroke()
-            self.cairo_context.move_to(deltax*i, 0)
-            self.cairo_context.line_to(deltax*i, height)
-            self.cairo_context.stroke()
+            context.move_to(0, deltay*i)
+            context.line_to(width, deltay*i)
+            context.stroke()
+            context.move_to(deltax*i, 0)
+            context.line_to(deltax*i, height)
+            context.stroke()
 
     def draw_map(self):
         allocation = self.map_area.get_allocation()
-        self.pango_context = self.map_area.create_pango_context()
-        self.cairo_context = self.map_area.window.cairo_create()
-        self.surface = self.cairo_context.get_target()
+
+        cairo_context = self.map_area.window.cairo_create()
+        self.surface = cairo_context.get_target()
 
         width = allocation.width
         height = allocation.height
         deltax = float(width)/self.world.mapSize
         deltay = float(height)/self.world.mapSize
-        self.cairo_context.set_source_rgb(1, 1, 1)
-        self.cairo_context.rectangle(0, 0, width, height)
-        self.cairo_context.fill()
-        self.cairo_context.set_source_rgb(0,0,0)
-        self.cairo_context.set_line_width(1.0)
+        cairo_context.set_source_rgb(1, 1, 1)
+        cairo_context.rectangle(0, 0, width, height)
+        cairo_context.fill()
+        cairo_context.set_source_rgb(0,0,0)
+        cairo_context.set_line_width(1.0)
 
-        #self.draw_grid()
+        #self.draw_grid(cairo_context)
 
 #       Draw the squares a unit sees ( using circle) in a really light unit color.
 #
@@ -111,9 +112,9 @@ class MapGUI:
             owner = building.owner
             try:
               x, y = self.world.map.getPosition(building)
-              self.cairo_context.set_source_rgb(0,0,0)
-              self.cairo_context.rectangle(deltax*x-(deltax/2), deltay*y-(deltay/2), 2*deltax, 2*deltay)
-              self.cairo_context.fill()
+              cairo_context.set_source_rgb(0,0,0)
+              cairo_context.rectangle(deltax*x-(deltax/2), deltay*y-(deltay/2), 2*deltax, 2*deltay)
+              cairo_context.fill()
             except TypeError:
               pass
 
@@ -123,27 +124,27 @@ class MapGUI:
                 x, y = self.world.map.getPosition(unit)
                 color = self.colors[stats.ai_id]
                 color = (color[0], color[1], color[2], .15)
-                self.cairo_context.set_source_rgba(*color)
-                self.cairo_context.arc(deltax*x, deltay*y, (stats.sight)*deltax, 0, 360.0)
-                self.cairo_context.fill()
+                cairo_context.set_source_rgba(*color)
+                cairo_context.arc(deltax*x, deltay*y, (stats.sight)*deltax, 0, 360.0)
+                cairo_context.fill()
 
         # Draw the unit paths
         for unit in self.world.unitpaths:
             path = self.world.unitpaths[unit]
             ai_id = self.world.units[unit].ai_id
             color = map(lambda x: x/2.0, self.colors[ai_id])
-            self.cairo_context.set_source_rgb(*color)
+            cairo_context.set_source_rgb(*color)
             for x,y in path:
-                self.cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
-                self.cairo_context.fill()
+                cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
+                cairo_context.fill()
 
         # Draw the bullet paths
-        self.cairo_context.set_source_rgb(.75, .75, .75)
+        cairo_context.set_source_rgb(.75, .75, .75)
         for unit in self.world.bulletpaths:
             for path in self.world.bulletpaths[unit]:
                 for x,y in path:
-                    self.cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
-                    self.cairo_context.fill()
+                    cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
+                    cairo_context.fill()
 
         # Draw the mapobjects in different colors (based on whether it is a bullet or unit)
         for unit in self.world.map.getAllObjects():
@@ -151,21 +152,23 @@ class MapGUI:
             if unit.__class__ == mapobject.Unit:
                 ai_id = self.world.units[unit].ai_id
                 color = self.colors[ai_id]
-                self.cairo_context.set_source_rgb(*color)
+                cairo_context.set_source_rgb(*color)
             elif unit.__class__ == mapobject.Bullet:
-                self.cairo_context.set_source_rgb(0, 0, 0)
+                cairo_context.set_source_rgb(0, 0, 0)
             elif unit.__class__ == mapobject.Building:
                 ai_id = unit.owner
                 if ai_id in self.colors:
                     color = self.colors[ai_id]
-                    self.cairo_context.set_source_rgb(*color)
+                    cairo_context.set_source_rgb(*color)
                 else:
-                    self.cairo_context.set_source_rgb(0.2,0.2,0.2)
+                    cairo_context.set_source_rgb(0.2,0.2,0.2)
             else:
-                self.cairo_context.set_source_rgb(0,0,0)
-            self.cairo_context.rectangle(deltax*x, deltay*y, 
+                cairo_context.set_source_rgb(0,0,0)
+            cairo_context.rectangle(deltax*x, deltay*y,
                                          deltax, deltay)
-            self.cairo_context.fill()
+            cairo_context.fill()
+
+#        self.surface.write_to_png("output_%02i.png"%self.world.currentTurn)
 
     def map_expose_event_cb(self, widget, event):
         self.draw_map()
