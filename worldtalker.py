@@ -37,7 +37,17 @@ class WorldTalker:
     def isCapturing(self, unit):
         pos = unit.position
         if pos in self.getVisibleSquares():
-            return self.__world.capturing[unit]
+            return self.__world.unitstatus[unit] == world.CAPTURING
+
+    def isMoving(self, unit):
+        pos = unit.position
+        if pos in self.getVisibleSquares():
+            return self.__world.unitstatus[unit] == world.MOVING
+
+    def isShooting(self, unit):
+        pos = unit.position
+        if pos in self.getVisibleSquares():
+            return self.__world.unitstatus[unit] == world.SHOOTING
 
     def isVisible(self, unit):
         if unit in self.getVisibleEnemies():

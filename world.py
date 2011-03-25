@@ -17,6 +17,12 @@ logging.basicConfig(level=logging.INFO)
 # capture event
 # move event
 # shoot event
+MOVING=0
+
+# This isn't really a possible status for a unit, since
+# shooting only lasts one turn.
+SHOOTING=1
+CAPTURING=2
 
 
 class Event:
@@ -112,8 +118,8 @@ class World:
         self.map = map.Map(self.mapSize)
         self.currentTurn = 0
         self.events = set()
+        self.unitstatus = defaultdict(object)
 
-        self.capturing = defaultdict(bool)
         self.buildings = {}
         #self.eventQueue = EventQueue(self.events, self.mapSize)
         self.unitpaths = {}
@@ -136,6 +142,7 @@ class World:
         log.debug("%s shoots towards %s", unit, target)
         bullet = mapobject.Bullet(unit, target)
         position = self.map.getPosition(unit)
+        self.unitstatus[unit] = None
         range = self.bulletRange
 
         path = self.map.calcBulletPath(position, target, min(range, self.bulletSpeed))
@@ -152,6 +159,7 @@ class World:
         endsquare = event.getEndSquare()
         speed = self.units[unit].speed
 
+        self.unitstatus[unit] = MOVING
         pathlong = self.map.calcUnitPath(self.map.getPosition(unit), endsquare)
         pathshort = pathlong[:speed]
         self.unitpaths[unit] = pathshort
@@ -159,18 +167,19 @@ class World:
         log.debug("Moving %s from %s to %s" , unit, self.map.getPosition(unit), endsquare)
         self.map.placeObject(unit, endsquare)
         if pathlong == pathshort:
+            self.unitstatus[unit] = None
             garbage.append(event)
 
     def __handleCaptureEvent(self, event, garbage):
         event.spinCounter()
         unit = event.getUnit()
-        self.capturing[unit] = True
+        self.unitstatus[unit] = CAPTURING
         if event.isFinished():
           log.debug("Finished capturing square")
+          self.unitstatus[unit] = None
           building = event.getBuilding()
           stats = self.units[unit]
           owner = stats.ai
-          self.capturing[unit] = False
           self.buildings[building] = owner
           garbage.append(event)
 
@@ -253,6 +262,9 @@ class World:
 
         if unit in self.unitpaths:
             del self.unitpaths[unit]
+
+        if unit in self.unitstatus:
+            del self.unitstatus[unit]
 
 
     def __dealBulletDamage(self):

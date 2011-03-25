@@ -32,6 +32,17 @@ class Unit(mapobject.MapObject):
         return self.__wt.isCapturing(self)
     is_capturing = property(isCapturing)
 
+
+    def isMoving(self):
+        " Returns if this unit is currently moving."
+        return self.__wt.isMoving(self)
+    is_moving = property(isMoving)
+
+    def isShooting(self):
+        " Returns if this unit is shooting"
+        return self.__wt.isShooting(self)
+    is_shooting = property(isShooting)
+
     def isVisible(self, unit):
         " Returns if unit is visible (in sight range) to this unit "
         return self.__wt.getPosition(unit) in self.__wt.getVisibleSquares(self)
