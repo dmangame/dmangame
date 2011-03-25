@@ -1,9 +1,115 @@
 # A map class, responsible for map functions, like
 # finding the square a unit is on or what occupies a square
+import ai
+import mapobject
 import math
 import random
 import logging
+import settings
+
 log = logging.getLogger("MAP")
+
+
+import random
+def random_ai_color():
+  r = random.randint(0, 10)
+  g = random.randint(0, 10)
+  b = random.randint(0, 10)
+  return map(lambda x: x/float(10), [r,g,b])
+
+def draw_map(cairo_context, width, height, AI, world):
+  surface = cairo_context.get_target()
+
+  deltax = float(width)/world.mapSize
+  deltay = float(height)/world.mapSize
+  cairo_context.set_source_rgb(1, 1, 1)
+  cairo_context.rectangle(0, 0, width, height)
+  cairo_context.fill()
+  cairo_context.set_source_rgb(0,0,0)
+  cairo_context.set_line_width(1.0)
+
+  #self.draw_grid(cairo_context)
+
+#       Draw the squares a unit sees ( using circle) in a really light unit color.
+#
+  # try getting the color from our color dictionary.
+  for ai_player in AI:
+    if not ai_player.ai_id in ai.AI_COLORS:
+        try:
+          color = ai_player.__class__.color
+        except:
+          color = random_ai_color()
+          while color in ai.AI_COLORS.values():
+              color = random_ai_color()
+        ai.AI_COLORS[ai_player.ai_id] = color
+
+  for unit in world.units:
+      stats = world.units[unit]
+      ai_id = stats.ai_id
+      color = ai.AI_COLORS[ai_id]
+
+  for building in world.buildings:
+      owner = building.owner
+      try:
+        x, y = world.map.getPosition(building)
+        cairo_context.set_source_rgb(0,0,0)
+        cairo_context.rectangle(deltax*x-(deltax/2), deltay*y-(deltay/2), 2*deltax, 2*deltay)
+        cairo_context.fill()
+      except TypeError:
+        pass
+
+  for unit in world.units:
+      if world.alive[unit]:
+          stats = world.units[unit]
+          x, y = world.map.getPosition(unit)
+          color = ai.AI_COLORS[stats.ai_id]
+          color = (color[0], color[1], color[2], .15)
+          cairo_context.set_source_rgba(*color)
+          cairo_context.arc(deltax*x, deltay*y, (stats.sight)*deltax, 0, 360.0)
+          cairo_context.fill()
+
+  # Draw the unit paths
+  for unit in world.unitpaths:
+      path = world.unitpaths[unit]
+      ai_id = world.units[unit].ai_id
+      color = map(lambda x: x/2.0, ai.AI_COLORS[ai_id])
+      cairo_context.set_source_rgb(*color)
+      for x,y in path:
+          cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
+          cairo_context.fill()
+
+  # Draw the bullet paths
+  cairo_context.set_source_rgb(.75, .75, .75)
+  for unit in world.bulletpaths:
+      for path in world.bulletpaths[unit]:
+          for x,y in path:
+              cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
+              cairo_context.fill()
+
+  # Draw the mapobjects in different colors (based on whether it is a bullet or unit)
+  for unit in world.map.getAllObjects():
+      x,y = world.map.getPosition(unit)
+      if unit.__class__ == mapobject.Unit:
+          ai_id = world.units[unit].ai_id
+          color = ai.AI_COLORS[ai_id]
+          cairo_context.set_source_rgb(*color)
+      elif unit.__class__ == mapobject.Bullet:
+          cairo_context.set_source_rgb(0, 0, 0)
+      elif unit.__class__ == mapobject.Building:
+          ai_id = unit.owner
+          if ai_id in ai.AI_COLORS:
+              color = ai.AI_COLORS[ai_id]
+              cairo_context.set_source_rgb(*color)
+          else:
+              cairo_context.set_source_rgb(0.2,0.2,0.2)
+      else:
+          cairo_context.set_source_rgb(0,0,0)
+      cairo_context.rectangle(deltax*x, deltay*y,
+                                   deltax, deltay)
+      cairo_context.fill()
+
+  if settings.SAVE_IMAGES:
+    surface.write_to_png("_output_%02i.png"%world.currentTurn)
 
 class Map:
     def __init__(self, N):

@@ -1,13 +1,16 @@
 #! /usr/bin/env python
 
 import ai
+import cairo
 import glob
 import os
+import map
 import mapobject
 import world
 import worldtalker
 import itertools
-import logging 
+import settings
+import logging
 log = logging.getLogger("CLI")
 
 LIFESPAN = 300
@@ -27,6 +30,9 @@ def main(ai_classes=[]):
     ai._init()
 
   ai_cycler = itertools.cycle(AI)
+  if settings.SAVE_IMAGES:
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 200, 200)
+    cairo_context = cairo.Context(surface)
 
   for ai in AI:
     b = mapobject.Building(wt)
@@ -43,6 +49,8 @@ def main(ai_classes=[]):
   #                log.info("AI raised exception %s, skipping this turn for it" % (e))
 
       w.Turn()
+      if settings.SAVE_IMAGES:
+        map.draw_map(cairo_context, 200, 200, AI, w)
   log.info("Finished simulating the world")
 
 def end_game():

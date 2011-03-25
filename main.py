@@ -29,6 +29,8 @@ def parseOptions():
     parser.add_option("-c", "--cli", dest="cli",
                       help="Display GUI", default=False,
                       action="store_true")
+    parser.add_option("-s", "--save", action="store_true",
+                      dest="save_images", default=False)
     parser.add_option("-q", "--quiet",
                       action="store_false", dest="verbose", default=True,
                       help="don't print status messages to stdout")
@@ -86,6 +88,8 @@ def main():
   log.info(options)
   ais = loadAI(args)
   loadMap(options.map)
+  if options.save_images:
+    settings.SAVE_IMAGES = True
   if options.cli:
     try:
       cli.main(ais)
