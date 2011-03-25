@@ -89,10 +89,16 @@ capturing a building (If they are on the same square as a building).
         def _new_unit(self, unit):
           print "Received a new unit: %s" % unit
 
+
 This AI just prints world information as it turns. You'll notice that it dies
 very quickly, since it just stands there.
 
+To run it, try:
+
+    python main.py ai/simpleai.py ai/captureai.py
+
 ### Building a more defensive AI: ###
+
 
     import ai
     import random
@@ -111,6 +117,15 @@ very quickly, since it just stands there.
                          random.randint(0, self.mapsize)))
               self.moved_once.add(unit)
 
+This AI is slightly smarter - for each unit, it picks a spot on the map and
+moves the unit there. If it arrives there without issue, it will stop moving
+and attack anything that comes near it.
+
+If the unit notices an enemy unit on the way there, it'll start attacking. The
+attack stops the unit's movement, and the unit will sit at that location. (and
+not continue to its final destination).
+
+    python main.py ai/towerai.py ai/captureai.py
 
 ## Game Mechanics ##
 
