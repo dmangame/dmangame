@@ -59,14 +59,13 @@ def draw_map(cairo_context, width, height, AI, world):
         pass
 
   for unit in world.units:
-      if unit.is_alive:
-          stats = world.units[unit]
-          x, y = world.map.getPosition(unit)
-          color = ai.AI_COLORS[stats.ai_id]
-          color = (color[0], color[1], color[2], .15)
-          cairo_context.set_source_rgba(*color)
-          cairo_context.arc(deltax*x, deltay*y, (stats.sight)*deltax, 0, 360.0)
-          cairo_context.fill()
+      stats = world.units[unit]
+      x, y = world.map.getPosition(unit)
+      color = ai.AI_COLORS[stats.ai_id]
+      color = (color[0], color[1], color[2], .15)
+      cairo_context.set_source_rgba(*color)
+      cairo_context.arc(deltax*x, deltay*y, (stats.sight)*deltax, 0, 360.0)
+      cairo_context.fill()
 
   # Draw the unit paths
   for unit in world.unitpaths:

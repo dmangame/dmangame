@@ -80,7 +80,6 @@ class Unit(MapObject):
     def isVisible(self, unit):
         " Returns if unit is visible (in sight range) to this unit "
         return self.__wt.isVisible(unit)
-    is_visible = property(isVisible)
 
     def getEnergy(self):
         "The energy of the unit, represents the health of the unit"

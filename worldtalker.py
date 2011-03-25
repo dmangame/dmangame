@@ -25,31 +25,31 @@ class WorldTalker:
         elif unit.__class__ == mapobject.Building:
             return self.__world.buildings[unit].ai_id
 
-    def getOwner(self, unit):
-        return self.__getOwner(unit)
+    def __getPosition(self, mapobject):
+        return self.__world.map.getPosition(mapobject)
 
     def isAlive(self, unit):
-        return self.__world.alive[unit]
+        if unit.position in self.getVisibleSquares():
+            return self.__world.alive[unit]
 
     def isCapturing(self, unit):
         return self.__world.capturing[unit]
 
     def isVisible(self, unit):
-        squares = self.getVisibleSquares()
-        return unit in squares
+        if self.getPosition(unit):
+            return True
 
     def inRange(self, unit):
         # relies on both sight and bullet range.
         # Find all visible units to this unit.
-        self.__getOwner(unit)
         squares = self.getVisibleSquares(unit)
-        origin = self.getPosition(unit)
+        origin = self.__getPosition(unit)
         units = []
         for vunit in self.__world.units:
-            square = self.getPosition(vunit)
+            square = self.__getPosition(vunit)
             if self.__getOwner(vunit) == self.__getOwner(unit):
                 continue
-#            if self.getPosition(vunit) in squares:
+#            if self.__getPosition(vunit) in squares:
 #                print "%s is visible to %s" % (vunit, unit)
             if square in squares and self.__world.map.calcDistance(origin,
                     square) <= self.__world.bulletRange:
@@ -58,36 +58,21 @@ class WorldTalker:
 
     # Get functions
 
-    def calcBulletPath(self, unit, square):
-        ai_id = self.getID()
-        if not unit in self.getVisibleUnits() and not unit in self.getUnits():
-            return []
-        return self.__world.map.calcBulletPath(self.__world.map.getPosition(unit), square, self.__world.bulletRange)
-
     def getBulletRange(self):
         return self.__world.bulletRange
 
     def getCurrentTurn(self):
         return self.__world.getLifeTime()
 
-    def calcDistance(self, unit, square):
-        ai_id = self.getID()
-        if self.isVisible(unit, ai_id) or unit in self.getUnits():
-            unit_square = self.__world.map.getPosition(unit)
-            return self.__world.map.calcDistance(unit_square, square)
-        else:
-            return None
-
     def getMapSize(self):
         return self.__world.mapSize
 
+    def getOwner(self, unit):
+        return self.__getOwner(unit)
+
     def getPosition(self, unit):
-        ai_id = self.getID()
-        # Need to make sure the unit is still visible to the guy calling this function, I think.
-        position = self.__world.map.getPosition(unit)
+        position = self.__getPosition(unit)
         if unit.__class__ == mapobject.Building:
-            return position
-        elif self.__getOwner(unit) == ai_id:
             return position
 
         if position in self.getVisibleSquares():
@@ -120,40 +105,24 @@ class WorldTalker:
 
         return units
 
-    def calcUnitPath(self, unit, square):
-        ai_id = self.getID()
-        if not unit in self.getVisibleUnits() and unit not in self.getUnits():
-            return []
-        return self.__world.map.calcUnitPath(self.__world.map.getPosition(unit), square)
-
-    # Return all the units that would be hit by a bullet shot at target square.
-    # (Assuming they stay still)
-    def calcVictims(self, unit, square):
-        ai_id = self.getID()
-        path = self.__world.map.calcBulletPath(self.__world.map.getPosition(unit), square, self.__world.bulletRange)
-        victims = []
-        for unit in self.__world.units:
-            if self.__world.map.getPosition(unit) in path:
-                victims.append(unit)
-        return victims
-
     # If unit is none, return all squares visible to the AI
     # else return only visible squares to the unit
     def getVisibleSquares(self, unit=None):
+        ai_id = self.getID()
+        if unit: self.checkOwner(unit)
+
         if self.__cached_turn < self.getCurrentTurn():
             self.__cached_visible_squares = {}
             self.__cached_turn = self.getCurrentTurn()
 
-        ai_id = self.getID()
         vs_key = unit or ai_id
 
         if not vs_key in self.__cached_visible_squares:
             if not unit:
-                ai_id = ai_id
                 squares = set()
                 for unit in self.getUnits():
                     stats = self.__getStats(unit)
-                    square = self.getPosition(unit)
+                    square = self.__world.map.getPosition(unit)
                     # TODO Properly calculate the sight of the unit.
                     moves = self.__world.map.getLegalMoves(square, stats.sight)
                     squares.update(moves)
@@ -161,16 +130,16 @@ class WorldTalker:
                 self.__cached_visible_squares[vs_key] = squares
                 return squares
             else:
-                self.checkOwner(unit)
+                self.checkOwner(unit, ai_id)
+                self.checkAlive(unit)
                 stats = self.__getStats(unit)
-                square = self.getPosition(unit)
+                square = self.__getPosition(unit)
                 squares = self.__world.map.getLegalMoves(square, stats.sight)
                 self.__cached_visible_squares[vs_key] = squares
         return self.__cached_visible_squares[vs_key]
 
 
     def getVisibleBuildings(self, unit=None):
-        ai_id = self.getID()
         squares = self.getVisibleSquares(unit)
         buildings = []
         for b in self.__world.buildings.keys():
@@ -189,6 +158,47 @@ class WorldTalker:
                 units.append(unit)
         return units
 
+    # Calculation Functions
+    def calcBulletPath(self, unit, square):
+        ai_id = self.getID()
+        if not self.isVisible(unit) and not unit in self.getUnits():
+            return []
+
+        return self.__world.map.calcBulletPath(self.__world.map.getPosition(unit),
+                                               square, self.__world.bulletRange)
+
+    def calcDistance(self, unit, square):
+        ai_id = self.getID()
+        if self.isVisible(unit) or unit in self.getUnits():
+            unit_square = self.__world.map.getPosition(unit)
+            return self.__world.map.calcDistance(unit_square, square)
+        else:
+            return None
+
+    def calcUnitPath(self, unit, square):
+        ai_id = self.getID()
+        if not unit in self.getUnits() and \
+            not unit in self.getVisibleUnits():
+            return []
+        return self.__world.map.calcUnitPath(self.__world.map.getPosition(unit), square)
+
+    # Return all the units that would be hit by a bullet shot at target square.
+    # (Assuming they stay still)
+    def calcVictims(self, unit, square):
+        ai_id = self.getID()
+        self.checkOwner(unit, ai_id)
+        self.checkAlive(unit)
+        path = self.__world.map.calcBulletPath(self.__world.map.getPosition(unit), square, self.__world.bulletRange)
+        victims = []
+        for unit in self.__world.units:
+            if self.__world.map.getPosition(unit) in path:
+                victims.append(unit)
+        return victims
+
+
+    # AI Checking function - traverses the stakc frame until it finds 'self'
+    # defined as an instance of an AI. The hope is to never let ai's get copies
+    # of each other.
     def getID(self):
         # this function will print out the ai_id of the caller (or his parent, maybe)
         i = 0
@@ -211,8 +221,9 @@ class WorldTalker:
                     pass
 
     # Unit Helper functions
-    def checkOwner(self, unit):
-        ai_id = self.getID()
+    def checkOwner(self, unit, ai_id=None):
+        if not ai_id: ai_id = self.getID()
+
         if self.__getOwner(unit) != ai_id:
             raise ai_exceptions.InvalidOwnerException("You don't own this unit")
 
@@ -233,23 +244,26 @@ class WorldTalker:
 
 
     # Unit Functions
-    def capture(self, unit, square):
+    def capture(self, unit, building):
         self.checkAlive(unit)
         self.checkOwner(unit)
         self.checkQueue(unit)
-        self.__world.createCaptureEvent(unit, square)
+        self.__world.createCaptureEvent(unit, building)
+        return True
 
     def move(self, unit, square):
         self.checkAlive(unit)
         self.checkOwner(unit)
         self.checkQueue(unit)
         self.__world.createMoveEvent(unit, square)
+        return True
 
     def shoot(self, unit, square):
         self.checkAlive(unit)
         self.checkOwner(unit)
         self.checkQueue(unit)
         self.__world.createShootEvent(unit, square, self.__world.bulletRange)
+        return True
 
 
     def calcScore(self, ai_id):

@@ -54,6 +54,7 @@ class BasePatrollerAI(ai.AI):
               else:
                 self.explore(unit)
                 self.on_patrol.add(unit)
+
             if unit.position == self.destinations[unit]:
               del self.destinations[unit]
             else:
