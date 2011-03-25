@@ -124,7 +124,7 @@ class MapGUI:
                 color = self.colors[stats.ai_id]
                 color = (color[0], color[1], color[2], .15)
                 self.cairo_context.set_source_rgba(*color)
-                self.cairo_context.arc(deltax*x, deltay*y, (stats.sight+1)*deltax, 0, 360.0)
+                self.cairo_context.arc(deltax*x, deltay*y, (stats.sight)*deltax, 0, 360.0)
                 self.cairo_context.fill()
 
         # Draw the unit paths
