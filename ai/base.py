@@ -39,12 +39,12 @@ class AI:
         return self.wt.getVisibleSquares()
     visible_squares = property(getVisibleSquares)
 
-    def getVisibleUnits(self):
+    def getVisibleEnemies(self):
         """
         Returns all visible enemy units to the AI
         """
-        return self.wt.getVisibleUnits()
-    visible_enemies = property(getVisibleUnits)
+        return self.wt.getVisibleEnemies()
+    visible_enemies = property(getVisibleEnemies)
 
     def calcScore(self):
         """ 

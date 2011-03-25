@@ -79,7 +79,7 @@ class Unit(MapObject):
 
     def isVisible(self, unit):
         " Returns if unit is visible (in sight range) to this unit "
-        return self.__wt.isVisible(unit)
+        return self.__wt.getPosition(unit) in self.__wt.getVisibleSquares(self)
 
     def getEnergy(self):
         "The energy of the unit, represents the health of the unit"
@@ -104,7 +104,7 @@ class Unit(MapObject):
     def getVisibleEnemies(self):
         "Return all enemy units that are in the range of sight of this unit"
         # Returns all (enemy?) units in shooting range
-        return self.__wt.inRange(self)
+        return self.__wt.getVisibleEnemies(self)
     visible_enemies = property(getVisibleEnemies)
 
     def calcBulletPath(self, target_square):

@@ -29,14 +29,17 @@ class WorldTalker:
         return self.__world.map.getPosition(mapobject)
 
     def isAlive(self, unit):
-        if unit.position in self.getVisibleSquares():
+        pos = unit.position
+        if pos in self.getVisibleSquares():
             return self.__world.alive[unit]
 
     def isCapturing(self, unit):
-        return self.__world.capturing[unit]
+        pos = unit.position
+        if pos in self.getVisibleSquares():
+            return self.__world.capturing[unit]
 
     def isVisible(self, unit):
-        if self.getPosition(unit):
+        if unit in self.getVisibleEnemies():
             return True
 
     def inRange(self, unit):
@@ -147,29 +150,30 @@ class WorldTalker:
                 buildings.append(b)
         return buildings
 
-    def getVisibleUnits(self, unit=None):
+    def getVisibleEnemies(self, unit=None):
         ai_id = self.getID()
+        self.checkOwner(unit, ai_id)
         squares = self.getVisibleSquares(unit)
         units = []
-        for unit in self.__world.units:
-            if self.__getOwner(unit) == ai_id:
+        for vunit in self.__world.units:
+            if self.__getOwner(vunit) == ai_id:
                 continue
-            if self.__world.map.getPosition(unit) in squares:
-                units.append(unit)
+            if self.__world.map.getPosition(vunit) in squares:
+                units.append(vunit)
         return units
 
     # Calculation Functions
     def calcBulletPath(self, unit, square):
         ai_id = self.getID()
-        if not self.isVisible(unit) and not unit in self.getUnits():
-            return []
-
-        return self.__world.map.calcBulletPath(self.__world.map.getPosition(unit),
-                                               square, self.__world.bulletRange)
+        pos = self.getPosition(unit)
+        if not pos:
+            raise ai_exceptions.InvisibleUnitException("Can't calculate a path from %s to %s" % (unit, square))
+        return self.__world.map.calcBulletPath(pos, square,
+                self.__world.bulletRange)
 
     def calcDistance(self, unit, square):
         ai_id = self.getID()
-        if self.isVisible(unit) or unit in self.getUnits():
+        if unit in self.getUnits() or self.isVisible(unit):
             unit_square = self.__world.map.getPosition(unit)
             return self.__world.map.calcDistance(unit_square, square)
         else:
@@ -178,7 +182,7 @@ class WorldTalker:
     def calcUnitPath(self, unit, square):
         ai_id = self.getID()
         if not unit in self.getUnits() and \
-            not unit in self.getVisibleUnits():
+            not unit in self.getVisibleEnemies():
             return []
         return self.__world.map.calcUnitPath(self.__world.map.getPosition(unit), square)
 
