@@ -18,7 +18,10 @@ Run:
     python main.py ai/capture.ai ai/killncapture.py -c
 
     # Run on a specific map
-    python main ai/capture.ai ai/killncapture.py -m maps/micro.py
+    python main.py ai/capture.ai ai/killncapture.py -m maps/micro.py
+
+    # Run with any number of AIs
+    python main.py ai/capture.ai ai/killncapture.py ai/sharkai.py ai/basepatroller.py
 
     # Help
     python main.py --help
