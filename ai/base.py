@@ -2,8 +2,6 @@
 import random
 import world
 
-AI_COLORS = {}
-
 class AI:
     def __init__(self, worldtalker):
         self.wt = worldtalker

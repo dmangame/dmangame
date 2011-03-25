@@ -59,7 +59,7 @@ def draw_map(cairo_context, width, height, AI, world):
         pass
 
   for unit in world.units:
-      if world.alive[unit]:
+      if unit.is_alive:
           stats = world.units[unit]
           x, y = world.map.getPosition(unit)
           color = ai.AI_COLORS[stats.ai_id]
