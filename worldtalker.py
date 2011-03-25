@@ -222,10 +222,15 @@ class WorldTalker:
             raise ai_exceptions.DeadUnitException("This unit is deceased")
 
     def checkQueue(self, unit):
+        to_remove = []
         for event in self.__world.events:
             if event.getUnit() == unit:
-                self.__world.events.remove(event)
-                
+                to_remove.append(event)
+
+        for event in to_remove:
+            self.__world.events.remove(event)
+
+
 
     # Unit Functions
     def capture(self, unit, square):

@@ -110,7 +110,7 @@ class World:
         self.mapSize = mapsize
         self.map = map.Map(self.mapSize)
         self.currentTurn = 0
-        self.events = []
+        self.events = set()
 
         self.capturing = defaultdict(bool)
         self.buildings = {}
@@ -242,9 +242,14 @@ class World:
             self.map.removeObject(bullet)
             del self.bullets[bullet]
 
+        to_remove = []
         for event in self.events:
             if event.getUnit() == unit:
-                self.events.remove(event)
+                to_remove.append(event)
+
+        for event in to_remove:
+          self.events.remove(event)
+
         if unit in self.unitpaths:
             del self.unitpaths[unit]
 
@@ -358,7 +363,7 @@ class World:
         log.debug("Creating ShootEvent: Unit %s to Square %s", unit, square)
         if isValidSquare(square, self.mapSize):
             e = ShootEvent(unit, square, range)
-            self.events.append(e)
+            self.events.add(e)
         else:
             raise ai_exceptions.IllegalSquareException(square)
 
@@ -366,7 +371,7 @@ class World:
         log.debug("Creating MoveEvent: Unit %s to Square %s", unit, square)
         if isValidSquare(square, self.mapSize):
             e = MoveEvent(unit, square)
-            self.events.append(e)
+            self.events.add(e)
         else:
             raise ai_exceptions.IllegalSquareException(square)
 
@@ -377,7 +382,7 @@ class World:
         #we will also have to check if there are enemies inside
         #the building, but I'm not sure how
             e = CaptureEvent(unit, building, settings.CAPTURE_LENGTH)
-            self.events.append(e)
+            self.events.add(e)
         else:
             raise ai_exceptions.IllegalCaptureEvent("The unit is not in the building.")
 

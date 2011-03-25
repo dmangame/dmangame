@@ -172,9 +172,7 @@ class Map:
           pass
 
         log.debug("Calculating legal moves for %s",(str(lm_key)))
-        d = set()
         x,y = square
-        d.add((x,y))
         nd = set()
         nd.add((x,y))
 
@@ -185,27 +183,19 @@ class Map:
           for i in xrange(0, m):
             j = m - i
             # i in x, j in y
-            if (x+i < self.size) and (y+j < self.size):
-                nd.add((x+i, y+j))
-            if (x+i < self.size) and (y-j >= 0):
-                nd.add((x+i, y-j))
-            if (x-i >= 0) and (y+j < self.size):
-                nd.add((x-i, y+j))
-            if (x-i >= 0) and (y-j >= 0):
-                nd.add((x-i, y-j))
+            nd.add((x+i, y+j))
+            nd.add((x+i, y-j))
+            nd.add((x-i, y+j))
+            nd.add((x-i, y-j))
 
             # j in x, i in y
-            if (x+j < self.size) and (y+i < self.size):
-                nd.add((x+j, y+i))
-            if (x+j < self.size) and (y-i >= 0):
-                nd.add((x+j, y-i))
-            if (x-j >= 0) and (y+i < self.size):
-                nd.add((x-j, y+i))
-            if (x-j >= 0) and (y-i >= 0):
-                nd.add((x-j, y-i))
+            nd.add((x+j, y+i))
+            nd.add((x+j, y-i))
+            nd.add((x-j, y+i))
+            nd.add((x-j, y-i))
 
 
-        self.__legal_moves[lm_key] = nd
+        self.__legal_moves[lm_key] = set(filter(self.isValidSquare, nd))
         return self.__legal_moves[lm_key]
 
     # Get the distance between x,y and m,n
