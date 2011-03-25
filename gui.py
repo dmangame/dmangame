@@ -68,12 +68,15 @@ class MapGUI:
     def draw_map(self):
         allocation = self.map_area.get_allocation()
 
-        cairo_context = self.map_area.window.cairo_create()
-
         width = allocation.width
         height = allocation.height
+        pixmap = gtk.gdk.Pixmap(self.map_area.window,width,height)
+        cairo_context = pixmap.cairo_create()
         map.draw_map(cairo_context, width, height,
                      self.AI, self.world)
+        cairo_context_final = self.map_area.window.cairo_create()
+        cairo_context_final.set_source_pixmap(pixmap, 0, 0)
+        cairo_context_final.paint()
 
 
     def map_expose_event_cb(self, widget, event):
