@@ -122,6 +122,8 @@ class World:
 
         self.buildings = {}
         #self.eventQueue = EventQueue(self.events, self.mapSize)
+
+        self.unitfullpaths = defaultdict(bool)
         self.unitpaths = {}
         self.bulletpaths = {}
         self.bullets = {}
@@ -160,13 +162,23 @@ class World:
         speed = self.units[unit].speed
 
         self.unitstatus[unit] = MOVING
-        pathlong = self.map.calcUnitPath(self.map.getPosition(unit), endsquare)
+        pathlong = self.unitfullpaths[unit]
+
+        # Go the distance
         pathshort = pathlong[:speed]
+        pathlong = pathlong[speed+1:]
+
+        # update internal paths.
         self.unitpaths[unit] = pathshort
+        self.unitfullpaths[unit] = pathlong
+
         endsquare = pathshort[-1]
         log.debug("Moving %s from %s to %s" , unit, self.map.getPosition(unit), endsquare)
         self.map.placeObject(unit, endsquare)
-        if pathlong == pathshort:
+
+        # There is nothing remaining in the unit's path to its destination, so
+        # we can finish movement.
+        if not pathlong:
             self.unitstatus[unit] = None
             garbage.append(event)
 
@@ -259,6 +271,9 @@ class World:
 
         for event in to_remove:
           self.events.remove(event)
+
+        if unit in self.unitfullpaths:
+            del self.unitfullpaths[unit]
 
         if unit in self.unitpaths:
             del self.unitpaths[unit]
@@ -384,6 +399,15 @@ class World:
         log.debug("Creating MoveEvent: Unit %s to Square %s", unit, square)
         if isValidSquare(square, self.mapSize):
             e = MoveEvent(unit, square)
+            # If we've already calculated the full path to destination, we
+            # don't need to recalculate it. This is so that subsequent move
+            # events to the same place don't require recalculation.
+            pathlong = self.unitfullpaths[unit]
+            if not pathlong or pathlong[-1] != square:
+              pathlong = self.map.calcUnitPath(self.map.getPosition(unit),
+                          square)
+              self.unitfullpaths[unit] = pathlong
+
             self.events.add(e)
         else:
             raise ai_exceptions.IllegalSquareException(square)
