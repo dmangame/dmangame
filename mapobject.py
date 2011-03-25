@@ -1,6 +1,7 @@
 # The unit class for the game.
 import random
 import copy
+import tuct
 
 class MapObject:
     def __init__():
@@ -9,13 +10,13 @@ class MapObject:
 class Building(MapObject):
     def __init__(self, worldtalker):
         self.__wt = worldtalker
-        self.__stats = {
+        self.__stats = tuct.tuct({
                         "armor"   : 1,
                         "attack"  : 1,
                         "sight"   : 1,
                         "energy"  : 1,
                         "speed"   : 5
-                       }
+                       })
 
     def getOwner(self):
         " Returns the owner of the building"

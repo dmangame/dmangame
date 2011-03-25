@@ -21,5 +21,5 @@ class RandomAI(ai.AI):
                                 random.randint(0, self.wt.getMapSize()))
                     func(square)
                     break
-                except ai_exception.IllegalSquareException:
+                except ai_exceptions.IllegalSquareException:
                     pass

@@ -13,7 +13,7 @@ import settings
 import logging
 log = logging.getLogger("CLI")
 
-LIFESPAN = 300
+LIFESPAN = 800
 
 import sys
 import os

@@ -142,11 +142,12 @@ class WorldTalker:
             self.__cached_visible_squares = {}
             self.__cached_turn = self.getCurrentTurn()
 
-        vs_key = unit or self.getID()
+        ai_id = self.getID()
+        vs_key = unit or ai_id
 
         if not vs_key in self.__cached_visible_squares:
             if not unit:
-                ai_id = self.getID()
+                ai_id = ai_id
                 squares = set()
                 for unit in self.getUnits():
                     stats = self.__getStats(unit)
@@ -194,10 +195,13 @@ class WorldTalker:
                 i+=1
                 frame = sys._getframe(i)
                 f_locals = frame.f_locals
-                if 'self' in f_locals and ai.AI in f_locals['self'].__class__.__bases__:
-                    ai_id =  frame.f_locals['self'].ai_id
-                    del frame
-                    return ai_id
+                try:
+                    if ai.AI in f_locals['self'].__class__.__bases__:
+                        ai_id =  frame.f_locals['self'].ai_id
+                        del frame
+                        return ai_id
+                except KeyError:
+                    pass
             finally:
                 try:
                     del frame
@@ -219,7 +223,7 @@ class WorldTalker:
         for event in self.__world.events:
             if event.getUnit() == unit:
                 self.__world.events.remove(event)
-                return
+                
 
     # Unit Functions
     def capture(self, unit, square):
