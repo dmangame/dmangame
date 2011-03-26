@@ -134,6 +134,7 @@ class Map:
     # Place a map object onto the map
     def placeObject(self, mapobject, square):
         if self.isValidSquare(square):
+            self.removeObject(mapobject)
             self.objectMap[mapobject] = square
             try:
                 self.squareMap[square].append(mapobject)
