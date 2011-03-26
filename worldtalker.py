@@ -15,6 +15,7 @@ class WorldTalker:
         self.__world = world
         self.__world.wt = self
         self.__cached_turn = None
+        self.__teams = []
         #self.__eq = world.getQueue()
 
     def __getStats(self, unit):
@@ -25,6 +26,12 @@ class WorldTalker:
             return self.__getStats(unit).ai_id
         elif unit.__class__ == mapobject.Building:
             return self.__world.buildings[unit].ai_id
+
+    def __getTeam(self, unit):
+        if unit.__class__ == Unit:
+            return self.__getStats(unit).team
+        elif unit.__class__ == mapobject.Building:
+            return self.__world.buildings[unit].team
 
     def __getPosition(self, mapobject):
         return self.__world.map.getPosition(mapobject)
@@ -81,9 +88,6 @@ class WorldTalker:
     def getMapSize(self):
         return self.__world.mapSize
 
-    def getOwner(self, unit):
-        return self.__getOwner(unit)
-
     def getPosition(self, unit):
         position = self.__getPosition(unit)
         if unit.__class__ == mapobject.Building:
@@ -99,7 +103,7 @@ class WorldTalker:
         return stats
 
     def getTeam(self, unit):
-        return self.__world.units[unit].team
+        return self.__getTeam(unit)
 
     def getBuildings(self):
         ai_id = self.getID()

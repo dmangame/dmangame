@@ -26,7 +26,7 @@ class BasePatrollerAI(ai.AI):
           return True
 
         for b in unit.visible_buildings:
-          if b.owner == self.ai_id:
+          if b.team == self.team:
             continue
 
           if unit.position == b.position:

@@ -35,22 +35,21 @@ def draw_map(cairo_context, width, height, AI, world):
 #
   # try getting the color from our color dictionary.
   for ai_player in AI:
-    if not ai_player.ai_id in ai.AI_COLORS:
+    if not ai_player.team in ai.AI_COLORS:
         try:
           color = ai_player.__class__.color
         except:
           color = random_ai_color()
           while color in ai.AI_COLORS.values():
               color = random_ai_color()
-        ai.AI_COLORS[ai_player.ai_id] = color
+        ai.AI_COLORS[ai_player.team] = color
 
   for unit in world.units:
       stats = world.units[unit]
-      ai_id = stats.ai_id
-      color = ai.AI_COLORS[ai_id]
+      team = stats.team
+      color = ai.AI_COLORS[team]
 
   for building in world.buildings:
-      owner = building.owner
       try:
         x, y = world.map.getPosition(building)
         cairo_context.set_source_rgb(0,0,0)
@@ -62,7 +61,7 @@ def draw_map(cairo_context, width, height, AI, world):
   for unit in world.units:
       stats = world.units[unit]
       x, y = world.map.getPosition(unit)
-      color = ai.AI_COLORS[stats.ai_id]
+      color = ai.AI_COLORS[stats.team]
       color = (color[0], color[1], color[2], .15)
       cairo_context.set_source_rgba(*color)
       cairo_context.arc(deltax*x, deltay*y, (stats.sight)*deltax, 0, 360.0)
@@ -71,8 +70,8 @@ def draw_map(cairo_context, width, height, AI, world):
   # Draw the unit paths
   for unit in world.unitpaths:
       path = world.unitpaths[unit]
-      ai_id = world.units[unit].ai_id
-      color = map(lambda x: x/2.0, ai.AI_COLORS[ai_id])
+      team = world.units[unit].team
+      color = map(lambda x: x/2.0, ai.AI_COLORS[team])
       cairo_context.set_source_rgb(*color)
       for x,y in path:
           cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
@@ -90,15 +89,15 @@ def draw_map(cairo_context, width, height, AI, world):
   for unit in world.map.getAllObjects():
       x,y = world.map.getPosition(unit)
       if unit.__class__ == Unit:
-          ai_id = world.units[unit].ai_id
-          color = ai.AI_COLORS[ai_id]
+          team = world.units[unit].team
+          color = ai.AI_COLORS[team]
           cairo_context.set_source_rgb(*color)
       elif unit.__class__ == mapobject.Bullet:
           cairo_context.set_source_rgb(0, 0, 0)
       elif unit.__class__ == mapobject.Building:
-          ai_id = unit.owner
-          if ai_id in ai.AI_COLORS:
-              color = ai.AI_COLORS[ai_id]
+          team = unit.team
+          if team in ai.AI_COLORS:
+              color = ai.AI_COLORS[team]
               cairo_context.set_source_rgb(*color)
           else:
               cairo_context.set_source_rgb(0.2,0.2,0.2)

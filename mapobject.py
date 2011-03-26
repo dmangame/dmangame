@@ -18,10 +18,10 @@ class Building(MapObject):
                         "speed"   : 5
                        })
 
-    def getOwner(self):
-        " Returns the owner of the building"
-        return self.__wt.getOwner(self)
-    owner = property(getOwner)
+    def getTeam(self):
+        " Returns the owner of the building's team"
+        return self.__wt.getTeam(self)
+    team = property(getTeam)
 
     def getStats(self):
         " Returns a copy of this building's unit stat generation"

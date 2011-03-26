@@ -232,6 +232,7 @@ class World:
         stats = Stats(**statsdict)
         stats.ai = owner
         stats.ai_id = owner.ai_id
+        stats.team = owner.team
         unit = self.__createUnit(stats, square)
         try:
           owner._new_unit(unit)
@@ -456,19 +457,19 @@ class World:
         self.__spawnUnits()
         self.currentTurn += 1
 
-    def calcScore(self, ai_id):
+    def calcScore(self, team):
         alive = 0
         for unit in self.units:
-          if self.wt.getOwner(unit) == ai_id:
+          if self.wt.getTeam(unit) == team:
             alive += 1
 
         kills = 0
         for unit in self.dead_units:
           for killer in unit.killer:
-            if self.wt.getOwner(killer) == ai_id:
+            if self.wt.getTeam(killer) == team:
               kills += 1
 
-        return alive+kills
+        return { "units" : alive, "kills" : kills }
 
 #Map1 = {unit:position, building:position}
 #2Map = {}

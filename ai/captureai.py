@@ -22,7 +22,7 @@ class CaptureAI(ai.AI):
           return True
 
         for b in buildings:
-          if b.owner == self.ai_id:
+          if b.team == self.team:
             continue
 
           if unit.position == b.position:

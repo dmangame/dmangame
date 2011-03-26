@@ -41,11 +41,12 @@ class TestSecurityFunctions(unittest.TestCase):
     self.top_left = top_left
     self.bottom_right = bottom_right
 
-    s = world.Stats(ai_id=self.own_ai.ai_id)
+    s = world.Stats(ai_id=self.own_ai.ai_id,
+                    team=self.own_ai.team)
     s.ai = self.own_ai
     self.own_unit = self.w.createUnit(s, top_left)
 
-    s = world.Stats(ai_id=self.other_ai.ai_id)
+    s = world.Stats(ai_id=self.other_ai.ai_id, team=self.other_ai.team)
     s.ai = self.other_ai
     self.other_unit = self.w.createUnit(s, bottom_right)
 
