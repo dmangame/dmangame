@@ -1,6 +1,7 @@
 
 import sys
 import ai
+import cairo
 import glib
 import glob
 import gobject
@@ -53,9 +54,9 @@ class MapGUI:
         self.colors = {}
         self.guiTurn = 0
 
-        # Initialize our pixmap queue
+        # Initialize our pixbuf queue
         self.stopped = False
-        self.pixmap_queue = Queue.Queue(BUFFER_SIZE)
+        self.frame_queue = Queue.Queue(BUFFER_SIZE)
         self.lock = RLock()
 
     def add_ai(self, ai):
@@ -85,21 +86,26 @@ class MapGUI:
     def draw_map(self):
 
         try:
-          pixmap = self.pixmap_queue.get(False)
+          surface = self.frame_queue.get(False)
         except Queue.Empty, e:
           return
 
+
         self.guiTurn += 1
 
+        cairo_context_final = self.map_area.window.cairo_create()
+        pattern = cairo.SurfacePattern(surface)
+
         allocation = self.map_area.get_allocation()
+
         width = allocation.width
         height = allocation.height
-        pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, True, 8, self.drawSize, self.drawSize)
-        pixbuf.get_from_drawable(pixmap, self.map_area.window.get_colormap(), 0, 0, 0, 0, self.drawSize, self.drawSize)
 
-        scaled_buf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_NEAREST)
-        cairo_context_final = self.map_area.window.cairo_create()
-        cairo_context_final.set_source_pixbuf(scaled_buf, 0, 0)
+        sx = width / float(self.drawSize)
+        sy = height / float(self.drawSize)
+        matrix = cairo.Matrix(xx=sx, yy=sy)
+        cairo_context_final.transform(matrix)
+        cairo_context_final.set_source(pattern)
         cairo_context_final.paint()
 
 
@@ -110,12 +116,14 @@ class MapGUI:
 
         width = self.drawSize
         height = self.drawSize
-        pixmap = gtk.gdk.Pixmap(self.map_area.window,width,height)
-        cairo_context = pixmap.cairo_create()
-        worldmap.draw_map(cairo_context, width, height,
+
+        surface = cairo.ImageSurface (cairo.FORMAT_ARGB32, width, height)
+        cr = cairo.Context (surface)
+        gdkcr = gtk.gdk.CairoContext (cr)
+        worldmap.draw_map(gdkcr, width, height,
                      self.AI, self.world)
 
-        self.pixmap_queue.put(pixmap)
+        self.frame_queue.put(surface)
 
 
     def threaded_world_spinner(self):
@@ -125,7 +133,7 @@ class MapGUI:
     def world_spinner(self):
         while not self.stopped:
 
-          while self.pixmap_queue.full():
+          while self.frame_queue.full():
             if self.stopped:
               sys.exit(0)
               return
@@ -187,7 +195,7 @@ def main(ais=[]):
     for ai in m.AI:
       m.add_building()
     gobject.timeout_add(100, m.gui_spinner)
-    gobject.timeout_add(500, m.threaded_world_spinner)
+    m.threaded_world_spinner()
     gtk.main()
 
 def end_game():
