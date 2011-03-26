@@ -1,5 +1,5 @@
 
-
+import sys
 import ai
 import glib
 import glob
@@ -13,7 +13,7 @@ import worldtalker
 import map
 
 gtk.gdk.threads_init()
-from threading import Thread
+from threading import Thread, RLock
 
 import Queue
 
@@ -32,7 +32,6 @@ class MapGUI:
 
         screen = gtk.gdk.screen_get_default()
         self.drawSize = min(screen.get_width(), screen.get_height()) / 4
-        print self.drawSize
 
 
         self.map_area = gtk.DrawingArea()
@@ -42,7 +41,7 @@ class MapGUI:
         self.window.show_all()
         self.map_area.connect("expose-event", self.map_expose_event_cb)
         self.window.resize(250, 250)
-        self.window.connect("destroy", gtk.main_quit)
+        self.window.connect("destroy", end_threads)
 
         # Initialize the world
         self.world = world.World()
@@ -55,6 +54,7 @@ class MapGUI:
         # Initialize our pixmap queue
         self.stopped = False
         self.pixmap_queue = Queue.Queue(100)
+        self.lock = RLock()
 
     def add_ai(self, ai):
         a = ai(self.wt)
@@ -121,8 +121,12 @@ class MapGUI:
         t.start()
 
     def world_spinner(self):
+        if self.stopped:
+          sys.exit(0)
+          return
         while self.pixmap_queue.full():
           if self.stopped:
+            sys.exit(0)
             return
           time.sleep(0.05)
 
@@ -136,9 +140,18 @@ class MapGUI:
 
         # Save world into a canvas that we put on a thread
         # safe queue
+        while not self.lock.acquire(False):
+          time.sleep(0.01)
+          if self.stopped:
+            sys.exit(0)
+
+        if self.stopped:
+          sys.exit(0)
+
         gtk.gdk.threads_enter()
         self.save_map_to_queue()
         gtk.gdk.threads_leave()
+        self.lock.release()
 
 
         t = Thread(target=self.world_spinner)
@@ -147,10 +160,15 @@ class MapGUI:
     def gui_spinner(self):
         log.info("GUI Showing Turn: %s", self.guiTurn)
         try:
+          self.lock.acquire()
           gtk.gdk.threads_enter()
           self.draw_map()
-        finally:
           gtk.gdk.threads_leave()
+          self.lock.release()
+        except Exception, e:
+          self.stopped = False
+          gtk.gdk.threads_leave()
+          self.lock.release()
         return True
 
 m = None
@@ -173,7 +191,7 @@ def end_game():
   for ai in m.AI:
     log.info("%s:%s", ai.__class__, ai.score)
 
-def end_threads():
+def end_threads(*args, **kwargs):
   m.stopped = True
   gtk.gdk.threads_leave()
 
