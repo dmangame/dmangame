@@ -121,41 +121,37 @@ class MapGUI:
         t.start()
 
     def world_spinner(self):
-        if self.stopped:
-          sys.exit(0)
-          return
-        while self.pixmap_queue.full():
+        while not self.stopped:
+
+          while self.pixmap_queue.full():
+            if self.stopped:
+              sys.exit(0)
+              return
+            time.sleep(0.05)
+
+          for ai in self.AI:
+              ai._spin()
+  #            try:
+  #               ai.spin()
+  #            except Exception, e:
+  #                log.info("AI raised exception %s, skipping this turn for it", e)
+          self.world.Turn()
+
+          # Save world into a canvas that we put on a thread
+          # safe queue
+          while not self.lock.acquire(False):
+            time.sleep(0.01)
+            if self.stopped:
+              sys.exit(0)
+
           if self.stopped:
             sys.exit(0)
-            return
-          time.sleep(0.05)
 
-        for ai in self.AI:
-            ai._spin()
-#            try:
-#               ai.spin()
-#            except Exception, e:
-#                log.info("AI raised exception %s, skipping this turn for it", e)
-        self.world.Turn()
+          gtk.gdk.threads_enter()
+          self.save_map_to_queue()
+          gtk.gdk.threads_leave()
+          self.lock.release()
 
-        # Save world into a canvas that we put on a thread
-        # safe queue
-        while not self.lock.acquire(False):
-          time.sleep(0.01)
-          if self.stopped:
-            sys.exit(0)
-
-        if self.stopped:
-          sys.exit(0)
-
-        gtk.gdk.threads_enter()
-        self.save_map_to_queue()
-        gtk.gdk.threads_leave()
-        self.lock.release()
-
-
-        t = Thread(target=self.world_spinner)
-        t.start()
 
     def gui_spinner(self):
         log.info("GUI Showing Turn: %s", self.guiTurn)
@@ -163,10 +159,12 @@ class MapGUI:
           self.lock.acquire()
           gtk.gdk.threads_enter()
           self.draw_map()
-          gtk.gdk.threads_leave()
-          self.lock.release()
         except Exception, e:
+          if self.map_area.window is None:
+            self.stopped = True
+            sys.exit(1) #window has closed
           self.stopped = False
+        finally:
           gtk.gdk.threads_leave()
           self.lock.release()
         return True
