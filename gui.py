@@ -20,6 +20,8 @@ import Queue
 import logging
 log = logging.getLogger("GUI")
 
+BUFFER_SIZE=100
+
 
 
 
@@ -53,7 +55,7 @@ class MapGUI:
 
         # Initialize our pixmap queue
         self.stopped = False
-        self.pixmap_queue = Queue.Queue(100)
+        self.pixmap_queue = Queue.Queue(BUFFER_SIZE)
         self.lock = RLock()
 
     def add_ai(self, ai):
@@ -185,7 +187,7 @@ def main(ais=[]):
     for ai in m.AI:
       m.add_building()
     gobject.timeout_add(100, m.gui_spinner)
-    gobject.timeout_add(1000, m.threaded_world_spinner)
+    gobject.timeout_add(500, m.threaded_world_spinner)
     gtk.main()
 
 def end_game():

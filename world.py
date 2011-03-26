@@ -89,6 +89,21 @@ class ShootEvent:
     def getTarget(self):
         return self.__target
 
+class MeleeEvent:
+  def __init__(self, unit, square):
+      self.__type = 'Melee'
+      self.__unit = unit
+      self.__target = square
+
+  def getType(self):
+      return self.__type
+
+  def getUnit(self):
+      return self.__unit
+
+  def getTarget(self):
+      return self.__target
+
 
 def isValidSquare(square, N):
     x, y = square
@@ -137,6 +152,13 @@ class World:
 
 
     # Private Functions
+    def __handleMeleeEvent(self, event, garbage):
+        unit = event.getUnit()
+        target = event.getTarget()
+
+        log.debug("%s melees %s", unit, target)
+        self.melees[unit] = target
+
     def __handleShootEvent(self, event, garbage):
         unit = event.getUnit()
         target = event.getTarget()
@@ -205,6 +227,8 @@ class World:
                 self.__handleCaptureEvent(event, garbage)
             elif event.getType() == 'Shoot':
                 self.__handleShootEvent(event, garbage)
+            elif event.getType() == 'Melee':
+                self.__handleMeleeEvent(event, garbage)
             elif event.getType() == 'Move':
                 self.__handleMoveEvent(event, garbage)
 
@@ -282,6 +306,19 @@ class World:
         if unit in self.unitstatus:
             del self.unitstatus[unit]
 
+
+    def __dealMeleeDamage(self):
+        for attacker in self.melees:
+          square = self.melees[attacker]
+          for obj in self.map.getOccupants(square):
+            if obj.__class__ == Unit:
+              victim = obj
+              if victim.team == attacker.team:
+                continue
+
+              if victim in self.units:
+                self.units[victim].energy = 0
+                self.__isDead(victim, attacker)
 
     def __dealBulletDamage(self):
         victims = []
@@ -383,6 +420,7 @@ class World:
     def __clearPaths(self):
         self.unitpaths = {}
         self.bulletpaths = {}
+        self.melees = {}
 
 
     # Public Functions
@@ -391,7 +429,11 @@ class World:
     def createShootEvent(self, unit, square, range):
         log.debug("Creating ShootEvent: Unit %s to Square %s", unit, square)
         if isValidSquare(square, self.mapSize):
-            e = ShootEvent(unit, square, range)
+            position = self.map.getPosition(unit)
+            if position == square:
+              e = MeleeEvent(unit, square)
+            else:
+              e = ShootEvent(unit, square, range)
             self.events.add(e)
         else:
             raise ai_exceptions.IllegalSquareException(square)
@@ -453,6 +495,7 @@ class World:
         self.__createUnitPaths()
         self.__createBulletPaths()
         self.__dealBulletDamage()
+        self.__dealMeleeDamage()
         self.__cleanupDead()
         self.__spawnUnits()
         self.currentTurn += 1

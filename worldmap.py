@@ -49,6 +49,14 @@ def draw_map(cairo_context, width, height, AI, world):
       team = stats.team
       color = ai.AI_COLORS[team]
 
+  for unit in world.melees:
+      team = unit.team
+      color = ai.AI_COLORS[team]
+      x, y = world.map.getPosition(unit)
+      cairo_context.set_source_rgb(*color)
+      cairo_context.rectangle(deltax*x-(deltax), deltay*y-(deltay), 4*deltax, 4*deltay)
+      cairo_context.fill()
+
   for building in world.buildings:
       try:
         x, y = world.map.getPosition(building)
@@ -210,7 +218,7 @@ class Map:
         m, n = end
         bp_key = ",".join(map(str, (x,y,m,n,R)))
         if not bp_key in self.__bullet_paths:
-            path = [(x,y)]
+            path = []
             if x-m is 0:
                     path = [(x, i+1) for i in xrange(min(y, n), min(y, n) + R)]
             elif y-n is 0:
