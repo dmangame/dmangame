@@ -144,13 +144,16 @@ class MapGUI:
             if self.stopped:
               sys.exit(0)
 
-          if self.stopped:
-            sys.exit(0)
-
-          gtk.gdk.threads_enter()
-          self.save_map_to_queue()
-          gtk.gdk.threads_leave()
-          self.lock.release()
+          try:
+            if self.stopped:
+              sys.exit(0)
+            gtk.gdk.threads_enter()
+            try:
+              self.save_map_to_queue()
+            finally:
+              gtk.gdk.threads_leave()
+          finally:
+            self.lock.release()
 
 
     def gui_spinner(self):
