@@ -10,7 +10,7 @@ import itertools
 import time
 import world
 import worldtalker
-import map
+import worldmap
 
 gtk.gdk.threads_init()
 from threading import Thread, RLock
@@ -110,7 +110,7 @@ class MapGUI:
         height = self.drawSize
         pixmap = gtk.gdk.Pixmap(self.map_area.window,width,height)
         cairo_context = pixmap.cairo_create()
-        map.draw_map(cairo_context, width, height,
+        worldmap.draw_map(cairo_context, width, height,
                      self.AI, self.world)
 
         self.pixmap_queue.put(pixmap)

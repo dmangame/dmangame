@@ -1,8 +1,8 @@
 # The world class for the game.
 import copy
 import ai_exceptions
-import map
 import mapobject
+import worldmap
 import math
 from collections import defaultdict
 import settings
@@ -115,7 +115,7 @@ class World:
         self.AI = []
         self.units = {} # instead of a list, it will point to the unit's attributes.
         self.mapSize = mapsize
-        self.map = map.Map(self.mapSize)
+        self.map = worldmap.Map(self.mapSize)
         self.currentTurn = 0
         self.events = set()
         self.unitstatus = defaultdict(object)
@@ -460,13 +460,13 @@ class World:
     def calcScore(self, team):
         alive = 0
         for unit in self.units:
-          if self.wt.getTeam(unit) == team:
+          if unit.team == team:
             alive += 1
 
         kills = 0
         for unit in self.dead_units:
           for killer in unit.killer:
-            if self.wt.getTeam(killer) == team:
+            if killer.team == team:
               kills += 1
 
         return { "units" : alive, "kills" : kills }

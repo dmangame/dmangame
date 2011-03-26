@@ -285,7 +285,7 @@ class WorldTalker:
         return True
 
 
-    def calcScore(self, ai_id):
+    def calcScore(self, team, ai_id):
         if ai_id == self.getID():
-            return self.__world.calcScore(ai_id)
+            return self.__world.calcScore(team)
 # vim: set expandtab shiftwidth=4 softtabstop=4 textwidth=79:

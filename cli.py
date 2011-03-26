@@ -4,7 +4,7 @@ import ai
 import cairo
 import glob
 import os
-import map
+import worldmap
 import mapobject
 import world
 import worldtalker
@@ -50,7 +50,7 @@ def main(ai_classes=[]):
 
       w.Turn()
       if settings.SAVE_IMAGES:
-        map.draw_map(cairo_context, 200, 200, AI, w)
+        worldmap.draw_map(cairo_context, 200, 200, AI, w)
   log.info("Finished simulating the world")
 
 def end_game():
