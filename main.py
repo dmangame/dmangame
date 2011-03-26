@@ -105,7 +105,7 @@ def main():
     try:
       gui.main(ais)
     except KeyboardInterrupt, e:
-      pass
+      gui.end_threads()
     finally:
       gui.end_game()
 

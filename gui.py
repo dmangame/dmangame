@@ -53,6 +53,7 @@ class MapGUI:
         self.guiTurn = 0
 
         # Initialize our pixmap queue
+        self.stopped = False
         self.pixmap_queue = Queue.Queue(100)
 
     def add_ai(self, ai):
@@ -121,25 +122,23 @@ class MapGUI:
 
     def world_spinner(self):
         while self.pixmap_queue.full():
+          if self.stopped:
+            return
           time.sleep(0.05)
 
-        try:
-          gtk.gdk.threads_enter()
-          for ai in self.AI:
-              ai._spin()
-  #            try:
-  #               ai.spin()
-  #            except Exception, e:
-  #                log.info("AI raised exception %s, skipping this turn for it", e)
-          self.world.Turn()
+        for ai in self.AI:
+            ai._spin()
+#            try:
+#               ai.spin()
+#            except Exception, e:
+#                log.info("AI raised exception %s, skipping this turn for it", e)
+        self.world.Turn()
 
-          # Save world into a canvas that we put on a thread
-          # safe queue
-          self.save_map_to_queue()
-        except KeyboardInterrupt:
-          sys.exit(0)
-        finally:
-          gtk.gdk.threads_leave()
+        # Save world into a canvas that we put on a thread
+        # safe queue
+        gtk.gdk.threads_enter()
+        self.save_map_to_queue()
+        gtk.gdk.threads_leave()
 
 
         t = Thread(target=self.world_spinner)
@@ -147,9 +146,11 @@ class MapGUI:
 
     def gui_spinner(self):
         log.info("GUI Showing Turn: %s", self.guiTurn)
-        gtk.gdk.threads_enter()
-        self.draw_map()
-        gtk.gdk.threads_leave()
+        try:
+          gtk.gdk.threads_enter()
+          self.draw_map()
+        finally:
+          gtk.gdk.threads_leave()
         return True
 
 m = None
@@ -171,6 +172,10 @@ def main(ais=[]):
 def end_game():
   for ai in m.AI:
     log.info("%s:%s", ai.__class__, ai.score)
+
+def end_threads():
+  m.stopped = True
+  gtk.gdk.threads_leave()
 
 if __name__ == "__main__":
   main()
