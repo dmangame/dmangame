@@ -207,6 +207,11 @@ class World:
     def __handleCaptureEvent(self, event, garbage):
         event.spinCounter()
         unit = event.getUnit()
+
+        if not self.units[unit]:
+          garbage.append(event)
+          log.debug("Died while capturing square")
+
         self.unitstatus[unit] = CAPTURING
         if event.isFinished():
           log.debug("Finished capturing square")
