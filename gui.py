@@ -7,9 +7,13 @@ import gobject
 import gtk
 import mapobject
 import itertools
+import time
 import world
 import worldtalker
 import map
+
+gtk.gdk.threads_init()
+from threading import Thread
 
 import Queue
 
@@ -49,7 +53,7 @@ class MapGUI:
         self.guiTurn = 0
 
         # Initialize our pixmap queue
-        self.pixmap_queue = Queue.Queue(300)
+        self.pixmap_queue = Queue.Queue(100)
 
     def add_ai(self, ai):
         a = ai(self.wt)
@@ -111,26 +115,41 @@ class MapGUI:
         self.pixmap_queue.put(pixmap)
 
 
+    def threaded_world_spinner(self):
+        t = Thread(target=self.world_spinner)
+        t.start()
+
     def world_spinner(self):
-        if self.pixmap_queue.full():
-          return True
+        while self.pixmap_queue.full():
+          time.sleep(0.05)
 
-        for ai in self.AI:
-            ai._spin()
-#            try:
-#               ai.spin()
-#            except Exception, e:
-#                log.info("AI raised exception %s, skipping this turn for it", e)
-        self.world.Turn()
+        try:
+          gtk.gdk.threads_enter()
+          for ai in self.AI:
+              ai._spin()
+  #            try:
+  #               ai.spin()
+  #            except Exception, e:
+  #                log.info("AI raised exception %s, skipping this turn for it", e)
+          self.world.Turn()
 
-        # Save world into a canvas that we put on a thread
-        # safe queue
-        self.save_map_to_queue()
-        return True
+          # Save world into a canvas that we put on a thread
+          # safe queue
+          self.save_map_to_queue()
+        except KeyboardInterrupt:
+          sys.exit(0)
+        finally:
+          gtk.gdk.threads_leave()
+
+
+        t = Thread(target=self.world_spinner)
+        t.start()
 
     def gui_spinner(self):
         log.info("GUI Showing Turn: %s", self.guiTurn)
+        gtk.gdk.threads_enter()
         self.draw_map()
+        gtk.gdk.threads_leave()
         return True
 
 m = None
@@ -146,7 +165,7 @@ def main(ais=[]):
     for ai in m.AI:
       m.add_building()
     gobject.timeout_add(100, m.gui_spinner)
-    glib.idle_add(m.world_spinner)
+    gobject.timeout_add(1000, m.threaded_world_spinner)
     gtk.main()
 
 def end_game():
@@ -154,5 +173,4 @@ def end_game():
     log.info("%s:%s", ai.__class__, ai.score)
 
 if __name__ == "__main__":
-  gtk.gdk.threads_init()
   main()
