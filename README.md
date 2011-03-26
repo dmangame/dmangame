@@ -182,6 +182,6 @@ See Also:
 I've been a fan of AI based games for a while, such as the [Google AI
 Challenge][g_src] and the [Queue ICPC Challenge][i_src]. They are fun and challenging
 (could you tell from their titles?)
-[g_src]: http://ai-contect.com
+[g_src]: http://ai-contest.com
 [i_src]: http://queue.acm.org/icpc/
 
