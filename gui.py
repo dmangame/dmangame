@@ -1,6 +1,7 @@
 
 
 import ai
+import glib
 import glob
 import gobject
 import gtk
@@ -9,6 +10,8 @@ import itertools
 import world
 import worldtalker
 import map
+
+import Queue
 
 import logging
 log = logging.getLogger("GUI")
@@ -22,6 +25,11 @@ class MapGUI:
         # Initialize Widgets
         self.window = gtk.Window()
         box = gtk.VBox()
+
+        screen = gtk.gdk.screen_get_default()
+        self.drawSize = min(screen.get_width(), screen.get_height()) / 4
+        print self.drawSize
+
 
         self.map_area = gtk.DrawingArea()
 
@@ -38,6 +46,10 @@ class MapGUI:
         self.AI = []
         self.ai_cycler = itertools.cycle(self.AI)
         self.colors = {}
+        self.guiTurn = 0
+
+        # Initialize our pixmap queue
+        self.pixmap_queue = Queue.Queue(300)
 
     def add_ai(self, ai):
         a = ai(self.wt)
@@ -51,12 +63,10 @@ class MapGUI:
           self.world.map.getRandomSquare())
 
     def draw_grid(self, context):
-        allocation = self.map_area.get_allocation()
-
-        width = allocation.width
-        height = allocation.height
-        deltax = float(width)/self.world.mapSize
-        deltay = float(height)/self.world.mapSize
+        width = self.drawSize
+        height = self.drawSize
+        deltax = float(width)/self.drawSize
+        deltay = float(height)/self.drawSize
         for i in xrange(self.world.mapSize):
             context.move_to(0, deltay*i)
             context.line_to(width, deltay*i)
@@ -66,24 +76,45 @@ class MapGUI:
             context.stroke()
 
     def draw_map(self):
-        allocation = self.map_area.get_allocation()
 
+        try:
+          pixmap = self.pixmap_queue.get(False)
+        except Queue.Empty, e:
+          return
+
+        self.guiTurn += 1
+
+        allocation = self.map_area.get_allocation()
         width = allocation.width
         height = allocation.height
-        pixmap = gtk.gdk.Pixmap(self.map_area.window,width,height)
-        cairo_context = pixmap.cairo_create()
-        map.draw_map(cairo_context, width, height,
-                     self.AI, self.world)
+        pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, True, 8, self.drawSize, self.drawSize)
+        pixbuf.get_from_drawable(pixmap, self.map_area.window.get_colormap(), 0, 0, 0, 0, self.drawSize, self.drawSize)
+
+        scaled_buf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_NEAREST)
         cairo_context_final = self.map_area.window.cairo_create()
-        cairo_context_final.set_source_pixmap(pixmap, 0, 0)
+        cairo_context_final.set_source_pixbuf(scaled_buf, 0, 0)
         cairo_context_final.paint()
 
 
     def map_expose_event_cb(self, widget, event):
         self.draw_map()
 
+    def save_map_to_queue(self):
 
-    def map_turn_event_cb(self, object):
+        width = self.drawSize
+        height = self.drawSize
+        pixmap = gtk.gdk.Pixmap(self.map_area.window,width,height)
+        cairo_context = pixmap.cairo_create()
+        map.draw_map(cairo_context, width, height,
+                     self.AI, self.world)
+
+        self.pixmap_queue.put(pixmap)
+
+
+    def world_spinner(self):
+        if self.pixmap_queue.full():
+          return True
+
         for ai in self.AI:
             ai._spin()
 #            try:
@@ -91,10 +122,15 @@ class MapGUI:
 #            except Exception, e:
 #                log.info("AI raised exception %s, skipping this turn for it", e)
         self.world.Turn()
-        self.draw_map()
 
-    def auto_spinner(self):
-        self.map_turn_event_cb(None)
+        # Save world into a canvas that we put on a thread
+        # safe queue
+        self.save_map_to_queue()
+        return True
+
+    def gui_spinner(self):
+        log.info("GUI Showing Turn: %s", self.guiTurn)
+        self.draw_map()
         return True
 
 m = None
@@ -109,7 +145,8 @@ def main(ais=[]):
 
     for ai in m.AI:
       m.add_building()
-    gobject.timeout_add(100, m.auto_spinner)
+    gobject.timeout_add(100, m.gui_spinner)
+    glib.idle_add(m.world_spinner)
     gtk.main()
 
 def end_game():
@@ -117,4 +154,5 @@ def end_game():
     log.info("%s:%s", ai.__class__, ai.score)
 
 if __name__ == "__main__":
+  gtk.gdk.threads_init()
   main()
