@@ -251,36 +251,22 @@ class WorldTalker:
         if not self.__world.alive[unit]:
             raise ai_exceptions.DeadUnitException("This unit is deceased")
 
-    def checkQueue(self, unit):
-        to_remove = []
-        for event in self.__world.events:
-            if event.getUnit() == unit:
-                to_remove.append(event)
-
-        for event in to_remove:
-            self.__world.events.remove(event)
-
-
-
     # Unit Functions
     def capture(self, unit, building):
         self.checkAlive(unit)
         self.checkOwner(unit)
-        self.checkQueue(unit)
         self.__world.createCaptureEvent(unit, building)
         return True
 
     def move(self, unit, square):
         self.checkAlive(unit)
         self.checkOwner(unit)
-        self.checkQueue(unit)
         self.__world.createMoveEvent(unit, square)
         return True
 
     def shoot(self, unit, square):
         self.checkAlive(unit)
         self.checkOwner(unit)
-        self.checkQueue(unit)
         self.__world.createShootEvent(unit, square, self.__world.bulletRange)
         return True
 

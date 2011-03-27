@@ -133,6 +133,7 @@ class World:
         self.map = worldmap.Map(self.mapSize)
         self.currentTurn = 0
         self.events = set()
+        self.unitevents = defaultdict(set)
         self.unitstatus = defaultdict(object)
 
         self.buildings = {}
@@ -252,7 +253,7 @@ class World:
             events.remove(event)
 
         for event in to_queue:
-            events.add(event)
+            self.__queueEvent(event)
 
     def __isDead(self, unit, attacker=None):
         if unit in self.units:
@@ -305,13 +306,7 @@ class World:
             self.map.removeObject(bullet)
             del self.bullets[bullet]
 
-        to_remove = []
-        for event in self.events:
-            if event.getUnit() == unit:
-                to_remove.append(event)
-
-        for event in to_remove:
-          self.events.remove(event)
+        self.__clearQueue(unit)
 
         if unit in self.unitfullpaths:
             del self.unitfullpaths[unit]
@@ -322,6 +317,8 @@ class World:
         if unit in self.unitstatus:
             del self.unitstatus[unit]
 
+        if unit in self.unitevents:
+            del self.unitevents[unit]
 
     def __dealMeleeDamage(self):
         for attacker in self.melees:
@@ -438,24 +435,42 @@ class World:
         self.bulletpaths = {}
         self.melees = {}
 
+    def __queueEvent(self, event):
+        self.events.add(event)
+        self.unitevents[event.getUnit()].add(event)
+
+    def __clearQueue(self, unit):
+        to_remove = []
+        for event in self.unitevents[unit]:
+            to_remove.append(event)
+
+        for event in to_remove:
+            try:
+              self.events.remove(event)
+            except KeyError:
+              pass
+
+        self.unitevents[unit].clear()
 
     # Public Functions
     # Creaters
 
     def createShootEvent(self, unit, square, range):
         log.debug("Creating ShootEvent: Unit %s to Square %s", unit, square)
+        self.__clearQueue(unit)
         if isValidSquare(square, self.mapSize):
             position = self.map.getPosition(unit)
             if position == square:
               e = MeleeEvent(unit, square)
             else:
               e = ShootEvent(unit, square, range)
-            self.events.add(e)
+            self.__queueEvent(e)
         else:
             raise ai_exceptions.IllegalSquareException(square)
 
     def createMoveEvent(self, unit, square):
         log.debug("Creating MoveEvent: Unit %s to Square %s", unit, square)
+        self.__clearQueue(unit)
         if isValidSquare(square, self.mapSize):
             e = MoveEvent(unit, square)
             # If we've already calculated the full path to destination, we
@@ -467,18 +482,19 @@ class World:
                           square)
               self.unitfullpaths[unit] = pathlong
 
-            self.events.add(e)
+            self.__queueEvent(e)
         else:
             raise ai_exceptions.IllegalSquareException(square)
 
     def createCaptureEvent(self, unit, building):
         log.debug("Creating CaptureEvent: Unit %s to Building %s", unit, building)
+        self.__clearQueue(unit)
         if self.map.getPosition(unit) == self.map.getPosition(building):
         #I'm trying to check if the unit is inside the building
         #we will also have to check if there are enemies inside
         #the building, but I'm not sure how
             e = CaptureEvent(unit, building, settings.CAPTURE_LENGTH)
-            self.events.add(e)
+            self.__queueEvent(e)
         else:
             raise ai_exceptions.IllegalCaptureEvent("The unit is not in the building.")
 
