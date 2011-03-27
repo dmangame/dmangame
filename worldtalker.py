@@ -60,6 +60,11 @@ class WorldTalker:
         if unit in self.getVisibleEnemies():
             return True
 
+    def isUnderAttack(self, unit):
+        pos = unit.position
+        if pos in self.getVisibleSquares():
+            return unit in self.__world.under_attack
+
     def inRange(self, unit):
         # relies on both sight and bullet range.
         # Find all visible units to this unit.
