@@ -113,6 +113,23 @@ class TestWorldFunctions(unittest.TestCase):
 
     self.assertNotEqual(self.w.buildings[self.b], self.ai)
 
+  def test_capture_twice(self):
+    self.w.map.placeObject(self.b, self.bottom_right)
+    self.w.map.placeObject(self.unit, self.bottom_right)
+    self.w.buildings[self.b] = None
+
+    self.w.createCaptureEvent(self.unit, self.b)
+    self.w.Turn()
+    self.w.currentTurn = settings.UNIT_SPAWN_MOD+1
+    self.w.createCaptureEvent(self.unit, self.b)
+    self.assertNotEqual(self.w.buildings[self.b], self.ai)
+
+    for i in xrange(settings.CAPTURE_LENGTH-1):
+      self.assertNotEqual(self.w.buildings[self.b], self.ai)
+      self.w.Turn()
+
+    self.assertEqual(self.w.buildings[self.b], self.ai)
+
 
 if __name__ == "__main__":
   unittest.main()

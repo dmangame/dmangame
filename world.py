@@ -487,6 +487,11 @@ class World:
 
     def createCaptureEvent(self, unit, building):
         log.debug("Creating CaptureEvent: Unit %s to Building %s", unit, building)
+        if self.unitstatus[unit] is CAPTURING:
+          # If the unit is already in capture mode, let's
+          # ignore this event.
+          return
+
         self.__clearQueue(unit)
         if self.map.getPosition(unit) == self.map.getPosition(building):
         #I'm trying to check if the unit is inside the building
