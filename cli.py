@@ -18,10 +18,14 @@ LIFESPAN = 800
 import sys
 import os
 
+World = None
 AI = []
+
 def main(ai_classes=[]):
   w = world.World()
   wt = worldtalker.WorldTalker(w)
+  global World
+  World = w
 
   for ai in ai_classes:
     AI.append(ai(wt))
@@ -52,6 +56,7 @@ def main(ai_classes=[]):
       if settings.SAVE_IMAGES:
         worldmap.draw_map(cairo_context, 200, 200, AI, w)
   log.info("Finished simulating the world")
+
 
 def end_game():
   for ai in AI:
