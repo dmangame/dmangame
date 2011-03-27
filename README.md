@@ -75,33 +75,14 @@ take damage (including allies).
 ### Damage ###
 
 When a bullet hits a unit, its energy is depleted by ATTACK*LOG(MAPSIZE) -
-ARMOR amount. If a unit's energy below 0, it is considered dead and is taken
-off the map. Any moves that the unit made during the round are still carried
-out - so it can finish a capture event or attack.
+ARMOR amount. If a unit's energy falls below 0, it is considered dead and is
+taken off the map. Any moves that the unit made during the round are still
+carried out - so it can finish a capture event or attack.
 
 ### End game ###
 
 The game ends when only one AI owns all units and buildings or LIFESPAN turns have passed.
 If the game ends when LIFESPAN turns have passed, it is considered a draw.
-
-###Unit Attributes:###
-
-####SPEED####
-How far the unit can move in one round
-
-####ENERGY####
-How much energy the unit has, when this runs to 0, the unit
-is killed and removed from the map.
-
-####ATTACK####
-How much damage a unit does
-
-####SIGHT####
-How far a unit can see on the map.
-
-####ARMOR####
-Modifies much damage a unit absorbs when being hit by a bullet
-
 
 ##Writing an AI##
 
