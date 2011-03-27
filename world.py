@@ -275,7 +275,7 @@ class World:
         stats.team = owner.team
         unit = self.__createUnit(stats, square)
         try:
-          owner._new_unit(unit)
+          owner._unit_spawned(unit)
         except Exception, e:
           log.info("Spawn exception")
           log.info(e)
@@ -364,7 +364,15 @@ class World:
 
     def __cleanupDead(self):
         for unit in self.died:
-            self.dead_units[unit] = copy.copy(self.units[unit])
+            stats = self.units[unit]
+            self.dead_units[unit] = copy.copy(stats)
+            owner = stats.ai
+            try:
+              owner._unit_died(unit)
+            except Exception, e:
+              log.info("Death exception")
+              log.info(e)
+
             self.__unitCleanup(unit)
         self.died = []
 

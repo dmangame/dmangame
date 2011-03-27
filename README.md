@@ -90,14 +90,15 @@ You write an AI that is responsible for controlling a team of
 units. Your AI should subclass ai.AI and can implement three functions:
 
     def _init(self):
-    def _new_unit(self, unit):
+    def _unit_spawned(self, unit):
+    def _unit_died(self, unit):
     def _spin(self):
 
 \_init() is called when the AI is first created. Every turn of
 the game world, \_spin() is called. During this time, the AI
 should interact with its units and issue commands. Whenever a
 unit is spawned by a building, its AI is notified via the
-\_new\_unit(unit) call.
+\_unit\_spawned(unit) call. Whenever a unit dies, the AI is notified via a \_unit\_died(unit) call.
 
 You can interact with your units via the properties defined
 in ai.AI (ai/base.py). For example, you can have all your
@@ -136,7 +137,7 @@ capturing a building (If they are on the same square as a building).
           print self.my_units
           print self.visible_enemies
 
-        def _new_unit(self, unit):
+        def _unit_spawned(self, unit):
           print "Received a new unit: %s" % unit
 
 

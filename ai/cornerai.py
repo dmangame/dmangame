@@ -46,5 +46,5 @@ class CornerAI(ai.AI):
         for unit in self.my_units:
           self.moveToCorner(unit)
 
-    def _new_unit(self, vunit):
+    def _unit_spawned(self, vunit):
       self.unitsquares[vunit] = next(self.corner_cycler)

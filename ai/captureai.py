@@ -55,5 +55,5 @@ class CaptureAI(ai.AI):
         for unit in self.my_units:
             self.search_for_buildings(unit)
 
-    def _new_unit(self, unit):
+    def _unit_spawned(self, unit):
         self.corners[unit] = next(self.corner_cycler)

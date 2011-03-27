@@ -17,5 +17,5 @@ class TestAI(ai.AI):
         log.info( "and I can see these units: %s", self.visible_enemies)
         log.info( self.wt.getID())
 
-    def _new_unit(self, unit):
+    def _unit_spawned(self, unit):
         log.info( "Yay, I received a new unit: %s", unit)
