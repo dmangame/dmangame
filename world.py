@@ -152,14 +152,14 @@ class World:
 
 
     # Private Functions
-    def __handleMeleeEvent(self, event, garbage):
+    def __handleMeleeEvent(self, event, garbage, to_queue):
         unit = event.getUnit()
         target = event.getTarget()
 
         log.debug("%s melees %s", unit, target)
         self.melees[unit] = target
 
-    def __handleShootEvent(self, event, garbage):
+    def __handleShootEvent(self, event, garbage, to_queue):
         unit = event.getUnit()
         target = event.getTarget()
         # Build the bullet with shooter, target square and range
@@ -178,9 +178,8 @@ class World:
         garbage.append(event)
 
 
-    def __handleMoveEvent(self, event, garbage):
+    def __handleMoveEvent(self, event, garbage, to_queue):
         unit = event.getUnit()
-        endsquare = event.getEndSquare()
         speed = self.units[unit].speed
 
         self.unitstatus[unit] = MOVING
@@ -202,9 +201,18 @@ class World:
         # we can finish movement.
         if not pathlong:
             self.unitstatus[unit] = None
+            event_endsquare = event.getEndSquare()
+            if endsquare != event_endsquare:
+              log.debug("Didn't land on square, calculating new path")
+              e = MoveEvent(unit, event_endsquare)
+              pathlong = self.map.calcUnitPath(self.map.getPosition(unit),
+                            event_endsquare)
+              self.unitfullpaths[unit] = pathlong
+              to_queue.append(e)
+
             garbage.append(event)
 
-    def __handleCaptureEvent(self, event, garbage):
+    def __handleCaptureEvent(self, event, garbage, to_queue):
         event.spinCounter()
         unit = event.getUnit()
 
@@ -226,22 +234,25 @@ class World:
     def __processPendingEvents(self):
         events = self.events #self.__eventQueue.getPendingEvents()
         garbage = [] # Put events to be removed in here
+        to_queue = [] # Put events to be added here
         for event in events:
             log.debug("Handling %s", event)
             if event.getType() == 'Capture':
-                self.__handleCaptureEvent(event, garbage)
+                self.__handleCaptureEvent(event, garbage, to_queue)
             elif event.getType() == 'Shoot':
-                self.__handleShootEvent(event, garbage)
+                self.__handleShootEvent(event, garbage, to_queue)
             elif event.getType() == 'Melee':
-                self.__handleMeleeEvent(event, garbage)
+                self.__handleMeleeEvent(event, garbage, to_queue)
             elif event.getType() == 'Move':
-                self.__handleMoveEvent(event, garbage)
+                self.__handleMoveEvent(event, garbage, to_queue)
 
         # Events are placed in the garbage in the handler and
         # are trashed at the end of all processing
         for event in garbage:
             events.remove(event)
 
+        for event in to_queue:
+            events.add(event)
 
     def __isDead(self, unit, attacker=None):
         if unit in self.units:
