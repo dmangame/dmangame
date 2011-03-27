@@ -129,6 +129,7 @@ class World:
           mapsize = settings.MAP_SIZE
         self.AI = []
         self.units = {} # instead of a list, it will point to the unit's attributes.
+        self.all_units = {} # instead of a list, it will point to the unit's attributes.
         self.mapSize = mapsize
         self.map = worldmap.Map(self.mapSize)
         self.currentTurn = 0
@@ -143,7 +144,6 @@ class World:
         self.unitpaths = {}
         self.bulletpaths = {}
         self.bullets = {}
-        self.alive = {}
         self.died = []
         self.dead_units = {}
         self.oldbullets = []
@@ -258,7 +258,6 @@ class World:
     def __isDead(self, unit, attacker=None):
         if unit in self.units:
             if self.units[unit].energy < 1:
-                self.alive[unit] = False
 
                 if not unit in self.died:
                     log.info("%s died", (unit))
@@ -384,9 +383,9 @@ class World:
 
         unit = Unit(self.wt, stats)
         self.units[unit] = stats
+        self.all_units[unit] = stats
 
         stats.unit = unit
-        self.alive[unit] = True
 
         # This is only temporary, but place the units at the 0, 0 square.
         self.map.placeObject(unit, square)
@@ -512,10 +511,7 @@ class World:
       # Doing the actual exception check is way slower than
       # doing the exception handling, for some reason
       try:
-        try:
-          return self.units[unit]
-        except:
-          return self.dead_units[unit]
+        return self.all_units[unit]
       except:
         pass
 

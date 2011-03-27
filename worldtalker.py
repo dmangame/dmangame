@@ -39,7 +39,7 @@ class WorldTalker:
     def isAlive(self, unit):
         pos = unit.position
         if pos in self.getVisibleSquares():
-            return self.__world.alive[unit]
+            return unit in self.__world.units
 
     def isCapturing(self, unit):
         pos = unit.position
@@ -248,7 +248,7 @@ class WorldTalker:
 
     def checkAlive(self, unit):
         ai_id = self.getID()
-        if not self.__world.alive[unit]:
+        if not unit in self.__world.units:
             raise ai_exceptions.DeadUnitException("This unit is deceased")
 
     # Unit Functions
