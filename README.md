@@ -93,11 +93,11 @@ units. Your AI should subclass ai.AI and can implement three functions:
     def _new_unit(self, unit):
     def _spin(self):
 
-_init() is called when the AI is first created. Every turn of
-the game world, _spin() is called. During this time, the AI
+\_init() is called when the AI is first created. Every turn of
+the game world, \_spin() is called. During this time, the AI
 should interact with its units and issue commands. Whenever a
 unit is spawned by a building, its AI is notified via the
-_new_unit(unit) call.
+\_new\_unit(unit) call.
 
 You can interact with your units via the properties defined
 in ai.AI (ai/base.py). For example, you can have all your
@@ -115,7 +115,7 @@ or list which squares you can see, your visible enemies or which buildings are c
 
 
 The game starts out with one building per AI. Each AI is then initialized with
-a call to _init(), and the game world starts running. On the first turn of the
+a call to \_init(), and the game world starts running. On the first turn of the
 game, each building spawns a unit. Every UNIT_SPAWN_MOD (as defined in the map)
 turns, the buildings spawn a unit of whichever AI happens to be controlling
 them.
