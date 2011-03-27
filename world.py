@@ -130,6 +130,7 @@ class World:
         self.AI = []
         self.units = {} # instead of a list, it will point to the unit's attributes.
         self.all_units = {} # instead of a list, it will point to the unit's attributes.
+        self.under_attack = set()
         self.mapSize = mapsize
         self.map = worldmap.Map(self.mapSize)
         self.currentTurn = 0
@@ -359,6 +360,7 @@ class World:
             damage = attack * math.log(self.mapSize) - armor
             if damage > 0:
                 self.units[victim].energy -= int(damage)
+                self.under_attack.add(victim)
             index += 1
             self.__isDead(victim, attacker)
 
@@ -429,10 +431,11 @@ class World:
         self.bullets = bullets
         self.oldbullets = oldbullets
 
-    def __clearPaths(self):
+    def __clearTurnData(self):
         self.unitpaths = {}
         self.bulletpaths = {}
         self.melees = {}
+        self.under_attack = set()
 
     def __queueEvent(self, event):
         self.events.add(event)
@@ -523,7 +526,7 @@ class World:
     # Runs the world one iteration
     def Turn(self):
         log.info("Turning the World, %s", self.currentTurn)
-        self.__clearPaths()
+        self.__clearTurnData()
         self.__processPendingEvents()
         self.__createUnitPaths()
         self.__createBulletPaths()

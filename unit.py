@@ -43,6 +43,11 @@ class Unit(mapobject.MapObject):
         return self.__wt.isShooting(self)
     is_shooting = property(isShooting)
 
+    def isUnderAttack(self):
+        " Returns if this unit is under attack"
+        return self.__wt.isUnderAttack(self)
+    is_under_attack = property(isUnderAttack)
+
     def isVisible(self, unit):
         " Returns if unit is visible (in sight range) to this unit "
         return self.__wt.getPosition(unit) in self.__wt.getVisibleSquares(self)
