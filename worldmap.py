@@ -52,7 +52,7 @@ def draw_map(cairo_context, width, height, AI, world):
   for unit in world.melees:
       team = unit.team
       color = ai.AI_COLORS[team]
-      x, y = world.map.getPosition(unit)
+      x, y = world.melees[unit]
       cairo_context.set_source_rgb(*color)
       cairo_context.rectangle(deltax*x-(deltax), deltay*y-(deltay), 4*deltax, 4*deltay)
       cairo_context.fill()
