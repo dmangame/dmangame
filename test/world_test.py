@@ -113,7 +113,7 @@ class TestWorldFunctions(unittest.TestCase):
 
     self.assertNotEqual(self.w.buildings[self.b], self.ai)
 
-  
+
 if __name__ == "__main__":
   unittest.main()
 

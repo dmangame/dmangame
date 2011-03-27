@@ -34,7 +34,7 @@ class MapGUI:
         box = gtk.VBox()
 
         screen = gtk.gdk.screen_get_default()
-        self.drawSize = min(screen.get_width(), screen.get_height()) / 4
+        self.drawSize = min(screen.get_width(), screen.get_height())
 
 
         self.map_area = gtk.DrawingArea()
