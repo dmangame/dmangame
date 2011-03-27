@@ -7,17 +7,24 @@ You can find the latest version of the source code on [github][]
 
 [github]:http://github.com/okayzed/dmangame
 
-##Playing##
+## What is it? ##
 
-Run:
+Briefly, dmangame is about writing an AI to play a simplified Realtime Strategy
+Game.  There is no 'playing' done by humans, the game is played by various AI.
+Each AI controls a team of units that it is able to communicate with.  The AI's
+objective is to crush its enemies and hear the lamentation of their pixels.
 
-    # Run with graphics (you probably want this)
+Your objective is to code this AI.
+
+## Playing ##
+
+    # Play with graphics (you probably want this)
     python main.py ai/captureai.py ai/killncapture.py
 
-    # Run without graphics
+    # Play without graphics
     python main.py ai/capture.ai ai/killncapture.py -c
 
-    # Run on a specific map
+    # Play on a specific map
     python main.py ai/capture.ai ai/killncapture.py -m maps/micro.py
 
     # Run with any number of AIs
@@ -27,13 +34,76 @@ Run:
     python main.py --help
 
 
-##Purpose##
-
-To write an AI that competes against other AIs in a relatively simple world.
-The overall objective is to crush your enemies, see them driven before you, and
-to hear the lamentation of their pixels.
-
 ##Game Play##
+
+## Game Mechanics ##
+
+### World ###
+The world is a 2dimensional square that is MAP_SIZExMAP_SIZE. There are 3 main
+objects that exist in the game world: units, buildings and bullets.
+
+### Units ###
+
+The only object that the AIs can command are units. Each unit has an AI that it
+belongs to and it will only accept commands from that AI. These units have 3
+abilities: moving, shooting and capturing.  Additionally, every unit is able to
+see its surroundings and report them back to its AI. The units have energy and
+when that runs to zero, they die. The only way to acquire more units is through
+buildings.
+
+### Buildings ###
+
+Buildings are stationary objects that spawn a new Unit every UNIT_SPAWN_MOD
+turns for the AI that owns the Building. A building can be captured by another
+AI through its units. To capture a building, a unit must step inside it and
+begin capturing. If the unit can stay there for CAPTURE_LENGTH turns without
+shooting or moving, the base will change ownership to that units AI.
+
+### Attacking ###
+When a unit attacks, they can either attack the square they are currently
+standing on, or a square that is within range.  if they are attacking the same
+square they are on, they use a Melee attack.
+
+The melee attack instantly kills all enemy units on the same square (and no
+allies).
+
+If they are attacking a distant square, they shoot a bullet towards that
+square. The bullet travels at about MAPSIZE/10 units a turn, while their full
+range is MAPSIZE/8 units. Any unit who falls within the path of a bullet will
+take damage (including allies).
+
+### Damage ###
+
+When a bullet hits a unit, its energy is depleted by ATTACK*LOG(MAPSIZE) -
+ARMOR amount. If a unit's energy below 0, it is considered dead and is taken
+off the map. Any moves that the unit made during the round are still carried
+out - so it can finish a capture event or attack.
+
+### End game ###
+
+The game ends when only one AI owns all units and buildings or LIFESPAN turns have passed.
+If the game ends when LIFESPAN turns have passed, it is considered a draw.
+
+###Unit Attributes:###
+
+####SPEED####
+How far the unit can move in one round
+
+####ENERGY####
+How much energy the unit has, when this runs to 0, the unit
+is killed and removed from the map.
+
+####ATTACK####
+How much damage a unit does
+
+####SIGHT####
+How far a unit can see on the map.
+
+####ARMOR####
+Modifies much damage a unit absorbs when being hit by a bullet
+
+
+##Writing an AI##
 
 You write an AI that is responsible for controlling a team of
 units. Your AI should subclass ai.AI and can implement three functions:
@@ -125,28 +195,6 @@ attack stops the unit's movement, and the unit will sit at that location. (and
 not continue to its final destination).
 
     python main.py ai/towerai.py ai/captureai.py
-
-## Game Mechanics ##
-
-###Unit Attributes:###
-  At the moment, all units have fixed attributes, but each building is capable
-  of spawning units with different attributes.
-
-####SPEED####
-How far the unit can move in one round
-
-####ENERGY####
-How much energy the unit has, when this runs to 0, the unit
-is killed and removed from the map.
-
-####ATTACK####
-How much damage a unit does
-
-####SIGHT####
-How far a unit can see on the map.
-
-####ARMOR####
-Modifies much damage a unit absorbs when being hit by a bullet
 
 ##Unit API##
 
