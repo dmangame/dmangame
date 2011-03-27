@@ -60,9 +60,54 @@ class TestWorldFunctions(unittest.TestCase):
 
 
 
+  # Test that melee kills a unit on the same square
   def test_melee(self):
-    # Test the melee event
-    pass
+    other_ai = SecurityAI(self.wt)
+    s = world.Stats(ai_id=other_ai.ai_id,
+                    team=other_ai.team)
+    s.ai = other_ai
+    other_unit = self.w.createUnit(s, self.top_left)
+    self.assertEqual(other_unit in self.w.units, True)
+    self.w.map.placeObject(self.unit, self.top_left)
+    self.w.currentTurn = settings.UNIT_SPAWN_MOD+1
+    self.w.createShootEvent(self.unit, self.top_left, 1)
+    self.w.Turn()
+    self.assertEqual(other_unit in self.w.units, False)
+
+  # Test that melee doesn't kill allies on the same square
+  def test_melee_no_friendly_fire(self):
+    s = world.Stats(ai_id=self.ai.ai_id,
+                    team=self.ai.team)
+    friendly_unit = self.w.createUnit(s, self.top_left)
+    self.assertEqual(friendly_unit in self.w.units, True)
+    self.w.map.placeObject(self.unit, self.top_left)
+    self.w.currentTurn = settings.UNIT_SPAWN_MOD+1
+    self.w.createShootEvent(self.unit, self.top_left, 1)
+    self.w.Turn()
+    self.assertEqual(friendly_unit in self.w.units, True)
+
+  def test_melee_kill_all_enemies(self):
+    enemies = []
+    self.w.map.placeObject(self.unit, self.top_left)
+
+    for x in xrange(5):
+      other_ai = SecurityAI(self.wt)
+      s = world.Stats(ai_id=other_ai.ai_id,
+                      team=other_ai.team)
+      s.ai = other_ai
+      other_unit = self.w.createUnit(s, self.top_left)
+      enemies.append(other_unit)
+
+    for other_unit in enemies:
+      self.assertEqual(other_unit in self.w.units, True)
+
+    self.w.currentTurn = settings.UNIT_SPAWN_MOD+1
+    self.w.createShootEvent(self.unit, self.top_left, 1)
+    self.w.Turn()
+    for other_unit in enemies:
+      self.assertEqual(other_unit in self.w.units, False)
+
+
 
   def test_shoot(self):
     # Test the shoot event
