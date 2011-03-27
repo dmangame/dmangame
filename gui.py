@@ -149,37 +149,18 @@ class MapGUI:
 
           # Save world into a canvas that we put on a thread
           # safe queue
-          while not self.lock.acquire(False):
-            time.sleep(0.01)
-            if self.stopped:
-              sys.exit(0)
-
-          try:
-            if self.stopped:
-              sys.exit(0)
-            gtk.gdk.threads_enter()
-            try:
-              self.save_map_to_queue()
-            finally:
-              gtk.gdk.threads_leave()
-          finally:
-            self.lock.release()
-
+          self.save_map_to_queue()
 
     def gui_spinner(self):
         log.info("GUI Showing Turn: %s", self.guiTurn)
         try:
-          self.lock.acquire()
-          gtk.gdk.threads_enter()
           self.draw_map()
         except Exception, e:
           if self.map_area.window is None:
             self.stopped = True
+            end_game()
             sys.exit(1) #window has closed
           self.stopped = False
-        finally:
-          gtk.gdk.threads_leave()
-          self.lock.release()
         return True
 
 m = None

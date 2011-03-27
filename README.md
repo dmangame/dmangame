@@ -33,7 +33,6 @@ To write an AI that competes against other AIs in a relatively simple world.
 The overall objective is to crush your enemies, see them driven before you, and
 to hear the lamentation of their pixels.
 
-
 ##Game Play##
 
 You write an AI that is responsible for controlling a team of
