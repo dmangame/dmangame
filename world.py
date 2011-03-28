@@ -169,7 +169,7 @@ class World:
         log.debug("%s shoots towards %s", unit, target)
         bullet = mapobject.Bullet(unit, target)
         position = self.map.getPosition(unit)
-        self.unitstatus[unit] = None
+        self.unitstatus[unit] = SHOOTING
         range = self.bulletRange
 
         path = self.map.calcBulletPath(position, target, min(range, self.bulletSpeed))
