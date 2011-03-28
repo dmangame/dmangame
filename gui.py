@@ -15,6 +15,7 @@ import itertools
 import traceback
 import sys
 import time
+import traceback
 
 gtk.gdk.threads_init()
 from threading import Thread, RLock
@@ -26,33 +27,21 @@ log = logging.getLogger("GUI")
 
 BUFFER_SIZE=100
 
-
+import pango
+AI_FONT = pango.FontDescription('Sans 10')
 
 
 
 class MapGUI:
     def __init__(self):
         # Initialize Widgets
-        self.window = gtk.Window()
-        box = gtk.VBox()
 
-        screen = gtk.gdk.screen_get_default()
-        self.drawSize = min(screen.get_width(), screen.get_height())
-
-
-        self.map_area = gtk.DrawingArea()
-
-        box.pack_start(self.map_area)
-        self.window.add(box)
-        self.window.show_all()
-        self.map_area.connect("expose-event", self.map_expose_event_cb)
-        self.window.resize(250, 250)
-        self.window.connect("destroy", end_threads)
-
+        self.initialize_map_window()
         # Initialize the world
         self.world = world.World()
         self.wt = worldtalker.WorldTalker(self.world)
         self.AI = []
+        self.ai_drawables = {}
         self.ai_cycler = itertools.cycle(self.AI)
         self.colors = {}
         self.guiTurn = 0
@@ -62,9 +51,36 @@ class MapGUI:
         self.frame_queue = Queue.Queue(BUFFER_SIZE)
         self.lock = RLock()
 
-    def add_ai(self, ai):
-        a = ai(self.wt)
+    def initialize_map_window(self):
+        self.window = gtk.Window()
+        box = gtk.HBox()
+        self.key_area = gtk.VBox()
+        self.key_area.set_size_request(200, -1)
+
+        screen = gtk.gdk.screen_get_default()
+        self.drawSize = min(screen.get_width(), screen.get_height())
+
+
+        self.map_area = gtk.DrawingArea()
+
+        box.pack_start(self.map_area, True)
+        box.pack_end(self.key_area, False)
+        self.window.add(box)
+        self.window.show_all()
+        self.map_area.connect("expose-event", self.map_expose_event_cb)
+        self.window.resize(250, 250)
+        self.window.connect("destroy", end_threads)
+
+
+    def draw_key_data(self):
+        pass
+
+
+    def add_ai(self, ai_class):
+        a = ai_class(self.wt)
         self.AI.append(a)
+        self.ai_drawables[a] = gtk.DrawingArea()
+        self.key_area.pack_start(self.ai_drawables[a], True)
         a._init()
 
     def add_building(self, ai=None):
@@ -118,7 +134,45 @@ class MapGUI:
         self.update_ai_stats(ai_data)
 
     def update_ai_stats(self, ai_data):
-        pass
+        for ai_player in ai_data:
+          d_area = self.ai_drawables[ai_player]
+          allocation = d_area.get_allocation()
+          width = allocation.width
+          height = allocation.height
+
+          color = ai.AI_COLORS[ai_player.team]
+          cairo_context = d_area.window.cairo_create()
+          cairo_context.set_source_rgb(*color)
+          cairo_context.rectangle(0, 0, width, height)
+          cairo_context.fill()
+
+          stats = ai_data[ai_player]
+          keys = stats.keys()
+          keys.sort()
+          # create a font description
+
+          gc = d_area.window.new_gc()
+          dy = height / (len(keys) + 1)
+
+          index = 1
+          ai_name = str(ai_player.__class__).split(".")[-1]
+          layout = d_area.create_pango_layout(ai_name)
+          layout.set_font_description(AI_FONT)
+          layout.set_width(pango.SCALE * width)
+
+          d_area.window.draw_layout(gc, 5, 5, layout)
+
+          for k in keys:
+            layout = d_area.create_pango_layout('%s:%s' % (k, stats[k]))
+            layout.set_font_description(AI_FONT)
+            layout.set_width(pango.SCALE * width)
+            d_area.window.draw_layout(gc, 5, dy*index+5, layout)
+            index += 1
+
+
+        self.key_area.show_all()
+
+
 
     def map_expose_event_cb(self, widget, event):
         self.draw_map_and_ai_data()
@@ -136,9 +190,12 @@ class MapGUI:
 
         ai_data = {}
         for ai in self.AI:
-          ai_data[ai] = { "score" : ai.score, "shoot" : 0, "capture" : 0, "move" : 0 }
+          ai_data[ai] = { "units" : ai.score["units"], "shoot" : 0, "capture" : 0, "move" : 0, "kills" : ai.score["kills"]}
           for unit in self.world.units:
             status = self.world.unitstatus[unit]
+            if self.world.units[unit].ai != ai:
+              continue
+
             if status == world.MOVING:
               ai_data[ai]["move"] += 1
             if status == world.SHOOTING:

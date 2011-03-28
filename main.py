@@ -20,6 +20,7 @@ import glob
 import os
 import sys
 import imp
+import traceback
 from optparse import OptionParser
 
 import cli
@@ -106,6 +107,8 @@ def main():
       cli.main(ais)
     except KeyboardInterrupt, e:
       pass
+    except Exception, e:
+      traceback.print_exc()
     finally:
       cli.end_game()
   else:
@@ -113,6 +116,8 @@ def main():
       gui.main(ais)
     except KeyboardInterrupt, e:
       gui.end_threads()
+    except Exception, e:
+      traceback.print_exc()
     finally:
       gui.end_game()
 
