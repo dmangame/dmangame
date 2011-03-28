@@ -131,29 +131,38 @@ class MapGUI:
         t.start()
 
     def world_spinner(self):
-        while not self.stopped:
 
-          while self.frame_queue.full():
-            if self.stopped:
-              sys.exit(0)
-              return
-            time.sleep(0.05)
+        try:
+            while not self.stopped:
 
-          for ai in self.AI:
-              ai._spin()
-  #            try:
-  #               ai.spin()
-  #            except Exception, e:
-  #                log.info("AI raised exception %s, skipping this turn for it", e)
-          self.world.Turn()
+              while self.frame_queue.full():
+                if self.stopped:
+                  sys.exit(0)
+                  return
+                time.sleep(0.05)
 
-          # Save world into a canvas that we put on a thread
-          # safe queue
-          self.save_map_to_queue()
+              for ai in self.AI:
+                  ai._spin()
+      #            try:
+      #               ai.spin()
+      #            except Exception, e:
+      #                log.info("AI raised exception %s, skipping this turn for it", e)
+              self.world.Turn()
+
+              # Save world into a canvas that we put on a thread
+              # safe queue
+              self.save_map_to_queue()
+        except Exception, e:
+            self.stopped = True
+            end_game()
+            sys.exit(1)
 
     def gui_spinner(self):
         log.info("GUI Showing Turn: %s", self.guiTurn)
         try:
+          if self.stopped:
+            sys.exit(0)
+
           self.draw_map()
         except Exception, e:
           if self.map_area.window is None:

@@ -3,7 +3,7 @@ import ai
 AIClass="SimpleAI"
 class SimpleAI(ai.AI):
     def _init(self):
-      print self.currentTurn
+      print self.current_turn
 
     def _spin(self):
       print self.my_units
