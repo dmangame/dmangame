@@ -92,7 +92,7 @@ class MapGUI:
         self.window.add(box)
         self.window.show_all()
         self.map_area.connect("expose-event", self.map_expose_event_cb)
-        self.window.resize(250, 250)
+        self.window.resize(700, 500)
         self.window.connect("destroy", end_threads)
 
 
