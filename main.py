@@ -19,6 +19,8 @@ gc.disable()
 import glob
 import os
 import sys
+
+sys.path.append("lib")
 import imp
 import traceback
 from optparse import OptionParser

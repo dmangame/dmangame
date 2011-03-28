@@ -6,6 +6,11 @@ import world
 import worldmap
 import worldtalker
 
+# For Key
+import pygtk_chart
+import pygtk_chart.pie_chart
+import pygtk_chart.bar_chart
+
 import cairo
 import glib
 import glob
@@ -31,6 +36,22 @@ import pango
 AI_FONT = pango.FontDescription('Sans 10')
 
 
+AI_STATS=[
+  'moving',
+  'shooting',
+  'capturing',
+  'idle',
+  'kills',
+  'units'
+  ]
+AI_STAT_COLORS={
+  'moving'         : (0.0,0.5,0.0),
+  'shooting'       : (0.5,0.0,0.0),
+  'capturing'      : (0.0,0.0,0.5),
+  'idle'           : (0.5,0.5,0.5),
+  'kills'          : (0.5,0.0,0.0),
+  'units'          : (0.0,0.0,0.5),
+  }
 
 class MapGUI:
     def __init__(self):
@@ -55,16 +76,18 @@ class MapGUI:
         self.window = gtk.Window()
         box = gtk.HBox()
         self.key_area = gtk.VBox()
-        self.key_area.set_size_request(200, -1)
+        key_outer = gtk.ScrolledWindow()
+        key_outer.add_with_viewport(self.key_area)
+        key_outer.set_size_request(200, -1)
 
         screen = gtk.gdk.screen_get_default()
         self.drawSize = min(screen.get_width(), screen.get_height())
+        box.pack_end(key_outer, False)
 
 
         self.map_area = gtk.DrawingArea()
 
         box.pack_start(self.map_area, True)
-        box.pack_end(self.key_area, False)
         self.window.add(box)
         self.window.show_all()
         self.map_area.connect("expose-event", self.map_expose_event_cb)
@@ -79,8 +102,30 @@ class MapGUI:
     def add_ai(self, ai_class):
         a = ai_class(self.wt)
         self.AI.append(a)
-        self.ai_drawables[a] = gtk.DrawingArea()
-        self.key_area.pack_start(self.ai_drawables[a], True)
+        vbox = gtk.VBox()
+        vbox.pack_start(gtk.Label(str(ai_class).split(".")[-1]))
+        p_chart = pygtk_chart.bar_chart.BarChart()
+        p_chart.set_mode(pygtk_chart.bar_chart.MODE_HORIZONTAL)
+        b_chart = pygtk_chart.bar_chart.BarChart()
+        vbox.pack_start(p_chart)
+        vbox.pack_start(b_chart)
+        for stat in ['moving', 'shooting', 'capturing', 'idle']:
+          bar = pygtk_chart.bar_chart.Bar(stat, 0, stat[:3])
+          bar.set_color(gtk.gdk.Color(*AI_STAT_COLORS[stat]))
+          p_chart.add_bar(bar)
+
+
+        for stat in ['units', 'kills']:
+          area = pygtk_chart.bar_chart.Bar(stat, 0, stat)
+          area.set_color(gtk.gdk.Color(*AI_STAT_COLORS[stat]))
+          b_chart.add_bar(area)
+
+        b_chart.grid.set_visible(False)
+        b_chart.set_draw_labels(True)
+        p_chart.set_draw_labels(True)
+        p_chart.grid.set_show_values(False)
+        self.ai_drawables[a] = (p_chart, b_chart)
+        self.key_area.pack_start(vbox)
         a._init()
 
     def add_building(self, ai=None):
@@ -135,40 +180,20 @@ class MapGUI:
 
     def update_ai_stats(self, ai_data):
         for ai_player in ai_data:
-          d_area = self.ai_drawables[ai_player]
-          allocation = d_area.get_allocation()
-          width = allocation.width
-          height = allocation.height
 
-          color = ai.AI_COLORS[ai_player.team]
-          cairo_context = d_area.window.cairo_create()
-          cairo_context.set_source_rgb(*color)
-          cairo_context.rectangle(0, 0, width, height)
-          cairo_context.fill()
+          p_chart, b_chart = self.ai_drawables[ai_player]
+          color = gtk.gdk.Color(*ai.AI_COLORS[ai_player.team])
+          b_chart.background.set_property('color', color)
+          p_chart.background.set_property('color', color)
+          for k in ['units', 'kills']:
+            v = ai_data[ai_player][k]
+            bar = b_chart.get_area(k)
+            bar.set_value(v)
 
-          stats = ai_data[ai_player]
-          keys = stats.keys()
-          # create a font description
-
-          gc = d_area.window.new_gc()
-          dy = height / (len(keys) + 1)
-
-          index = 1
-          ai_name = str(ai_player.__class__).split(".")[-1]
-          layout = d_area.create_pango_layout(ai_name)
-          layout.set_font_description(AI_FONT)
-          layout.set_width(pango.SCALE * width)
-
-          d_area.window.draw_layout(gc, 5, 5, layout)
-
-          for k in ['moving', 'shooting', 'capturing',
-                    'idle', 'kills', 'units']:
-            layout = d_area.create_pango_layout('%s:%s' % (k, stats[k]))
-            layout.set_font_description(AI_FONT)
-            layout.set_width(pango.SCALE * width)
-            d_area.window.draw_layout(gc, 5, dy*index+5, layout)
-            index += 1
-
+          for k in ['moving', 'shooting', 'idle', 'capturing']:
+            v = ai_data[ai_player][k]
+            bar = p_chart.get_area(k)
+            bar.set_value(v)
 
         self.key_area.show_all()
 
