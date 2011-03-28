@@ -150,8 +150,8 @@ class World:
         self.dead_units = {}
         self.oldbullets = []
         self.bullet_endings = defaultdict(bool)
-        self.bulletRange = self.mapSize/8
-        self.bulletSpeed = self.mapSize/10
+        self.bulletRange = self.mapSize/settings.BULLET_RANGE_MODIFIER
+        self.bulletSpeed = self.mapSize/settings.BULLET_SPEED_MODIFIER
 
 
     # Private Functions

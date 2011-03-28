@@ -213,7 +213,7 @@ def main(ais=[]):
 
     for ai in m.AI:
       m.add_building()
-    gobject.timeout_add(50, m.gui_spinner)
+    gobject.timeout_add(100, m.gui_spinner)
     m.threaded_world_spinner()
     gtk.main()
 
