@@ -183,6 +183,9 @@ class Bar(chart.Area):
         chart.add_sensitive_area(chart.AREA_RECTANGLE, (bar_x, bar_y, bar_width, bar_height), self)
 
     def _do_draw_single_horizontal(self, context,  rect, n, i, mode, max_value, bar_padding, value_label_size, label_size, draw_labels):
+        if max_value == 0:
+          return
+
         bar_width = (rect.width - value_label_size - label_size) * self._value / max_value
         bar_height = (rect.height - (n - 1) * bar_padding) / n
         bar_x = rect.x + label_size
