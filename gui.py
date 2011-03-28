@@ -114,8 +114,9 @@ class MapGUI:
           gtk.gdk.Color(*ai.AI_COLORS[a.team]))
         label_box.pack_start(label_color_box, False)
         label_box.pack_start(label)
+        label_box.set_size_request(-1, 20)
 
-        vbox.pack_start(label_box)
+        vbox.pack_start(label_box, False)
         labels = {}
         hbox = gtk.HBox()
         vbox.pack_start(hbox)
