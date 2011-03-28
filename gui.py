@@ -148,7 +148,6 @@ class MapGUI:
 
           stats = ai_data[ai_player]
           keys = stats.keys()
-          keys.sort()
           # create a font description
 
           gc = d_area.window.new_gc()
@@ -162,7 +161,8 @@ class MapGUI:
 
           d_area.window.draw_layout(gc, 5, 5, layout)
 
-          for k in keys:
+          for k in ['moving', 'shooting', 'capturing',
+                    'idle', 'kills', 'units']:
             layout = d_area.create_pango_layout('%s:%s' % (k, stats[k]))
             layout.set_font_description(AI_FONT)
             layout.set_width(pango.SCALE * width)
@@ -190,18 +190,20 @@ class MapGUI:
 
         ai_data = {}
         for ai in self.AI:
-          ai_data[ai] = { "units" : ai.score["units"], "shoot" : 0, "capture" : 0, "move" : 0, "kills" : ai.score["kills"]}
+          ai_data[ai] = { "units" : ai.score["units"], "shooting" : 0, "capturing" : 0, "moving" : 0, "kills" : ai.score["kills"], "idle" : 0}
           for unit in self.world.units:
             status = self.world.unitstatus[unit]
             if self.world.units[unit].ai != ai:
               continue
 
             if status == world.MOVING:
-              ai_data[ai]["move"] += 1
-            if status == world.SHOOTING:
-              ai_data[ai]["shoot"] += 1
-            if status == world.CAPTURING:
-              ai_data[ai]["capture"] += 1
+              ai_data[ai]["moving"] += 1
+            elif status == world.SHOOTING:
+              ai_data[ai]["shooting"] += 1
+            elif status == world.CAPTURING:
+              ai_data[ai]["capturing"] += 1
+            else:
+              ai_data[ai]["idle"] += 1
 
         self.frame_queue.put((surface, ai_data))
 
