@@ -106,11 +106,14 @@ class MapGUI:
         ai.generate_ai_color(a)
 
         vbox = gtk.VBox()
-        label_box = gtk.EventBox()
+        label_box = gtk.HBox()
+        label_color_box = gtk.EventBox()
         label = gtk.Label(str(ai_class).split(".")[-1])
-        label_box.add(label)
-        label_box.modify_bg(gtk.STATE_NORMAL,
+        label_color_box.set_size_request(20, -1)
+        label_color_box.modify_bg(gtk.STATE_NORMAL,
           gtk.gdk.Color(*ai.AI_COLORS[a.team]))
+        label_box.pack_start(label_color_box, False)
+        label_box.pack_start(label)
 
         vbox.pack_start(label_box)
         labels = {}
