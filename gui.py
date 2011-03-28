@@ -12,6 +12,7 @@ import time
 import world
 import worldtalker
 import worldmap
+import traceback
 
 gtk.gdk.threads_init()
 from threading import Thread, RLock
@@ -153,6 +154,7 @@ class MapGUI:
               # safe queue
               self.save_map_to_queue()
         except Exception, e:
+            traceback.print_exc()
             self.stopped = True
             end_game()
             sys.exit(1)
@@ -165,6 +167,7 @@ class MapGUI:
 
           self.draw_map()
         except Exception, e:
+          traceback.print_exc()
           if self.map_area.window is None:
             self.stopped = True
             end_game()
