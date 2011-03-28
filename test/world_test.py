@@ -109,9 +109,53 @@ class TestWorldFunctions(unittest.TestCase):
 
 
 
-  def test_shoot(self):
-    # Test the shoot event
-    pass
+  def test_shoot_deals_damage(self):
+    self.w.map.placeObject(self.unit, self.top_left)
+    other_ai = SecurityAI(self.wt)
+    s = world.Stats(ai_id=other_ai.ai_id,
+                    team=other_ai.team)
+    s.ai = other_ai
+    other_unit = self.w.createUnit(s, (5,5))
+    self.ai.do_unit_action(self.unit, "shoot", (5,5))
+    energy = self.w.units[other_unit].energy
+
+    self.w.Turn()
+    self.assertNotEqual(energy,
+      self.w.units[other_unit].energy)
+
+  def test_shoot_does_not_hit_distant_enemy(self):
+    self.w.map.placeObject(self.unit, self.top_left)
+    other_ai = SecurityAI(self.wt)
+    s = world.Stats(ai_id=other_ai.ai_id,
+                    team=other_ai.team)
+    s.ai = other_ai
+    other_unit = self.w.createUnit(s, self.bottom_right)
+    self.ai.do_unit_action(self.unit, "shoot", self.bottom_right)
+    energy = self.w.units[other_unit].energy
+
+    self.w.Turn()
+    self.assertEqual(energy,
+      self.w.units[other_unit].energy)
+
+  def test_shoot_can_kill_enemy(self):
+    self.w.map.placeObject(self.unit, self.top_left)
+    other_ai = SecurityAI(self.wt)
+    s = world.Stats(ai_id=other_ai.ai_id,
+                    team=other_ai.team)
+    s.ai = other_ai
+    other_unit = self.w.createUnit(s, (5,5))
+
+    while other_unit in self.w.units:
+      energy = self.w.units[other_unit].energy
+      self.ai.do_unit_action(self.unit, "shoot", (5,5))
+      self.w.Turn()
+      if not other_unit in self.w.units:
+        break
+
+      self.assertNotEqual(energy,
+        self.w.units[other_unit].energy)
+
+
 
   def test_move(self):
     # Test the move event
