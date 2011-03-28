@@ -11,13 +11,6 @@ from unit import Unit
 log = logging.getLogger("MAP")
 
 
-import random
-def random_ai_color():
-  r = random.randint(1, 5)
-  g = random.randint(1, 5)
-  b = random.randint(1, 5)
-  return map(lambda x: x/5.0, [r,g,b])
-
 def draw_map(cairo_context, width, height, AI, world):
   surface = cairo_context.get_target()
 
@@ -34,15 +27,6 @@ def draw_map(cairo_context, width, height, AI, world):
 #       Draw the squares a unit sees ( using circle) in a really light unit color.
 #
   # try getting the color from our color dictionary.
-  for ai_player in AI:
-    if not ai_player.team in ai.AI_COLORS:
-        try:
-          color = ai_player.__class__.color
-        except:
-          color = random_ai_color()
-          while color in ai.AI_COLORS.values():
-              color = random_ai_color()
-        ai.AI_COLORS[ai_player.team] = color
 
   for unit in world.units:
       stats = world.units[unit]

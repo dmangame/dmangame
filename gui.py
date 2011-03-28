@@ -8,7 +8,6 @@ import worldtalker
 
 # For Key
 import pygtk_chart
-import pygtk_chart.pie_chart
 import pygtk_chart.bar_chart
 
 import cairo
@@ -104,18 +103,25 @@ class MapGUI:
     def add_ai(self, ai_class):
         a = ai_class(self.wt)
         self.AI.append(a)
-        vbox = gtk.VBox()
-        vbox.pack_start(gtk.Label(str(ai_class).split(".")[-1]))
-        p_chart = pygtk_chart.bar_chart.BarChart()
-        p_chart.set_mode(pygtk_chart.bar_chart.MODE_HORIZONTAL)
-        b_chart = pygtk_chart.bar_chart.BarChart()
-        vbox.pack_start(p_chart)
-        vbox.pack_start(b_chart)
-        for stat in ['moving', 'shooting', 'capturing', 'idle']:
-          bar = pygtk_chart.bar_chart.Bar(stat, 0, stat[:3])
-          bar.set_color(gtk.gdk.Color(*AI_STAT_COLORS[stat]))
-          p_chart.add_bar(bar)
+        ai.generate_ai_color(a)
 
+        vbox = gtk.VBox()
+        label_box = gtk.EventBox()
+        label = gtk.Label(str(ai_class).split(".")[-1])
+        label_box.add(label)
+        label_box.modify_bg(gtk.STATE_NORMAL,
+          gtk.gdk.Color(*ai.AI_COLORS[a.team]))
+
+        vbox.pack_start(label_box)
+        labels = {}
+        hbox = gtk.HBox()
+        vbox.pack_start(hbox)
+        for stat in ['moving', 'shooting', 'capturing', 'idle']:
+          labels[stat] = gtk.Label("%s: 0" % (stat))
+          hbox.pack_start(labels[stat])
+
+        b_chart = pygtk_chart.bar_chart.BarChart()
+        vbox.pack_start(b_chart)
 
         for stat in ['units', 'kills', 'bldgs']:
           area = pygtk_chart.bar_chart.Bar(stat, 0, stat)
@@ -124,9 +130,7 @@ class MapGUI:
 
         b_chart.grid.set_visible(False)
         b_chart.set_draw_labels(True)
-        p_chart.set_draw_labels(True)
-        p_chart.grid.set_visible(False)
-        self.ai_drawables[a] = (p_chart, b_chart)
+        self.ai_drawables[a] = (labels, b_chart)
         self.key_area.pack_start(vbox)
         a._init()
 
@@ -183,19 +187,17 @@ class MapGUI:
     def update_ai_stats(self, ai_data):
         for ai_player in ai_data:
 
-          p_chart, b_chart = self.ai_drawables[ai_player]
+          labels, b_chart = self.ai_drawables[ai_player]
           color = gtk.gdk.Color(*ai.AI_COLORS[ai_player.team])
-          b_chart.background.set_property('color', color)
-          p_chart.background.set_property('color', color)
           for k in ['units', 'kills','bldgs']:
             v = ai_data[ai_player][k]
             bar = b_chart.get_area(k)
-            bar.set_value(v)
+            if bar.get_value() != v:
+              bar.set_value(v)
 
           for k in ['moving', 'shooting', 'idle', 'capturing']:
             v = ai_data[ai_player][k]
-            bar = p_chart.get_area(k)
-            bar.set_value(v)
+            labels[k].set_text("%s: %s" % (k[0], v))
 
         self.key_area.show_all()
 
