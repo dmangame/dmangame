@@ -39,6 +39,10 @@ def parseOptions():
     parser.add_option("-q", "--quiet",
                       action="store_false", dest="verbose", default=True,
                       help="don't print status messages to stdout")
+    parser.add_option("-i", "--ignore",
+                      action="store_false", dest="whiny",
+                      default=True,
+                      help="ignore AI exceptions")
 
     (options, args) = parser.parse_args()
     return options,args
@@ -91,8 +95,10 @@ def loadMap(filename):
 def main():
   options, args = parseOptions()
   log.info(options)
+
   ais = loadAI(args)
   loadMap(options.map)
+  settings.IGNORE_EXCEPTIONS = not options.whiny
   if options.save_images:
     settings.SAVE_IMAGES = True
   if options.cli:

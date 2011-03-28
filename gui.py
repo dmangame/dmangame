@@ -1,18 +1,20 @@
 
-import sys
 import ai
+import mapobject
+import settings
+import world
+import worldmap
+import worldtalker
+
 import cairo
 import glib
 import glob
 import gobject
 import gtk
-import mapobject
 import itertools
-import time
-import world
-import worldtalker
-import worldmap
 import traceback
+import sys
+import time
 
 gtk.gdk.threads_init()
 from threading import Thread, RLock
@@ -143,11 +145,12 @@ class MapGUI:
                 time.sleep(0.05)
 
               for ai in self.AI:
-                  ai._spin()
-      #            try:
-      #               ai.spin()
-      #            except Exception, e:
-      #                log.info("AI raised exception %s, skipping this turn for it", e)
+                  try:
+                     ai._spin()
+                  except Exception, e:
+                      if not settings.IGNORE_EXCEPTIONS:
+                        raise e
+                      log.info("AI raised exception %s, skipping this turn for it", e)
               self.world.Turn()
 
               # Save world into a canvas that we put on a thread
@@ -155,9 +158,10 @@ class MapGUI:
               self.save_map_to_queue()
         except Exception, e:
             traceback.print_exc()
-            self.stopped = True
-            end_game()
-            sys.exit(1)
+            if not settings.IGNORE_EXCEPTIONS:
+              self.stopped = True
+              end_game()
+              sys.exit(1)
 
     def gui_spinner(self):
         log.info("GUI Showing Turn: %s", self.guiTurn)
@@ -168,11 +172,12 @@ class MapGUI:
           self.draw_map()
         except Exception, e:
           traceback.print_exc()
-          if self.map_area.window is None:
-            self.stopped = True
-            end_game()
-            sys.exit(1) #window has closed
-          self.stopped = False
+          if not settings.IGNORE_EXCEPTIONS:
+            if self.map_area.window is None:
+              self.stopped = True
+              end_game()
+              sys.exit(1) #window has closed
+            self.stopped = False
         return True
 
 m = None
