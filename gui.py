@@ -44,7 +44,9 @@ AI_STATS=[
   'kills',
   'units'
   ]
+
 AI_STAT_COLORS={
+  'bldgs'          : (0.0,0.5,0.0),
   'moving'         : (0.0,0.5,0.0),
   'shooting'       : (0.5,0.0,0.0),
   'capturing'      : (0.0,0.0,0.5),
@@ -115,7 +117,7 @@ class MapGUI:
           p_chart.add_bar(bar)
 
 
-        for stat in ['units', 'kills']:
+        for stat in ['units', 'kills', 'bldgs']:
           area = pygtk_chart.bar_chart.Bar(stat, 0, stat)
           area.set_color(gtk.gdk.Color(*AI_STAT_COLORS[stat]))
           b_chart.add_bar(area)
@@ -185,7 +187,7 @@ class MapGUI:
           color = gtk.gdk.Color(*ai.AI_COLORS[ai_player.team])
           b_chart.background.set_property('color', color)
           p_chart.background.set_property('color', color)
-          for k in ['units', 'kills']:
+          for k in ['units', 'kills','bldgs']:
             v = ai_data[ai_player][k]
             bar = b_chart.get_area(k)
             bar.set_value(v)
@@ -215,7 +217,7 @@ class MapGUI:
 
         ai_data = {}
         for ai in self.AI:
-          ai_data[ai] = { "units" : ai.score["units"], "shooting" : 0, "capturing" : 0, "moving" : 0, "kills" : ai.score["kills"], "idle" : 0}
+          ai_data[ai] = { "units" : ai.score["units"], "shooting" : 0, "capturing" : 0, "moving" : 0, "kills" : ai.score["kills"], "idle" : 0, "bldgs" : ai.score["buildings"]}
           for unit in self.world.units:
             status = self.world.unitstatus[unit]
             if self.world.units[unit].ai != ai:

@@ -565,7 +565,12 @@ class World:
             if killer.team == team:
               kills += 1
 
-        return { "units" : alive, "kills" : kills }
+        buildings = 0
+        for b in self.buildings:
+          if self.buildings[b].team == team:
+            buildings += 1
+
+        return { "units" : alive, "kills" : kills, "buildings" : buildings }
 
 #Map1 = {unit:position, building:position}
 #2Map = {}
