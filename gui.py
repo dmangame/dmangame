@@ -86,16 +86,11 @@ class MapGUI:
             context.line_to(deltax*i, height)
             context.stroke()
 
-    def draw_map(self):
-
-        try:
-          surface = self.frame_queue.get(False)
-        except Queue.Empty, e:
-          return
-
+    def draw_map(self, surface):
 
         self.guiTurn += 1
 
+        # Draw the map
         cairo_context_final = self.map_area.window.cairo_create()
         pattern = cairo.SurfacePattern(surface)
 
@@ -112,10 +107,23 @@ class MapGUI:
         cairo_context_final.paint()
 
 
-    def map_expose_event_cb(self, widget, event):
-        self.draw_map()
 
-    def save_map_to_queue(self):
+    def draw_map_and_ai_data(self):
+        try:
+          surface, ai_data = self.frame_queue.get(False)
+        except Queue.Empty, e:
+          return
+
+        self.draw_map(surface)
+        self.update_ai_stats(ai_data)
+
+    def update_ai_stats(self, ai_data):
+        pass
+
+    def map_expose_event_cb(self, widget, event):
+        self.draw_map_and_ai_data()
+
+    def save_map_and_ai_data_to_queue(self):
 
         width = self.drawSize
         height = self.drawSize
@@ -126,7 +134,19 @@ class MapGUI:
         worldmap.draw_map(gdkcr, width, height,
                      self.AI, self.world)
 
-        self.frame_queue.put(surface)
+        ai_data = {}
+        for ai in self.AI:
+          ai_data[ai] = { "score" : ai.score, "shoot" : 0, "capture" : 0, "move" : 0 }
+          for unit in self.world.units:
+            status = self.world.unitstatus[unit]
+            if status == world.MOVING:
+              ai_data[ai]["move"] += 1
+            if status == world.SHOOTING:
+              ai_data[ai]["shoot"] += 1
+            if status == world.CAPTURING:
+              ai_data[ai]["capture"] += 1
+
+        self.frame_queue.put((surface, ai_data))
 
 
     def threaded_world_spinner(self):
@@ -156,8 +176,9 @@ class MapGUI:
 
               # Save world into a canvas that we put on a thread
               # safe queue
-              self.save_map_to_queue()
+              self.save_map_and_ai_data_to_queue()
         except Exception, e:
+            traceback.print_exc()
             if not settings.IGNORE_EXCEPTIONS:
               self.stopped = True
               end_game()
@@ -169,7 +190,7 @@ class MapGUI:
           if self.stopped:
             sys.exit(0)
 
-          self.draw_map()
+          self.draw_map_and_ai_data()
         except Exception, e:
           traceback.print_exc()
           if not settings.IGNORE_EXCEPTIONS:
@@ -192,7 +213,7 @@ def main(ais=[]):
 
     for ai in m.AI:
       m.add_building()
-    gobject.timeout_add(100, m.gui_spinner)
+    gobject.timeout_add(50, m.gui_spinner)
     m.threaded_world_spinner()
     gtk.main()
 
