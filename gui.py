@@ -149,7 +149,7 @@ class MapGUI:
                      ai._spin()
                   except Exception, e:
                       if not settings.IGNORE_EXCEPTIONS:
-                        raise e
+                        raise
                       log.info("AI raised exception %s, skipping this turn for it", e)
               self.world.Turn()
 
