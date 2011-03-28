@@ -123,7 +123,7 @@ class MapGUI:
         b_chart.grid.set_visible(False)
         b_chart.set_draw_labels(True)
         p_chart.set_draw_labels(True)
-        p_chart.grid.set_show_values(False)
+        p_chart.grid.set_visible(False)
         self.ai_drawables[a] = (p_chart, b_chart)
         self.key_area.pack_start(vbox)
         a._init()
