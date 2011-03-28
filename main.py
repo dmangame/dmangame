@@ -34,6 +34,7 @@ def parseOptions():
                       help="Display GUI", default=False,
                       action="store_true")
     parser.add_option("-s", "--save", action="store_true",
+                      help="save each world turn as a png",
                       dest="save_images", default=False)
     parser.add_option("-q", "--quiet",
                       action="store_false", dest="verbose", default=True,
