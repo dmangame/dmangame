@@ -13,9 +13,9 @@ log = logging.getLogger("MAP")
 
 import random
 def random_ai_color():
-  r = random.randint(0, 4)
-  g = random.randint(0, 4)
-  b = random.randint(0, 4)
+  r = random.randint(1, 5)
+  g = random.randint(1, 5)
+  b = random.randint(1, 5)
   return map(lambda x: x/5.0, [r,g,b])
 
 def draw_map(cairo_context, width, height, AI, world):
