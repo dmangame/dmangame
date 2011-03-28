@@ -148,6 +148,7 @@ class MapGUI:
                   try:
                      ai._spin()
                   except Exception, e:
+                      traceback.print_exc()
                       if not settings.IGNORE_EXCEPTIONS:
                         raise e
                       log.info("AI raised exception %s, skipping this turn for it", e)
@@ -157,7 +158,6 @@ class MapGUI:
               # safe queue
               self.save_map_to_queue()
         except Exception, e:
-            traceback.print_exc()
             if not settings.IGNORE_EXCEPTIONS:
               self.stopped = True
               end_game()

@@ -4,6 +4,7 @@ import ai_exceptions
 import mapobject
 import worldmap
 import math
+import traceback
 from collections import defaultdict
 import settings
 from unit import Unit
@@ -278,8 +279,12 @@ class World:
         try:
           owner._unit_spawned(unit)
         except Exception, e:
-          log.info("Spawn exception")
-          log.info(e)
+          if settings.IGNORE_EXCEPTIONS:
+            log.info("Spawn exception")
+            log.info(e)
+          else:
+            traceback.print_exc()
+            raise e
         return unit
 
     def __spawnUnits(self):
@@ -372,8 +377,12 @@ class World:
             try:
               owner._unit_died(unit)
             except Exception, e:
-              log.info("Death exception")
-              log.info(e)
+              if settings.IGNORE_EXCEPTIONS:
+                log.info("Death exception")
+                log.info(e)
+              else:
+                traceback.print_exc()
+                raise e
 
             self.__unitCleanup(unit)
         self.died = []
