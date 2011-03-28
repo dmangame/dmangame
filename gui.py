@@ -150,7 +150,7 @@ class MapGUI:
                   except Exception, e:
                       traceback.print_exc()
                       if not settings.IGNORE_EXCEPTIONS:
-                        raise e
+                        raise
                       log.info("AI raised exception %s, skipping this turn for it", e)
               self.world.Turn()
 
