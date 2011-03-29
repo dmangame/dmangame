@@ -67,23 +67,20 @@ class WorldTalker:
         if not position:
             return
 
-        if not unit:
-            for unit in self.getUnits():
-                stats = self.__getStats(unit)
-                unit_square = self.__world.map.getPosition(unit)
-                if not unit_square:
-                    continue
-
-                dist = self.__world.map.calcDistance(position, unit_square)
-                if dist < stats.sight:
-                    return True
+        if unit:
+            units = [unit]
         else:
+            unit = self.getUnits()
+
+        for unit in self.getUnits():
             stats = self.__getStats(unit)
             unit_square = self.__world.map.getPosition(unit)
-            dist =  self.__world.map.calcDistance(position, unit_square)
+            if not unit_square:
+                continue
+
+            dist = self.__world.map.calcDistance(position, unit_square)
             if dist < stats.sight:
                 return True
-        return False
 
     def isUnderAttack(self, unit):
         pos = unit.position
