@@ -6,6 +6,7 @@ import mapobject
 import random
 from unit import Unit
 import world
+from collections import defaultdict
 import sys
 
 # TODO: add permissions checking for all commands that are issued on a unit.
@@ -16,10 +17,17 @@ class WorldTalker:
         self.__world.wt = self
         self.__cached_turn = None
         self.__teams = []
+        self.__visible_cache = defaultdict(dict)
+        self.__stats_cache = defaultdict(dict)
         #self.__eq = world.getQueue()
 
     def __getStats(self, unit):
-        return self.__world.getStats(unit)
+        ct = self.__world.currentTurn
+        try:
+            return self.__stats_cache[ct][unit]
+        except:
+            stats = self.__stats_cache[ct][unit] = self.__world.getStats(unit)
+            return stats
 
     def __getOwner(self, unit):
         if unit.__class__ == Unit:
@@ -67,6 +75,12 @@ class WorldTalker:
         if not position:
             return
 
+        ai_id = self.getID()
+        v_key = "%s_%s_%s" % (ai_id, position, unit)
+        ct = self.__world.currentTurn
+        if v_key in self.__visible_cache[ct]:
+            return self.__visible_cache[ct][v_key]
+
         if unit:
             units = [unit]
         else:
@@ -80,7 +94,10 @@ class WorldTalker:
             dist = self.__world.map.calcDistance(position, unit_square)
             stats = self.__getStats(unit)
             if dist < stats.sight:
+                self.__visible_cache[ct][v_key] = True
                 return True
+        self.__visible_cache[ct][v_key] = False
+        return False
 
     def isUnderAttack(self, unit):
         pos = unit.position
