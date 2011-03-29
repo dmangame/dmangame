@@ -271,15 +271,19 @@ class WorldTalker:
     # of each other.
     def getID(self):
         # this function will print out the ai_id of the caller (or his parent, maybe)
-        i = 0
+        i = 2
         while True:
             try:
                 i+=1
-                frame = sys._getframe(i)
+                try:
+                    frame = sys._getframe(i)
+                except ValueError:
+                    i = 0
+                    continue
                 f_locals = frame.f_locals
                 try:
                     if ai.AI in f_locals['self'].__class__.__bases__:
-                        ai_id =  frame.f_locals['self'].ai_id
+                        ai_id = f_locals['self'].ai_id
                         del frame
                         return ai_id
                 except KeyError:
