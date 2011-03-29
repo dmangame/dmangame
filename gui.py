@@ -4,7 +4,6 @@ import mapobject
 import settings
 import world
 import worldmap
-import worldtalker
 
 # For Key
 import pygtk_chart
@@ -15,7 +14,6 @@ import glib
 import glob
 import gobject
 import gtk
-import itertools
 import traceback
 import sys
 import time
@@ -61,10 +59,7 @@ class MapGUI:
         self.initialize_map_window()
         # Initialize the world
         self.world = world.World()
-        self.wt = worldtalker.WorldTalker(self.world)
-        self.AI = []
         self.ai_drawables = {}
-        self.ai_cycler = itertools.cycle(self.AI)
         self.colors = {}
         self.guiTurn = 0
 
@@ -101,8 +96,7 @@ class MapGUI:
 
 
     def add_ai(self, ai_class):
-        a = ai_class(self.wt)
-        self.AI.append(a)
+        a = self.world.addAI(ai_class)
         ai.generate_ai_color(a)
 
         vbox = gtk.VBox()
@@ -136,13 +130,6 @@ class MapGUI:
         b_chart.set_draw_labels(True)
         self.ai_drawables[a] = (labels, b_chart)
         self.key_area.pack_start(vbox)
-        a._init()
-
-    def add_building(self, ai=None):
-        b = mapobject.Building(self.wt)
-        self.world.buildings[b] = next(self.ai_cycler)
-        self.world.map.placeObject(b,
-          self.world.map.getRandomSquare())
 
     def draw_grid(self, context):
         width = self.drawSize
@@ -218,11 +205,10 @@ class MapGUI:
         surface = cairo.ImageSurface (cairo.FORMAT_ARGB32, width, height)
         cr = cairo.Context (surface)
         gdkcr = gtk.gdk.CairoContext (cr)
-        worldmap.draw_map(gdkcr, width, height,
-                     self.AI, self.world)
+        worldmap.draw_map(gdkcr, width, height, self.world)
 
         ai_data = {}
-        for ai in self.AI:
+        for ai in self.world.AI:
           ai_data[ai] = { "units" : ai.score["units"], "shooting" : 0, "capturing" : 0, "moving" : 0, "kills" : ai.score["kills"], "idle" : 0, "bldgs" : ai.score["buildings"]}
           for unit in self.world.units:
             status = self.world.unitstatus[unit]
@@ -256,14 +242,7 @@ class MapGUI:
                   return
                 time.sleep(0.05)
 
-              for ai in self.AI:
-                  try:
-                     ai._spin()
-                  except Exception, e:
-                      traceback.print_exc()
-                      if not settings.IGNORE_EXCEPTIONS:
-                        raise
-                      log.info("AI raised exception %s, skipping this turn for it", e)
+              self.world.spinAI()
               self.world.Turn()
 
               # Save world into a canvas that we put on a thread
@@ -303,14 +282,12 @@ def main(ais=[]):
     for ai in ais:
       m.add_ai(ai)
 
-    for ai in m.AI:
-      m.add_building()
     gobject.timeout_add(100, m.gui_spinner)
     m.threaded_world_spinner()
     gtk.main()
 
 def end_game():
-  for ai in m.AI:
+  for ai in m.world.AI:
     log.info("%s:%s", ai.__class__, ai.score)
 
 def end_threads(*args, **kwargs):

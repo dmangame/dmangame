@@ -23,35 +23,18 @@ AI = []
 
 def main(ai_classes=[]):
   w = world.World()
-  wt = worldtalker.WorldTalker(w)
   global World
   World = w
 
-  for ai in ai_classes:
-    AI.append(ai(wt))
+  for ai_class in ai_classes:
+    w.addAI(ai_class)
 
-  for ai in AI:
-    ai._init()
-
-  ai_cycler = itertools.cycle(AI)
   if settings.SAVE_IMAGES:
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 200, 200)
     cairo_context = cairo.Context(surface)
 
-  for ai in AI:
-    b = mapobject.Building(wt)
-    w.buildings[b] = next(ai_cycler)
-    w.map.placeObject(b,
-      w.map.getRandomSquare())
-
-  for turn in xrange(LIFESPAN):
-      for ai in AI:
-          ai._spin()
-  #            try:
-  #                ai.spin()
-  #            except Exception, e:
-  #                log.info("AI raised exception %s, skipping this turn for it" % (e))
-
+  for i in xrange(LIFESPAN):
+      w.spinAI()
       w.Turn()
       if settings.SAVE_IMAGES:
         worldmap.draw_map(cairo_context, 200, 200, AI, w)
@@ -59,7 +42,7 @@ def main(ai_classes=[]):
 
 
 def end_game():
-  for ai in AI:
+  for ai in World.AI:
     log.info("%s:%s", ai.__class__, ai.score)
 
 if __name__ == "__main__":

@@ -11,7 +11,8 @@ from unit import Unit
 log = logging.getLogger("MAP")
 
 
-def draw_map(cairo_context, width, height, AI, world):
+def draw_map(cairo_context, width, height, world):
+
   surface = cairo_context.get_target()
 
   deltax = float(width)/world.mapSize
@@ -27,6 +28,8 @@ def draw_map(cairo_context, width, height, AI, world):
 #       Draw the squares a unit sees ( using circle) in a really light unit color.
 #
   # try getting the color from our color dictionary.
+
+  AI = world.AI
 
   for unit in world.units:
       stats = world.units[unit]

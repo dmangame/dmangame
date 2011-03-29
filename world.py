@@ -1,15 +1,18 @@
 # The world class for the game.
-import copy
 import ai_exceptions
 import mapobject
+import worldtalker
 import worldmap
 import math
-import traceback
-from collections import defaultdict
 import settings
 from unit import Unit
 
+import copy
+import itertools
 import logging
+import traceback
+from collections import defaultdict
+
 log = logging.getLogger("WORLD")
 logging.basicConfig(level=logging.INFO)
 
@@ -128,7 +131,9 @@ class World:
     def __init__(self, mapsize=None):
         if not mapsize:
           mapsize = settings.MAP_SIZE
+
         self.AI = []
+        self.ai_cycler = itertools.cycle(self.AI)
         self.units = {} # instead of a list, it will point to the unit's attributes.
         self.all_units = {} # instead of a list, it will point to the unit's attributes.
         self.under_attack = set()
@@ -155,6 +160,32 @@ class World:
         self.bulletRange = self.mapSize/settings.BULLET_RANGE_MODIFIER
         self.bulletSpeed = self.mapSize/settings.BULLET_SPEED_MODIFIER
 
+
+
+        self.wt = worldtalker.WorldTalker(self)
+
+
+    # Adding AIs should be done by the creator of the world.
+    # This accepts a subclass ai.AI, instantiates the class
+    # and places a building on the map for that AI.
+    def addAI(self, ai_class):
+        ai_player = ai_class(self.wt)
+        self.AI.append(ai_player)
+        ai_player._init()
+        b = mapobject.Building(self.wt)
+        self.buildings[b] = next(self.ai_cycler)
+        self.map.placeObject(b, self.map.getRandomSquare())
+        return ai_player
+
+    def spinAI(self):
+      for ai in self.AI:
+          try:
+             ai._spin()
+          except Exception, e:
+              traceback.print_exc()
+              if not settings.IGNORE_EXCEPTIONS:
+                raise
+              log.info("AI raised exception %s, skipping this turn for it", e)
 
     # Private Functions
     def __handleMeleeEvent(self, event, garbage, to_queue):
