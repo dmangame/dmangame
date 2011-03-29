@@ -82,7 +82,7 @@ class WorldTalker:
         if unit:
             units = [unit]
         else:
-            units = self.getUnits()
+            units = self.getUnits(ai_id)
 
         for unit in units:
             unit_square = self.__world.map.getPosition(unit)
@@ -178,7 +178,7 @@ class WorldTalker:
         if not vs_key in self.__cached_visible_squares:
             if not unit:
                 squares = set()
-                for unit in self.getUnits():
+                for unit in self.getUnits(ai_id):
                     stats = self.__getStats(unit)
                     square = self.__world.map.getPosition(unit)
                     # TODO Properly calculate the sight of the unit.
@@ -238,12 +238,12 @@ class WorldTalker:
         unit_square = self.__world.map.getPosition(unit)
 
 
-        if unit in self.getUnits() or self.isVisible(unit_square, unit):
+        if unit in self.getUnits(ai_id) or self.isVisible(unit_square, unit):
             return self.__world.map.calcDistance(unit_square, square)
 
     def calcUnitPath(self, unit, square):
         ai_id = self.getID()
-        if not unit in self.getUnits() and \
+        if not unit in self.getUnits(ai_id) and \
             not unit in self.getVisibleEnemies():
             return []
         return self.__world.map.calcUnitPath(self.__world.map.getPosition(unit), square)
