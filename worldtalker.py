@@ -22,12 +22,7 @@ class WorldTalker:
         #self.__eq = world.getQueue()
 
     def __getStats(self, unit):
-        ct = self.__world.currentTurn
-        try:
-            return self.__stats_cache[ct][unit]
-        except:
-            stats = self.__stats_cache[ct][unit] = self.__world.getStats(unit)
-            return stats
+        return self.__world.all_units[unit]
 
     def __getOwner(self, unit):
         if unit.__class__ == Unit:
@@ -78,8 +73,11 @@ class WorldTalker:
         ai_id = self.getID()
         v_key = "%s_%s_%s" % (ai_id, position, unit)
         ct = self.__world.currentTurn
-        if v_key in self.__visible_cache[ct]:
+        try:
             return self.__visible_cache[ct][v_key]
+        except:
+            pass
+
 
         if unit:
             units = [unit]
