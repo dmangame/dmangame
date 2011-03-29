@@ -209,6 +209,8 @@ class Map:
             elif y-n is 0:
                     path = [(j+1, y) for j in xrange(min(x, m), min(x, m) + R)]
             else:
+                    ox = x
+                    oy = y
                     slope = abs(float(n-y)/float(m-x))
                     if slope < 1:
                             xmovement = 1
@@ -216,18 +218,21 @@ class Map:
                     else:
                             xmovement = 1/slope
                             ymovement = 1
+
                     if x > m:
                             xmovement = -xmovement
                     if y > n:
                             ymovement = -ymovement
+
                     index = 0
-                    x += .5
-                    y += .5
-                    while index <= R and self.isValidSquare((x,y)):
+                    while self.isValidSquare((x,y)):
                             x += xmovement
                             y += ymovement
+                            if math.sqrt((ox-x)**2+(oy-y)**2) > R:
+                              break
+
                             path.append((int(x), int(y)))
-                            index += 1
+                            index += abs(xmovement) + abs(ymovement)
 
 
             self.__bullet_paths[bp_key] = path

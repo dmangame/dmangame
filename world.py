@@ -173,7 +173,7 @@ class World:
         self.unitstatus[unit] = SHOOTING
         range = self.bulletRange
 
-        path = self.map.calcBulletPath(position, target, min(range, self.bulletSpeed))
+        path = self.map.calcBulletPath(position, target, min(range, self.bulletRange))
         log.debug("Path is: %s", path)
 
         self.bullets[bullet] = path
