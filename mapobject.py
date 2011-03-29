@@ -15,7 +15,7 @@ class Building(MapObject):
                         "attack"  : 1,
                         "sight"   : 1,
                         "energy"  : 1,
-                        "speed"   : 5
+                        "speed"   : 1
                        })
 
     def getTeam(self):

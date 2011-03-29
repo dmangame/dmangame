@@ -403,6 +403,7 @@ class World:
         stats.energy = stats.energy * settings.ENERGY_MODIFIER
         stats.attack = stats.attack * settings.ATTACK_MODIFIER
         stats.sight  = int((stats.sight * self.bulletRange) * settings.SIGHT_MODIFIER)
+        stats.speed  = int(stats.speed * (settings.SPEED_MODIFIER * math.log(settings.MAP_SIZE)))
 
         unit = Unit(self.wt, stats)
         self.units[unit] = stats
