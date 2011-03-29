@@ -11,12 +11,13 @@ import copy
 import itertools
 import logging
 import traceback
+from lib import thread2
 from collections import defaultdict
 
 log = logging.getLogger("WORLD")
 logging.basicConfig(level=logging.INFO)
 
-
+AI_CYCLE_SECONDS=1.0
 # There are three types of events that can exist:
 # capture event
 # move event
@@ -179,8 +180,14 @@ class World:
 
     def spinAI(self):
       for ai in self.AI:
+          exc_thread = thread2.Thread(target=ai._spin)
           try:
-             ai._spin()
+             exc_thread.start()
+             exc_thread.join(AI_CYCLE_SECONDS)
+             if exc_thread.isAlive():
+               log.info("AI %s exceeded execution time of %s seconds",
+                        ai, AI_CYCLE_SECONDS)
+               exc_thread.terminate()
           except Exception, e:
               traceback.print_exc()
               if not settings.IGNORE_EXCEPTIONS:
