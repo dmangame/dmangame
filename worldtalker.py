@@ -15,9 +15,10 @@ class WorldTalker:
     def __init__(self, world):
         self.__world = world
         self.__world.wt = self
+        self.__visible_cache = {}
+        self.__visible_cached_turn = 0
         self.__cached_turn = None
         self.__teams = []
-        self.__visible_cache = defaultdict(dict)
         self.__stats_cache = defaultdict(dict)
         #self.__eq = world.getQueue()
 
@@ -73,8 +74,11 @@ class WorldTalker:
         ai_id = self.getID()
         v_key = "%s_%s_%s" % (ai_id, position, unit)
         ct = self.__world.currentTurn
+        if self.__visible_cached_turn < ct:
+            self.__visible_cache.clear()
+            self.__visible_cached_turn = ct
         try:
-            return self.__visible_cache[ct][v_key]
+            return self.__visible_cache[v_key]
         except:
             pass
 
@@ -92,9 +96,9 @@ class WorldTalker:
             dist = self.__world.map.calcDistance(position, unit_square)
             stats = self.__getStats(unit)
             if dist <= stats.sight:
-                self.__visible_cache[ct][v_key] = True
+                self.__visible_cache[v_key] = True
                 return True
-        self.__visible_cache[ct][v_key] = False
+        self.__visible_cache[v_key] = False
         return False
 
     def isUnderAttack(self, unit):
