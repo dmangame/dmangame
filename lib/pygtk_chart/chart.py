@@ -467,7 +467,7 @@ class Area(ChartObject):
     The Area class inherits properties from chart_object.ChartObject.
     Additional properties:
      - name (a unique name for the area, type: string, read only)
-     - value (the value of the area, type: float)
+     - value (the value of the area, type: int)
      - color (the area's color, type: gtk.gdk.Color)
      - label (a label for the area, type: string)
      - highlighted (set whether the area should be highlighted,
@@ -481,10 +481,10 @@ class Area(ChartObject):
     __gproperties__ = {"name": (gobject.TYPE_STRING, "area name",
                                 "A unique name for the area.",
                                 "", gobject.PARAM_READABLE),
-                        "value": (gobject.TYPE_FLOAT,
+                        "value": (gobject.TYPE_INT,
                                     "value",
                                     "The value.",
-                                    0.0, 9999999999.0, 0.0, gobject.PARAM_READWRITE),
+                                    0, 99999, 0, gobject.PARAM_READWRITE),
                         "color": (gobject.TYPE_PYOBJECT, "area color",
                                     "The color of the area.",
                                     gobject.PARAM_READWRITE),

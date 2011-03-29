@@ -118,10 +118,14 @@ class MapGUI:
           labels[stat] = gtk.Label("%s: 0" % (stat))
           hbox.pack_start(labels[stat])
 
+        kill_label = gtk.Label("kills: 0")
+        vbox.pack_start(kill_label)
+        labels['kills'] = kill_label
+
         b_chart = pygtk_chart.bar_chart.BarChart()
         vbox.pack_start(b_chart)
 
-        for stat in ['units', 'kills', 'bldgs']:
+        for stat in ['units', 'bldgs']:
           area = pygtk_chart.bar_chart.Bar(stat, 0, stat)
           area.set_color(gtk.gdk.Color(*AI_STAT_COLORS[stat]))
           b_chart.add_bar(area)
@@ -180,15 +184,17 @@ class MapGUI:
 
           labels, b_chart = self.ai_drawables[ai_player]
           color = gtk.gdk.Color(*ai.AI_COLORS[ai_player.team])
-          for k in ['units', 'kills','bldgs']:
+          for k in ['units', 'bldgs']:
             v = ai_data[ai_player][k]
             bar = b_chart.get_area(k)
             if bar.get_value() != v:
-              bar.set_value(v)
+              bar.set_value(int(v))
 
           for k in ['moving', 'shooting', 'idle', 'capturing']:
             v = ai_data[ai_player][k]
             labels[k].set_text("%s: %s" % (k[0], v))
+          v = ai_data[ai_player][k]
+          labels['kills'].set_text("kills: %s" % (ai_data[ai_player]['kills']))
 
         self.key_area.show_all()
 
