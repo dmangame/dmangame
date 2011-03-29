@@ -537,10 +537,7 @@ class World:
     def getStats(self, unit):
       # Doing the actual exception check is way slower than
       # doing the exception handling, for some reason
-      try:
-        return self.all_units[unit]
-      except:
-        pass
+      return self.all_units[unit]
 
     # Runs the world one iteration
     def Turn(self):

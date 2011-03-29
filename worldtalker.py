@@ -70,15 +70,15 @@ class WorldTalker:
         if unit:
             units = [unit]
         else:
-            unit = self.getUnits()
+            units = self.getUnits()
 
-        for unit in self.getUnits():
-            stats = self.__getStats(unit)
+        for unit in units:
             unit_square = self.__world.map.getPosition(unit)
             if not unit_square:
                 continue
 
             dist = self.__world.map.calcDistance(position, unit_square)
+            stats = self.__getStats(unit)
             if dist < stats.sight:
                 return True
 
