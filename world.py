@@ -226,7 +226,6 @@ class World:
         self.unitstatus[unit] = CAPTURING
         if event.isFinished():
           log.debug("Finished capturing square")
-          self.unitstatus[unit] = None
           building = event.getBuilding()
           stats = self.units[unit]
           owner = stats.ai
@@ -454,6 +453,7 @@ class World:
         self.bulletpaths = {}
         self.melees = {}
         self.under_attack = set()
+        self.unitstatus.clear()
 
     def __queueEvent(self, event):
         self.events.add(event)
