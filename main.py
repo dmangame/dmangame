@@ -69,7 +69,8 @@ def loadAI(ais):
             ai_modules.append(m)
             log.info("Done")
         except Exception, e:
-            log.info("Error loading %s, %s", filename, e)
+            raise
+
 
     ai_classes = map(lambda m: getattr(m, m.AIClass),
                      ai_modules)
