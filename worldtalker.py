@@ -71,22 +71,22 @@ class WorldTalker:
         if not position:
             return
 
-        ai_id = self.getID()
-        v_key = "%s_%s_%s" % (ai_id, position, unit)
-        ct = self.__world.currentTurn
-        if self.__visible_cached_turn < ct:
-            self.__visible_cache.clear()
-            self.__visible_cached_turn = ct
-        try:
-            return self.__visible_cache[v_key]
-        except:
-            pass
+#        ai_id = self.getID()
+#        v_key = "%s_%s_%s" % (ai_id, position, unit)
+#        ct = self.__world.currentTurn
+#        if self.__visible_cached_turn < ct:
+#            self.__visible_cache.clear()
+#            self.__visible_cached_turn = ct
+#        try:
+#            return self.__visible_cache[v_key]
+#        except:
+#            pass
 
 
         if unit:
             units = [unit]
         else:
-            units = self.getUnits(ai_id)
+            units = self.getUnits()
 
         for unit in units:
             unit_square = self.__world.map.getPosition(unit)
@@ -96,9 +96,9 @@ class WorldTalker:
             dist = self.__world.map.calcDistance(position, unit_square)
             stats = self.__getStats(unit)
             if dist <= stats.sight:
-                self.__visible_cache[v_key] = True
+#                self.__visible_cache[v_key] = True
                 return True
-        self.__visible_cache[v_key] = False
+#        self.__visible_cache[v_key] = False
         return False
 
     def isUnderAttack(self, unit):
