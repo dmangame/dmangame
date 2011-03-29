@@ -24,15 +24,19 @@ Your objective is to code this AI.
     # Play without graphics
     python main.py ai/capture.ai ai/killncapture.py -c
 
+
     # Play on a specific map
     python main.py ai/capture.ai ai/killncapture.py -m maps/micro.py
 
     # Run with any number of AIs
     python main.py ai/capture.ai ai/killncapture.py ai/sharkai.py ai/basepatroller.py
 
+    # ignore any errors that an AI has. Any actions taken before the AI errored
+    # are still carried out.
+    python main.py -i ai/capture.ai ai/killncapture.py
+
     # Help
     python main.py --help
-
 
 ##Game Play##
 
@@ -48,7 +52,7 @@ The only object that the AIs can command are units. Each unit has an AI that it
 belongs to and it will only accept commands from that AI. These units have 3
 abilities: moving, shooting and capturing.  Additionally, every unit is able to
 see its surroundings and report them back to its AI. The units have energy and
-when that runs to zero, they die. The only way to acquire more units is through
+when that falls to zero, they die. The only way to acquire more units is through
 buildings.
 
 ### Buildings ###
@@ -57,32 +61,41 @@ Buildings are stationary objects that spawn a new Unit every UNIT_SPAWN_MOD
 turns for the AI that owns the Building. A building can be captured by another
 AI through its units. To capture a building, a unit must step inside it and
 begin capturing. If the unit can stay there for CAPTURE_LENGTH turns without
-shooting or moving, the base will change ownership to that units AI.
+shooting or moving, the base will change ownership to that unit's AI.
+
+### Moving ###
+An AI may tell a unit to move to any square on the map. The unit will move
+forward SPEED_MODIFIER*LOG(MAPSIZE) squares along the shortest possible route
+to the square until it arrives or another directive is issued.
+
+If the square is invalid, an exception will be raised.
 
 ### Attacking ###
 When a unit attacks, they can either attack the square they are currently
-standing on, or a square that is within range.  if they are attacking the same
+standing on, or a square that is within range.  If they are attacking the same
 square they are on, they use a Melee attack.
 
 The melee attack instantly kills all enemy units on the same square (and no
 allies).
 
 If they are attacking a distant square, they shoot a bullet towards that
-square. The bullet travels at about MAPSIZE/10 units a turn, while their full
-range is MAPSIZE/8 units. Any unit who falls within the path of a bullet will
-take damage (including allies).
+square. The bullet travels at about MAPSIZE/BULLET_SPEED_MODIFIER units a turn,
+while their full range is MAPSIZE/BULLET_RANGE_MODIFIER units. Any unit who
+falls within the path of a bullet will take damage (including allies).
 
 ### Damage ###
 
-When a bullet hits a unit, its energy is depleted by ATTACK*LOG(MAPSIZE) -
-ARMOR amount. If a unit's energy falls below 0, it is considered dead and is
-taken off the map. Any moves that the unit made during the round are still
-carried out - so it can finish a capture event or attack.
+When a bullet goes through the same square that a unit is moving through on a
+turn, the unit's energy is depleted by ATTACK*LOG(MAPSIZE) - ARMOR amount. If a
+unit's energy falls below 0, it is considered dead and is taken off the map.
+Any moves that the unit made during the round are still carried out - so it can
+finish a capture event or attack.
 
 ### End game ###
 
-The game ends when only one AI owns all units and buildings or LIFESPAN turns have passed.
-If the game ends when LIFESPAN turns have passed, it is considered a draw.
+The game ends when only one AI owns all units and buildings or LIFESPAN turns
+have passed.  If the game ends when LIFESPAN turns have passed, it is
+considered a draw.
 
 ##Writing an AI##
 
@@ -178,33 +191,18 @@ not continue to its final destination).
 
     python main.py ai/towerai.py ai/captureai.py
 
-##Unit API##
+### More AIs ###
 
-The most up to date API information is in unit.py
-
-### Actions ###
-
-Each unit can perform one action per turn. If multiple actions are enqueued
-inadvertently, an exception will be raised.
-
-####unit.shoot((x,y))####
-  this will shoot a bullet towards (x,y), even if X,Y is not in range. The
-  bullet will travel as far as it can go. Any units who are in the path of the
-  bullet at the end of the round will take damage.
-
-####unit.move((x,y))####
-  this will move the unit towards (x,y) by their speed amount
-
-####unit.capture(building)####
-  this initiates a capture of the building if the unit is occupying the same
-  square as the building.  For a capture to happen successfully, the Unit must
-  stay in the building for a length of time after initiating the capture.
-
+The [dmanai][d_src] repository contains AIs for dmangame.
+[d_src]:http://github.com/okayzed/dmanai
 
 ## AI API ##
 
 See ai/base.py for the available AI functions, and look in ai/ for more example AIs.
 
+##Unit API##
+
+The most up to date API information is in unit.py
 
 See Also:
 ---------
