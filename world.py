@@ -138,6 +138,7 @@ class World:
         self.events = set()
         self.unitevents = defaultdict(set)
         self.unitstatus = defaultdict(object)
+        self.ai_units = defaultdict(set)
 
         self.buildings = {}
         #self.eventQueue = EventQueue(self.events, self.mapSize)
@@ -283,7 +284,7 @@ class World:
             log.info(e)
           else:
             traceback.print_exc()
-            raise e
+            raise
         return unit
 
     def __spawnUnits(self):
@@ -298,6 +299,7 @@ class World:
 
     def __unitCleanup(self, unit):
         del self.units[unit]
+
         self.map.removeObject(unit)
 
         # Delete any events pertaining to this nucka.
@@ -384,6 +386,8 @@ class World:
                 traceback.print_exc()
                 raise e
 
+            self.ai_units[owner.ai_id].remove(unit)
+
             self.__unitCleanup(unit)
         self.died = {}
 
@@ -403,6 +407,7 @@ class World:
         unit = Unit(self.wt, stats)
         self.units[unit] = stats
         self.all_units[unit] = stats
+        self.ai_units[stats.ai_id].add(unit)
 
         stats.unit = unit
 

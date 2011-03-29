@@ -26,7 +26,7 @@ class WorldTalker:
 
     def __getOwner(self, unit):
         if unit.__class__ == Unit:
-            return self.__getStats(unit).ai_id
+            return self.__world.all_units[unit].ai_id
         elif unit.__class__ == mapobject.Building:
             return self.__world.buildings[unit].ai_id
 
@@ -107,8 +107,9 @@ class WorldTalker:
         # Find all visible units to this unit.
         origin = self.__getPosition(unit)
         units = []
+        ai_id = self.__getOwner(unit)
         for vunit in self.__world.units:
-            if self.__getOwner(vunit) == self.__getOwner(unit):
+            if self.__getOwner(vunit) == ai_id:
                 continue
             square = self.__getPosition(vunit)
             if self.isVisible(square) and self.__world.map.calcDistance(origin,
@@ -159,12 +160,7 @@ class WorldTalker:
 
     def getUnits(self, ai_id=None):
         ai_id = ai_id or self.getID()
-        units = []
-        for unit in self.__world.units:
-            if self.__getOwner(unit) == ai_id and \
-                self.__world.map.getPosition(unit):
-                units.append(unit)
-
+        units = self.__world.ai_units[ai_id] or []
         return units
 
     # If unit is none, return all squares visible to the AI
