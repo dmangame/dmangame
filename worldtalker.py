@@ -37,47 +37,69 @@ class WorldTalker:
         return self.__world.map.getPosition(mapobject)
 
     def isAlive(self, unit):
-        pos = unit.position
-        if pos in self.getVisibleSquares():
+        if unit in self.__world.units:
+            pos = self.__world.map.getPosition(unit)
+
+        if unit in self.__world.corpses:
+            pos = self.__world.corpses[unit]
+
+        if pos and self.isVisible(pos):
             return unit in self.__world.units
+
 
     def isCapturing(self, unit):
         pos = unit.position
-        if pos in self.getVisibleSquares():
+        if self.isVisible(pos):
             return self.__world.unitstatus[unit] == world.CAPTURING
 
     def isMoving(self, unit):
         pos = unit.position
-        if pos in self.getVisibleSquares():
+        if self.isVisible(pos):
             return self.__world.unitstatus[unit] == world.MOVING
 
     def isShooting(self, unit):
         pos = unit.position
-        if pos in self.getVisibleSquares():
+        if self.isVisible(pos):
             return self.__world.unitstatus[unit] == world.SHOOTING
 
-    def isVisible(self, unit):
-        if unit in self.getVisibleEnemies():
-            return True
+    # Calculates if a position is visible to this AI or a specific unit
+    def isVisible(self, position, unit=None):
+        if not position:
+            return
+
+        if not unit:
+            for unit in self.getUnits():
+                stats = self.__getStats(unit)
+                unit_square = self.__world.map.getPosition(unit)
+                if not unit_square:
+                    continue
+
+                dist = self.__world.map.calcDistance(position, unit_square)
+                if dist < stats.sight:
+                    return True
+        else:
+            stats = self.__getStats(unit)
+            unit_square = self.__world.map.getPosition(unit)
+            dist =  self.__world.map.calcDistance(position, unit_square)
+            if dist < stats.sight:
+                return True
+        return False
 
     def isUnderAttack(self, unit):
         pos = unit.position
-        if pos in self.getVisibleSquares():
+        if self.isVisible(pos):
             return unit in self.__world.under_attack
 
     def inRange(self, unit):
         # relies on both sight and bullet range.
         # Find all visible units to this unit.
-        squares = self.getVisibleSquares(unit)
         origin = self.__getPosition(unit)
         units = []
         for vunit in self.__world.units:
-            square = self.__getPosition(vunit)
             if self.__getOwner(vunit) == self.__getOwner(unit):
                 continue
-#            if self.__getPosition(vunit) in squares:
-#                print "%s is visible to %s" % (vunit, unit)
-            if square in squares and self.__world.map.calcDistance(origin,
+            square = self.__getPosition(vunit)
+            if self.isVisible(square) and self.__world.map.calcDistance(origin,
                     square) <= self.__world.bulletRange:
                 units.append(vunit)
         return units
@@ -98,7 +120,7 @@ class WorldTalker:
         if unit.__class__ == mapobject.Building:
             return position
 
-        if position in self.getVisibleSquares():
+        if unit in self.getUnits() or self.isVisible(position):
             return position
 
     def getStats(self, unit):
@@ -119,11 +141,12 @@ class WorldTalker:
 
         return buildings
 
-    def getUnits(self):
-        ai_id = self.getID()
+    def getUnits(self, ai_id=None):
+        ai_id = ai_id or self.getID()
         units = []
         for unit in self.__world.units:
-            if self.__getOwner(unit) == ai_id:
+            if self.__getOwner(unit) == ai_id and \
+                self.__world.map.getPosition(unit):
                 units.append(unit)
 
         return units
@@ -163,22 +186,29 @@ class WorldTalker:
 
 
     def getVisibleBuildings(self, unit=None):
-        squares = self.getVisibleSquares(unit)
         buildings = []
-        for b in self.__world.buildings.keys():
-            if self.__world.map.getPosition(b) in squares:
+        if unit: self.checkOwner(unit)
+
+        for b in self.__world.buildings:
+            pos = self.__world.map.getPosition(b)
+            if self.isVisible(pos, unit):
                 buildings.append(b)
+
         return buildings
 
     def getVisibleEnemies(self, unit=None):
         ai_id = self.getID()
         if unit: self.checkOwner(unit, ai_id)
-        squares = self.getVisibleSquares(unit)
         units = []
         for vunit in self.__world.units:
             if self.__getOwner(vunit) == ai_id:
                 continue
-            if self.__world.map.getPosition(vunit) in squares:
+
+            square = self.__world.map.getPosition(vunit)
+            if not square:
+                raise Exception("WHAT SQUARE WAS THIS FOR: %s" % (vunit))
+
+            if self.isVisible(square, unit):
                 units.append(vunit)
         return units
 
@@ -193,11 +223,11 @@ class WorldTalker:
 
     def calcDistance(self, unit, square):
         ai_id = self.getID()
-        if unit in self.getUnits() or self.isVisible(unit):
-            unit_square = self.__world.map.getPosition(unit)
+        unit_square = self.__world.map.getPosition(unit)
+
+
+        if unit in self.getUnits() or self.isVisible(unit_square, unit):
             return self.__world.map.calcDistance(unit_square, square)
-        else:
-            return None
 
     def calcUnitPath(self, unit, square):
         ai_id = self.getID()
@@ -279,4 +309,5 @@ class WorldTalker:
     def calcScore(self, team, ai_id):
         if ai_id == self.getID():
             return self.__world.calcScore(team)
+
 # vim: set expandtab shiftwidth=4 softtabstop=4 textwidth=79:

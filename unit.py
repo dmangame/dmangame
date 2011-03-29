@@ -48,10 +48,6 @@ class Unit(mapobject.MapObject):
         return self.__wt.isUnderAttack(self)
     is_under_attack = property(isUnderAttack)
 
-    def isVisible(self, unit):
-        " Returns if unit is visible (in sight range) to this unit "
-        return self.__wt.getPosition(unit) in self.__wt.getVisibleSquares(self)
-
     def getEnergy(self):
         "The energy of the unit, represents the health of the unit"
         return self.__wt.getStats(self).energy
@@ -115,7 +111,7 @@ class Unit(mapobject.MapObject):
         unit.move(dest) until the unit arrives there.
         """
 
-        return self.__wt.move(self, (x, y))
+        return self.__wt.move(self, (int(x), int(y)))
 
     def shoot(self, (x, y)):
         """

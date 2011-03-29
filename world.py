@@ -146,7 +146,8 @@ class World:
         self.unitpaths = {}
         self.bulletpaths = {}
         self.bullets = {}
-        self.died = []
+        self.died = {}
+        self.corpses = {}
         self.dead_units = {}
         self.oldbullets = []
         self.bullet_endings = defaultdict(bool)
@@ -263,7 +264,7 @@ class World:
 
                 if not unit in self.died:
                     log.info("%s died", (unit))
-                    self.died.append(unit)
+                    self.died[unit] = self.map.getPosition(unit)
                     if attacker:
                         unit.killer = set((attacker,))
                 else:
@@ -373,6 +374,7 @@ class World:
         for unit in self.died:
             stats = self.units[unit]
             self.dead_units[unit] = copy.copy(stats)
+            self.corpses[unit] = self.map.getPosition(unit)
             owner = stats.ai
             try:
               owner._unit_died(unit)
@@ -385,7 +387,7 @@ class World:
                 raise e
 
             self.__unitCleanup(unit)
-        self.died = []
+        self.died = {}
 
 
     # Creates a unit with stats on square.

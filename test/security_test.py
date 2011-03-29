@@ -150,17 +150,13 @@ class TestSecurityFunctions(unittest.TestCase):
       self.do_test_action("calcUnitPath", args=[(10,10)])
 
   def test_distance(self):
-      self.do_test_action("calcDistance", args=[(10,10)])
+      self.w.map.placeObject(self.other_unit, self.bottom_right)
+      self.w.map.placeObject(self.own_unit, self.top_left)
+      self.do_test_action("calcDistance", args=[(10,10)], false_comp=lambda x: x != False)
 
   def test_victims(self):
       self.w.map.placeObject(self.other_unit, (10,10))
       self.do_test_action("calcVictims", args=[(10,10)])
-
-  def test_visible(self):
-      self.w.map.placeObject(self.other_unit, self.top_left)
-      self.w.map.placeObject(self.own_unit, self.top_left)
-      self.do_test_action("isVisible", args=[self.other_unit])
-
 
   # Property Tests
   def test_position(self):
