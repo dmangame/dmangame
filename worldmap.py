@@ -201,6 +201,7 @@ class Map:
     def calcBulletPath(self, start, end, R):
         x, y = start
         m, n = end
+        R += 1
         bp_key = ",".join(map(str, (x,y,m,n,R)))
         if not bp_key in self.__bullet_paths:
             path = []
@@ -224,7 +225,8 @@ class Map:
                     if y > n:
                             ymovement = -ymovement
 
-                    index = 0
+                    x += 0.5
+                    y += 0.5
                     while self.isValidSquare((x,y)):
                             x += xmovement
                             y += ymovement

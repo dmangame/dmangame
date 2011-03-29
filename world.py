@@ -171,9 +171,8 @@ class World:
         bullet = mapobject.Bullet(unit, target)
         position = self.map.getPosition(unit)
         self.unitstatus[unit] = SHOOTING
-        range = self.bulletRange
 
-        path = self.map.calcBulletPath(position, target, min(range, self.bulletRange))
+        path = self.map.calcBulletPath(position, target, self.bulletRange)
         log.debug("Path is: %s", path)
 
         self.bullets[bullet] = path
@@ -429,7 +428,7 @@ class World:
             path = self.bullets[bullet]
             unit = bullet.getUnit()
             traversed_path = path[:self.bulletSpeed]
-            remaining_path = path[self.bulletSpeed+1:]
+            remaining_path = path[self.bulletSpeed:]
 
             if traversed_path:
 

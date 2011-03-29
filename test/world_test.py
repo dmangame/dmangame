@@ -123,6 +123,43 @@ class TestWorldFunctions(unittest.TestCase):
     self.assertNotEqual(energy,
       self.w.units[other_unit].energy)
 
+  def test_shoot_hits_enemy_just_in_range(self):
+    self.w.map.placeObject(self.unit, self.top_left)
+    other_ai = SecurityAI(self.wt)
+    s = world.Stats(ai_id=other_ai.ai_id,
+                    team=other_ai.team)
+    s.ai = other_ai
+
+    for i in xrange(self.w.bulletRange):
+      dy = self.w.bulletRange - i
+      dx = self.w.bulletRange - dy
+      pos = dx, dy
+      other_unit = self.w.createUnit(s, pos)
+      self.ai.do_unit_action(self.unit, "shoot", pos)
+      energy = self.w.units[other_unit].energy
+
+      self.w.Turn()
+      self.w.Turn()
+      self.w.Turn()
+      self.w.Turn()
+      self.assertNotEqual(energy,
+        self.w.units[other_unit].energy)
+
+    for i in xrange(self.w.bulletRange):
+      dx = self.w.bulletRange - i
+      dy = self.w.bulletRange - dx
+      pos = dx, dy
+      other_unit = self.w.createUnit(s, pos)
+      self.ai.do_unit_action(self.unit, "shoot", pos)
+      energy = self.w.units[other_unit].energy
+
+      self.w.Turn()
+      self.w.Turn()
+      self.w.Turn()
+      self.w.Turn()
+      self.assertNotEqual(energy,
+        self.w.units[other_unit].energy)
+
   def test_shoot_does_not_hit_distant_enemy(self):
     self.w.map.placeObject(self.unit, self.top_left)
     other_ai = SecurityAI(self.wt)

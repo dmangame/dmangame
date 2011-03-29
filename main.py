@@ -108,7 +108,7 @@ def main():
     try:
       cli.main(ais)
     except KeyboardInterrupt, e:
-      pass
+      raise
     except Exception, e:
       traceback.print_exc()
     finally:
