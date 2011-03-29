@@ -129,6 +129,10 @@ class WorldTalker:
         stats.ai_id = None
         return stats
 
+    def getSight(self, unit):
+        self.checkOwner(unit)
+        return self.__getStats(unit).sight
+
     def getTeam(self, unit):
         return self.__getTeam(unit)
 

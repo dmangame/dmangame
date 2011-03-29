@@ -53,6 +53,11 @@ class Unit(mapobject.MapObject):
         return self.__wt.getStats(self).energy
     energy = property(getEnergy)
 
+    def getSight(self):
+        "The sight of the unit, use: sight as R of unit"
+        return self.__wt.getSight(self)
+    sight = property(getSight)
+
     def getTeam(self):
         " The owner of the unit (an ai_id) "
         return self.__wt.getTeam(self)
