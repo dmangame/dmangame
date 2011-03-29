@@ -79,6 +79,13 @@ class Unit(mapobject.MapObject):
         return self.__wt.getVisibleEnemies(self)
     visible_enemies = property(getVisibleEnemies)
 
+    def getInRangeEnemies(self):
+        """
+        Returns all hittable enemy units to the AI
+        """
+        return self.__wt.inRange(self)
+    in_range_enemies = property(getInRangeEnemies)
+
     def calcBulletPath(self, target_square):
         """
         Calculates the path a bullet takes to get from the

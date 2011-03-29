@@ -232,7 +232,6 @@ class Map:
                               break
 
                             path.append((int(x), int(y)))
-                            index += abs(xmovement) + abs(ymovement)
 
 
             self.__bullet_paths[bp_key] = path

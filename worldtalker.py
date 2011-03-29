@@ -91,7 +91,7 @@ class WorldTalker:
 
             dist = self.__world.map.calcDistance(position, unit_square)
             stats = self.__getStats(unit)
-            if dist < stats.sight:
+            if dist <= stats.sight:
                 self.__visible_cache[ct][v_key] = True
                 return True
         self.__visible_cache[ct][v_key] = False
