@@ -15,8 +15,10 @@ class WorldTalker:
     def __init__(self, world):
         self.__world = world
         self.__world.wt = self
-        self.__visible_cache = {}
-        self.__visible_cached_turn = 0
+        self.__visible_en_cache = {}
+        self.__visible_en_cached_turn = 0
+        self.__visible_sq_cache = {}
+        self.__visible_sq_cached_turn = 0
         self.__cached_turn = None
         self.__teams = []
         self.__stats_cache = defaultdict(dict)
@@ -74,11 +76,11 @@ class WorldTalker:
         ai_id = self.getID()
         v_key = "%s_%s_%s" % (ai_id, position, unit)
         ct = self.__world.currentTurn
-        if self.__visible_cached_turn < ct:
-            self.__visible_cache.clear()
-            self.__visible_cached_turn = ct
+        if self.__visible_sq_cached_turn < ct:
+            self.__visible_sq_cache.clear()
+            self.__visible_sq_cached_turn = ct
         try:
-            return self.__visible_cache[v_key]
+            return self.__visible_sq_cache[v_key]
         except:
             pass
 
@@ -96,9 +98,9 @@ class WorldTalker:
             dist = self.__world.map.calcDistance(position, unit_square)
             stats = self.__getStats(unit)
             if dist <= stats.sight:
-                self.__visible_cache[v_key] = True
+                self.__visible_sq_cache[v_key] = True
                 return True
-        self.__visible_cache[v_key] = False
+        self.__visible_sq_cache[v_key] = False
         return False
 
     def isUnderAttack(self, unit):
@@ -215,6 +217,16 @@ class WorldTalker:
     def getVisibleEnemies(self, unit=None):
         ai_id = self.getID()
         if unit: self.checkOwner(unit, ai_id)
+        v_key = "%s_%s" % (ai_id, unit)
+        ct = self.__world.currentTurn
+        if self.__visible_en_cached_turn < ct:
+            self.__visible_en_cache.clear()
+            self.__visible_en_cached_turn = ct
+        try:
+            return self.__visible_en_cache[v_key]
+        except:
+            pass
+
         units = []
         for vunit in self.__world.units:
             if self.__getOwner(vunit) == ai_id:
@@ -226,6 +238,8 @@ class WorldTalker:
 
             if self.isVisible(square, unit):
                 units.append(vunit)
+
+        self.__visible_en_cache[v_key] = units
         return units
 
     # Calculation Functions
