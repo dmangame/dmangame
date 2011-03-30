@@ -150,6 +150,9 @@ capturing a building (If they are on the same square as a building).
           print self.my_units
           print self.visible_enemies
 
+        def _unit_died(self, died):
+          print "Lost a unit: %s" % unit
+
         def _unit_spawned(self, unit):
           print "Received a new unit: %s" % unit
 

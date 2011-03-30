@@ -9,5 +9,8 @@ class SimpleAI(ai.AI):
       print self.my_units
       print self.visible_enemies
 
+    def _unit_died(self, unit):
+      print "%s died" % unit
+
     def _unit_spawned(self, unit):
       print "Received a new unit: %s" % unit
