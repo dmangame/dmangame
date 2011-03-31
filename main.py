@@ -125,6 +125,6 @@ def main():
       gui.end_game()
 
 if __name__ == "__main__":
-  import cProfile
-  cProfile.run("main()", "mainprof")
-#  main()
+#  import cProfile
+#  cProfile.run("main()", "mainprof")
+  main()

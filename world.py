@@ -215,8 +215,8 @@ class World:
     def spinAI(self):
       for ai in self.AI:
 #        self.processSpin(ai)
-#        self.threadedSpin(ai)
-        ai._spin()
+        self.threadedSpin(ai)
+#        ai._spin()
     # Private Functions
     def __handleMeleeEvent(self, event, garbage, to_queue):
         unit = event.getUnit()
