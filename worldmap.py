@@ -92,7 +92,7 @@ def draw_map(cairo_context, width, height, world_data):
     cairo_context.fill()
 
   if settings.SAVE_IMAGES:
-    surface.write_to_png("_output_%02i.png"%world.currentTurn)
+    surface.write_to_png("_output_%02i.png"%world_data["currentturn"])
 
 class Map:
     def __init__(self, N):

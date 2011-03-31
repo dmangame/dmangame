@@ -114,13 +114,13 @@ class MapGUI:
         vbox.pack_start(label_box, False)
         labels = {}
         hbox = gtk.HBox()
-        vbox.pack_start(hbox)
+        vbox.pack_start(hbox, False)
         for stat in ['moving', 'shooting', 'capturing', 'idle']:
           labels[stat] = gtk.Label("%s: 0" % (stat))
           hbox.pack_start(labels[stat])
 
         kill_label = gtk.Label("kills: 0")
-        vbox.pack_start(kill_label)
+        vbox.pack_start(kill_label, False)
         labels['kills'] = kill_label
 
         b_chart = pygtk_chart.bar_chart.BarChart()

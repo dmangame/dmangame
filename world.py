@@ -643,7 +643,8 @@ class World:
                      "buildings" : [],
                      "bullets" : [],
                      "mapsize" : self.mapSize,
-                     "colors"  : {} }
+                     "colors"  : {},
+                     "currentturn" : self.currentTurn}
 
       for ai_player in self.AI:
         ai_data = { "team" : ai_player.team,

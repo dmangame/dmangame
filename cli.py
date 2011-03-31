@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 
 import ai
-import cairo
 import glob
 import os
 import worldmap
@@ -27,9 +26,11 @@ def main(ai_classes=[]):
   World = w
 
   for ai_class in ai_classes:
-    w.addAI(ai_class)
+    ai_player = w.addAI(ai_class)
+    ai.generate_ai_color(ai_player)
 
   if settings.SAVE_IMAGES:
+    import cairo
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 200, 200)
     cairo_context = cairo.Context(surface)
 
@@ -37,7 +38,7 @@ def main(ai_classes=[]):
       w.spinAI()
       w.Turn()
       if settings.SAVE_IMAGES:
-        worldmap.draw_map(cairo_context, 200, 200, AI, w)
+        worldmap.draw_map(cairo_context, 200, 200, w.dumpToDict())
   log.info("Finished simulating the world")
   sys.exit(0)
 
