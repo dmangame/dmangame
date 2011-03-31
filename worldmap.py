@@ -7,6 +7,7 @@ import random
 import logging
 import settings
 from unit import Unit
+import operator
 
 log = logging.getLogger("MAP")
 
@@ -66,7 +67,7 @@ def draw_map(cairo_context, width, height, world):
   for unit in world.unitpaths:
       path = world.unitpaths[unit]
       team = world.units[unit].team
-      color = map(lambda x: x/2.0, ai.AI_COLORS[team])
+      color = map(operator.div, ai.AI_COLORS[team], [2,2,2])
       cairo_context.set_source_rgb(*color)
       for x,y in path:
           cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)

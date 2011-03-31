@@ -8,6 +8,12 @@ from unit import Unit
 import world
 from collections import defaultdict
 import sys
+import math
+
+def calcDistance(start, end):
+    x,y = start
+    m,n = end
+    return math.sqrt((m-x)**2 + (n-y)**2)
 
 # TODO: add permissions checking for all commands that are issued on a unit.
 # Including visible_enemies, visible_units, etc
@@ -286,6 +292,7 @@ class WorldTalker:
     def getID(self):
         # this function will print out the ai_id of the caller (or his parent, maybe)
         i = 2
+        errored_once = False
         while True:
             try:
                 i+=1
@@ -293,18 +300,20 @@ class WorldTalker:
                     frame = sys._getframe(i)
                 except ValueError:
                     i = 0
+                    if errored_once:
+                        return
+                    errored_once = True
                     continue
                 f_locals = frame.f_locals
                 try:
                     if ai.AI in f_locals['self'].__class__.__bases__:
                         ai_id = f_locals['self'].ai_id
-                        del frame
                         return ai_id
                 except KeyError:
                     pass
             finally:
                 try:
-                    del frame
+                    pass
                 except:
                     pass
 
@@ -338,7 +347,6 @@ class WorldTalker:
         self.checkOwner(unit)
         self.__world.createShootEvent(unit, square, self.__world.bulletRange)
         return True
-
 
     def calcScore(self, team, ai_id):
         if ai_id == self.getID():

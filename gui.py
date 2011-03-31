@@ -215,7 +215,8 @@ class MapGUI:
 
         ai_data = {}
         for ai in self.world.AI:
-          ai_data[ai] = { "units" : ai.score["units"], "shooting" : 0, "capturing" : 0, "moving" : 0, "kills" : ai.score["kills"], "idle" : 0, "bldgs" : ai.score["buildings"]}
+          score = self.world.calcScore(ai.team)
+          ai_data[ai] = { "units" : score["units"], "shooting" : 0, "capturing" : 0, "moving" : 0, "kills" : score["kills"], "idle" : 0, "bldgs" : score["buildings"]}
           for unit in self.world.units:
             status = self.world.unitstatus[unit]
             if self.world.units[unit].ai != ai:

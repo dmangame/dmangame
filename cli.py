@@ -39,6 +39,7 @@ def main(ai_classes=[]):
       if settings.SAVE_IMAGES:
         worldmap.draw_map(cairo_context, 200, 200, AI, w)
   log.info("Finished simulating the world")
+  sys.exit(0)
 
 
 def end_game():
