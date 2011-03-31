@@ -1,4 +1,5 @@
 # The world class for the game.
+import ai
 import ai_exceptions
 import mapobject
 import worldtalker
@@ -633,6 +634,57 @@ class World:
             buildings += 1
 
         return { "units" : alive, "kills" : kills, "buildings" : buildings }
+
+    def dumpToDict(self):
+      world_data = { "units" : [],
+                     "AI" : [],
+                     "buildings" : [],
+                     "bullets" : [],
+                     "mapsize" : self.mapSize,
+                     "colors"  : {} }
+
+      for ai_player in self.AI:
+        ai_data = { "team" : ai_player.team,
+                    "color" : ai.AI_COLORS[ai_player.team] }
+
+        world_data["colors"][ai_player.team] = ai.AI_COLORS[ai_player.team]
+
+        world_data["AI"].append(ai_data)
+
+      for unit in self.units:
+        stats = self.units[unit]
+        unit_data = { "team" : unit.team,
+                      "stats" : { "sight" : stats.sight,
+                                  "speed" : stats.speed },
+                      "position" : self.map.getPosition(unit),
+                      "melee"    : unit in self.melees
+                    }
+        if unit in self.unitpaths:
+          unit_data["unitpath"] = self.unitpaths[unit]
+
+        if unit in self.bulletpaths:
+          unit_data["bulletpath"] = self.bulletpaths[unit]
+
+        world_data["units"].append(unit_data)
+
+      for building in self.buildings:
+        building_data = { "position" : self.map.getPosition(building),
+                          "team"    : building.team
+                        }
+
+        world_data["buildings"].append(building_data)
+
+      for bullet in self.bullets:
+        bullet_data = { "position" : self.map.getPosition(bullet) }
+
+        world_data["bullets"].append(bullet_data)
+
+
+      return world_data
+
+
+    def dumpToJSON(self):
+      return json.dumps(self.dumpToDict())
 
 #Map1 = {unit:position, building:position}
 #2Map = {}

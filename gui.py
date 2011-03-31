@@ -148,7 +148,16 @@ class MapGUI:
             context.line_to(deltax*i, height)
             context.stroke()
 
-    def draw_map(self, surface):
+    def draw_map(self, world_data):
+
+
+        width = self.drawSize
+        height = self.drawSize
+
+        surface = cairo.ImageSurface (cairo.FORMAT_ARGB32, width, height)
+        cr = cairo.Context (surface)
+        gdkcr = gtk.gdk.CairoContext (cr)
+        worldmap.draw_map(gdkcr, width, height, world_data)
 
         self.guiTurn += 1
 
@@ -172,11 +181,11 @@ class MapGUI:
 
     def draw_map_and_ai_data(self):
         try:
-          surface, ai_data = self.frame_queue.get(False)
+          world_data, ai_data = self.frame_queue.get(False)
         except Queue.Empty, e:
           return
 
-        self.draw_map(surface)
+        self.draw_map(world_data)
         self.update_ai_stats(ai_data)
 
     def update_ai_stats(self, ai_data):
@@ -205,14 +214,6 @@ class MapGUI:
 
     def save_map_and_ai_data_to_queue(self):
 
-        width = self.drawSize
-        height = self.drawSize
-
-        surface = cairo.ImageSurface (cairo.FORMAT_ARGB32, width, height)
-        cr = cairo.Context (surface)
-        gdkcr = gtk.gdk.CairoContext (cr)
-        worldmap.draw_map(gdkcr, width, height, self.world)
-
         ai_data = {}
         for ai in self.world.AI:
           score = self.world.calcScore(ai.team)
@@ -231,7 +232,7 @@ class MapGUI:
             else:
               ai_data[ai]["idle"] += 1
 
-        self.frame_queue.put((surface, ai_data))
+        self.frame_queue.put((self.world.dumpToDict(), ai_data))
 
 
     def threaded_world_spinner(self):

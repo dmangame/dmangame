@@ -12,12 +12,13 @@ import operator
 log = logging.getLogger("MAP")
 
 
-def draw_map(cairo_context, width, height, world):
+def draw_map(cairo_context, width, height, world_data):
 
   surface = cairo_context.get_target()
 
-  deltax = float(width)/world.mapSize
-  deltay = float(height)/world.mapSize
+  deltax = float(width)/world_data["mapsize"]
+  deltay = float(height)/world_data["mapsize"]
+
   cairo_context.set_source_rgb(1, 1, 1)
   cairo_context.rectangle(0, 0, width, height)
   cairo_context.fill()
@@ -30,78 +31,65 @@ def draw_map(cairo_context, width, height, world):
 #
   # try getting the color from our color dictionary.
 
-  AI = world.AI
+  for unit in world_data["units"]:
+      color = world_data["colors"][unit["team"]]
 
-  for unit in world.units:
-      stats = world.units[unit]
-      team = stats.team
-      color = ai.AI_COLORS[team]
+      if unit["melee"]:
+        x, y = unit["position"]
 
-  for unit in world.melees:
-      team = unit.team
-      color = ai.AI_COLORS[team]
-      x, y = world.melees[unit]
-      cairo_context.set_source_rgb(*color)
-      cairo_context.rectangle(deltax*x-(deltax), deltay*y-(deltay), 4*deltax, 4*deltay)
+        cairo_context.set_source_rgb(*color)
+        cairo_context.rectangle(deltax*x-(deltax), deltay*y-(deltay), 4*deltax, 4*deltay)
+        cairo_context.fill()
+
+      x, y = unit["position"]
+      alpha_color = (color[0], color[1], color[2], .15)
+      cairo_context.set_source_rgba(*alpha_color)
+      cairo_context.arc(deltax*x, deltay*y, (unit["stats"]["sight"])*deltax, 0, 360.0)
       cairo_context.fill()
 
-  for building in world.buildings:
+      if "unitpath" in unit:
+        path_color = map(operator.div, color, [2,2,2])
+        cairo_context.set_source_rgb(*path_color)
+        for x,y in unit["unitpath"]:
+            cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
+            cairo_context.fill()
+
+      if "bulletpath" in unit:
+        # Draw the bullet paths
+        cairo_context.set_source_rgb(.75, .75, .75)
+        for path in unit["bulletpath"]:
+            for x,y in path:
+                cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
+                cairo_context.fill()
+
+      # Draw the unit itself
+      cairo_context.set_source_rgb(*color)
+      cairo_context.rectangle(deltax*x, deltay*y,
+                                   deltax, deltay)
+      cairo_context.fill()
+
+
+
+
+  for building in world_data["buildings"]:
       try:
-        x, y = world.map.getPosition(building)
+        color = world_data["colors"][building["team"]]
+        x, y = building["position"]
         cairo_context.set_source_rgb(0,0,0)
         cairo_context.rectangle(deltax*x-(deltax/2), deltay*y-(deltay/2), 2*deltax, 2*deltay)
+        cairo_context.fill()
+        cairo_context.set_source_rgb(*color)
+        cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
         cairo_context.fill()
       except TypeError:
         pass
 
-  for unit in world.units:
-      stats = world.units[unit]
-      x, y = world.map.getPosition(unit)
-      color = ai.AI_COLORS[stats.team]
-      color = (color[0], color[1], color[2], .15)
-      cairo_context.set_source_rgba(*color)
-      cairo_context.arc(deltax*x, deltay*y, (stats.sight)*deltax, 0, 360.0)
-      cairo_context.fill()
-
-  # Draw the unit paths
-  for unit in world.unitpaths:
-      path = world.unitpaths[unit]
-      team = world.units[unit].team
-      color = map(operator.div, ai.AI_COLORS[team], [2,2,2])
-      cairo_context.set_source_rgb(*color)
-      for x,y in path:
-          cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
-          cairo_context.fill()
-
-  # Draw the bullet paths
-  cairo_context.set_source_rgb(.75, .75, .75)
-  for unit in world.bulletpaths:
-      for path in world.bulletpaths[unit]:
-          for x,y in path:
-              cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
-              cairo_context.fill()
-
-  # Draw the mapobjects in different colors (based on whether it is a bullet or unit)
-  for unit in world.map.getAllObjects():
-      x,y = world.map.getPosition(unit)
-      if unit.__class__ == Unit:
-          team = world.units[unit].team
-          color = ai.AI_COLORS[team]
-          cairo_context.set_source_rgb(*color)
-      elif unit.__class__ == mapobject.Bullet:
-          cairo_context.set_source_rgb(0, 0, 0)
-      elif unit.__class__ == mapobject.Building:
-          team = unit.team
-          if team in ai.AI_COLORS:
-              color = ai.AI_COLORS[team]
-              cairo_context.set_source_rgb(*color)
-          else:
-              cairo_context.set_source_rgb(0.2,0.2,0.2)
-      else:
-          cairo_context.set_source_rgb(0,0,0)
-      cairo_context.rectangle(deltax*x, deltay*y,
-                                   deltax, deltay)
-      cairo_context.fill()
+  cairo_context.set_source_rgb(0,0,0)
+  for bullet in world_data["bullets"]:
+    x,y = bullet["position"]
+    cairo_context.rectangle(deltax*x, deltay*y,
+                               deltax, deltay)
+    cairo_context.fill()
 
   if settings.SAVE_IMAGES:
     surface.write_to_png("_output_%02i.png"%world.currentTurn)

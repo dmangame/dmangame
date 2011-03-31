@@ -79,7 +79,8 @@ class WorldTalker:
         if not position:
             return
 
-        ai_id = ai_id or self.getID()
+        if not ai_id:
+            ai_id = self.getID()
         v_key = "%s_%s_%s" % (ai_id, position, unit)
         ct = self.__world.currentTurn
         if self.__visible_sq_cached_turn < ct:
@@ -126,7 +127,7 @@ class WorldTalker:
             if self.__getOwner(vunit) == ai_id:
                 continue
             square = self.__getPosition(vunit)
-            if self.__isVisible(square) and calcDistance(origin,
+            if self.__isVisible(square, ai_id=ai_id) and calcDistance(origin,
                     square) <= self.__world.bulletRange:
                 units.append(vunit)
         return units
@@ -265,7 +266,7 @@ class WorldTalker:
         unit_square = self.__world.map.getPosition(unit)
 
 
-        if unit in self.getUnits(ai_id) or self.__isVisible(unit_square, unit):
+        if unit in self.getUnits(ai_id) or self.__isVisible(unit_square, unit, ai_id=ai_id):
             return calcDistance(unit_square, square)
 
     def calcUnitPath(self, unit, square):
