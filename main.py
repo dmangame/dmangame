@@ -109,7 +109,7 @@ def run_game():
 
 
 
-  ui = gui if options.cli else cli
+  ui = cli if options.cli else gui
 
   try:
     ui.main(ais)
