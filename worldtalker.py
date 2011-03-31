@@ -118,18 +118,23 @@ class WorldTalker:
             return unit in self.__world.under_attack
 
     def inRange(self, unit):
-        # relies on both sight and bullet range.
-        # Find all visible units to this unit.
-        origin = self.__getPosition(unit)
+        # Find all visible units in range of this unit's firing capabilities.
         units = []
-        ai_id = self.__getOwner(unit)
-        for vunit in self.__world.units:
-            if self.__getOwner(vunit) == ai_id:
+        unit_ai_id = self.__getOwner(unit)
+        om = self.__world.map.objectMap
+        unit_square = om[unit]
+
+        for an_ai_id in self.__world.ai_units:
+            if an_ai_id == unit_ai_id:
                 continue
-            square = self.__getPosition(vunit)
-            if self.__isVisible(square, ai_id=ai_id) and calcDistance(origin,
-                    square) <= self.__world.bulletRange:
-                units.append(vunit)
+
+            for vunit in self.__world.ai_units[an_ai_id]:
+                square = om[vunit]
+                if not self.__isVisible(square):
+                    continue
+
+                if calcDistance(unit_square, square) < self.__world.bulletRange:
+                    units.append(vunit)
         return units
 
     # Get functions
