@@ -14,6 +14,7 @@ import glib
 import glob
 import gobject
 import gtk
+import json
 import traceback
 import sys
 import time
@@ -21,7 +22,7 @@ import traceback
 
 gtk.gdk.threads_init()
 from threading import Thread, RLock
-
+import multiprocessing
 import Queue
 
 import logging
@@ -65,7 +66,7 @@ class MapGUI:
 
         # Initialize our pixbuf queue
         self.stopped = False
-        self.frame_queue = Queue.Queue(BUFFER_SIZE)
+        self.frame_queue = multiprocessing.Queue(BUFFER_SIZE)
         self.lock = RLock()
 
     def initialize_map_window(self):
@@ -132,7 +133,7 @@ class MapGUI:
 
         b_chart.grid.set_visible(False)
         b_chart.set_draw_labels(True)
-        self.ai_drawables[a] = (labels, b_chart)
+        self.ai_drawables[str(a.team)] = (labels, b_chart)
         self.key_area.pack_start(vbox)
 
     def draw_grid(self, context):
@@ -181,29 +182,29 @@ class MapGUI:
 
     def draw_map_and_ai_data(self):
         try:
-          world_data, ai_data = self.frame_queue.get(False)
+          world_data, ai_data = json.loads(self.frame_queue.get(False))
         except Queue.Empty, e:
           return
 
         self.draw_map(world_data)
-        self.update_ai_stats(ai_data)
+        self.update_ai_stats(ai_data, world_data["colors"])
 
-    def update_ai_stats(self, ai_data):
-        for ai_player in ai_data:
-
-          labels, b_chart = self.ai_drawables[ai_player]
-          color = gtk.gdk.Color(*ai.AI_COLORS[ai_player.team])
+    def update_ai_stats(self, ai_data, colors):
+        for team in ai_data:
+          team = str(team)
+          labels, b_chart = self.ai_drawables[team]
+          color = colors[team]
           for k in ['units', 'bldgs']:
-            v = ai_data[ai_player][k]
+            v = ai_data[team][k]
             bar = b_chart.get_area(k)
             if bar.get_value() != v:
               bar.set_value(int(v))
 
           for k in ['moving', 'shooting', 'idle', 'capturing']:
-            v = ai_data[ai_player][k]
+            v = ai_data[team][k]
             labels[k].set_text("%s: %s" % (k[0], v))
-          v = ai_data[ai_player][k]
-          labels['kills'].set_text("kills: %s" % (ai_data[ai_player]['kills']))
+          v = ai_data[team][k]
+          labels['kills'].set_text("kills: %s" % (ai_data[team]['kills']))
 
         self.key_area.show_all()
 
@@ -216,27 +217,30 @@ class MapGUI:
 
         ai_data = {}
         for ai in self.world.AI:
-          score = self.world.calcScore(ai.team)
-          ai_data[ai] = { "units" : score["units"], "shooting" : 0, "capturing" : 0, "moving" : 0, "kills" : score["kills"], "idle" : 0, "bldgs" : score["buildings"]}
+          team = ai.team
+          score = self.world.calcScore(team)
+          ai_data[team] = { "units" : score["units"], "shooting" : 0, "capturing" : 0, "moving" : 0, "kills" : score["kills"], "idle" : 0, "bldgs" : score["buildings"]}
           for unit in self.world.units:
             status = self.world.unitstatus[unit]
             if self.world.units[unit].ai != ai:
               continue
 
             if status == world.MOVING:
-              ai_data[ai]["moving"] += 1
+              ai_data[team]["moving"] += 1
             elif status == world.SHOOTING:
-              ai_data[ai]["shooting"] += 1
+              ai_data[team]["shooting"] += 1
             elif status == world.CAPTURING:
-              ai_data[ai]["capturing"] += 1
+              ai_data[team]["capturing"] += 1
             else:
-              ai_data[ai]["idle"] += 1
+              ai_data[team]["idle"] += 1
 
-        self.frame_queue.put((self.world.dumpToDict(), ai_data))
+
+        json_data = json.dumps((self.world.dumpToDict(), ai_data))
+        self.frame_queue.put(json_data)
 
 
     def threaded_world_spinner(self):
-        t = Thread(target=self.world_spinner)
+        t = multiprocessing.Process(target=self.world_spinner)
         t.start()
 
     def world_spinner(self):

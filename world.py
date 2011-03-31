@@ -15,6 +15,8 @@ import traceback
 from lib import thread2
 from collections import defaultdict
 
+import json
+
 log = logging.getLogger("WORLD")
 logging.basicConfig(level=logging.INFO)
 
@@ -647,9 +649,8 @@ class World:
         ai_data = { "team" : ai_player.team,
                     "color" : ai.AI_COLORS[ai_player.team] }
 
-        world_data["colors"][ai_player.team] = ai.AI_COLORS[ai_player.team]
-
         world_data["AI"].append(ai_data)
+        world_data["colors"][ai_player.team] = ai.AI_COLORS[ai_player.team]
 
       for unit in self.units:
         stats = self.units[unit]

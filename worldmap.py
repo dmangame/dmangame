@@ -32,7 +32,7 @@ def draw_map(cairo_context, width, height, world_data):
   # try getting the color from our color dictionary.
 
   for unit in world_data["units"]:
-      color = world_data["colors"][unit["team"]]
+      color = world_data["colors"][str(unit["team"])]
 
       if unit["melee"]:
         x, y = unit["position"]
@@ -73,7 +73,7 @@ def draw_map(cairo_context, width, height, world_data):
 
   for building in world_data["buildings"]:
       try:
-        color = world_data["colors"][building["team"]]
+        color = world_data["colors"][str(building["team"])]
         x, y = building["position"]
         cairo_context.set_source_rgb(0,0,0)
         cairo_context.rectangle(deltax*x-(deltax/2), deltay*y-(deltay/2), 2*deltax, 2*deltay)
