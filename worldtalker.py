@@ -282,10 +282,11 @@ class WorldTalker:
 
     def calcUnitPath(self, unit, square):
         ai_id = self.getID()
+        pos = self.__world.map.getPosition(unit)
         if not unit in self.getUnits(ai_id) and \
-            not self.__isVisible(self.__world.map.getPosition(unit)):
+            not self.__isVisible(pos):
             return []
-        return self.__world.map.calcUnitPath(self.__world.map.getPosition(unit), square)
+        return self.__world.map.calcUnitPath(pos)
 
     # Return all the units that would be hit by a bullet shot at target square.
     # (Assuming they stay still)
