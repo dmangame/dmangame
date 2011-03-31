@@ -214,9 +214,12 @@ class World:
 
     def spinAI(self):
       for ai in self.AI:
-#        self.processSpin(ai)
-        self.threadedSpin(ai)
-#        ai._spin()
+        if settings.PROFILE:
+          ai._spin()
+        else:
+          # self.processSpin(ai)
+          self.threadedSpin(ai)
+
     # Private Functions
     def __handleMeleeEvent(self, event, garbage, to_queue):
         unit = event.getUnit()

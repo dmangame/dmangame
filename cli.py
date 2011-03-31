@@ -17,13 +17,13 @@ LIFESPAN = 800
 import sys
 import os
 
-World = None
+CliWorld = None
 AI = []
 
 def main(ai_classes=[]):
   w = world.World()
-  global World
-  World = w
+  global CliWorld
+  CliWorld = w
 
   for ai_class in ai_classes:
     ai_player = w.addAI(ai_class)
@@ -44,7 +44,8 @@ def main(ai_classes=[]):
 
 
 def end_game():
-  for ai in World.AI:
+  global CliWorld
+  for ai in CliWorld.AI:
     log.info("%s:%s", ai.__class__, ai.score)
 
 if __name__ == "__main__":

@@ -46,6 +46,9 @@ def parseOptions():
                       action="store_false", dest="whiny",
                       default=True,
                       help="ignore AI exceptions")
+    parser.add_option("-p", "--profile",
+                      action="store_true", dest="profile",
+                      default=False)
 
     (options, args) = parser.parse_args()
     return options,args
@@ -96,35 +99,39 @@ def loadMap(filename):
   except Exception, e:
       log.info("Error loading %s, %s", filename, e)
 
-def main():
+def run_game():
   options, args = parseOptions()
-  log.info(options)
-
   ais = loadAI(args)
   loadMap(options.map)
   settings.IGNORE_EXCEPTIONS = not options.whiny
   if options.save_images:
     settings.SAVE_IMAGES = True
-  if options.cli:
-    try:
-      cli.main(ais)
-    except KeyboardInterrupt, e:
-      raise
-    except Exception, e:
-      traceback.print_exc()
-    finally:
-      cli.end_game()
+
+
+
+  ui = gui if options.cli else cli
+
+  try:
+    ui.main(ais)
+  except KeyboardInterrupt, e:
+    raise
+  except Exception, e:
+    traceback.print_exc()
+  finally:
+    ui.end_game()
+
+  
+def main():
+  options, args = parseOptions()
+  log.info(options)
+  if options.profile:
+    settings.PROFILE = True
+    import cProfile
+
+  if settings.PROFILE:
+    cProfile.run("run_game()", "mainprof")
   else:
-    try:
-      gui.main(ais)
-    except KeyboardInterrupt, e:
-      gui.end_threads()
-    except Exception, e:
-      traceback.print_exc()
-    finally:
-      gui.end_game()
+    run_game()
 
 if __name__ == "__main__":
-#  import cProfile
-#  cProfile.run("main()", "mainprof")
   main()
