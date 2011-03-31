@@ -228,6 +228,7 @@ class WorldTalker:
         if unit: self.checkOwner(unit, ai_id)
         v_key = "%s_%s" % (ai_id, unit)
         ct = self.__world.currentTurn
+
         if self.__visible_en_cached_turn < ct:
             self.__visible_en_cache.clear()
             self.__visible_en_cached_turn = ct
@@ -238,16 +239,26 @@ class WorldTalker:
 
         units = []
         om = self.__world.map.objectMap
-        for vunit in self.__world.units:
-            if self.__getOwner(vunit) == ai_id:
+        my_units = []
+
+        if unit:
+            my_units.append(unit)
+        else:
+            my_units = self.getUnits()
+
+        for an_ai_id in self.__world.ai_units:
+            if an_ai_id == ai_id:
                 continue
 
-            square = om[vunit]
-            if not square:
-                raise Exception("WHAT SQUARE WAS THIS FOR: %s" % (vunit))
+            for vunit in self.__world.ai_units[an_ai_id]:
+                square = om[vunit]
+                if not square:
+                    raise Exception("WHAT SQUARE WAS THIS FOR: %s" % (vunit))
 
-            if self.__isVisible(square, unit, ai_id=ai_id):
-                units.append(vunit)
+                for my_unit in my_units:
+                    sight = self.__getStats(my_unit).sight
+                    if calcDistance(om[my_unit], square) < sight:
+                        units.append(vunit)
 
         self.__visible_en_cache[v_key] = units
         return units
@@ -272,7 +283,7 @@ class WorldTalker:
     def calcUnitPath(self, unit, square):
         ai_id = self.getID()
         if not unit in self.getUnits(ai_id) and \
-            not unit in self.getVisibleEnemies():
+            not self.__isVisible(self.__world.map.getPosition(unit)):
             return []
         return self.__world.map.calcUnitPath(self.__world.map.getPosition(unit), square)
 
