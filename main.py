@@ -7,7 +7,7 @@ log = logging.getLogger("MAIN")
 try:
   import pyximport
   log.info('Gearing up with Cython')
-  pyximport.install(pyimport=True)
+  pyximport.install()
 except Exception, e:
   log.info(e)
 

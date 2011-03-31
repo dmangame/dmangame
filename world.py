@@ -178,22 +178,42 @@ class World:
         self.map.placeObject(b, self.map.getRandomSquare())
         return ai_player
 
+    def processSpin(self, ai):
+      exc_thread = multiprocess.Process(target=ai._spin)
+      try:
+         exc_thread.start()
+         exc_thread.join(AI_CYCLE_SECONDS)
+         if exc_thread.is_alive():
+           log.info("AI %s exceeded execution time of %s seconds",
+                    ai, AI_CYCLE_SECONDS)
+           exc_thread.terminate()
+      except Exception, e:
+          traceback.print_exc()
+          if not settings.IGNORE_EXCEPTIONS:
+            raise
+          log.info("AI raised exception %s, skipping this turn for it", e)
+
+    def threadedSpin(self, ai):
+      exc_thread = thread2.Thread(target=ai._spin)
+      try:
+         exc_thread.start()
+         exc_thread.join(AI_CYCLE_SECONDS)
+         if exc_thread.isAlive():
+           log.info("AI %s exceeded execution time of %s seconds",
+                    ai, AI_CYCLE_SECONDS)
+           exc_thread.terminate()
+      except Exception, e:
+          traceback.print_exc()
+          if not settings.IGNORE_EXCEPTIONS:
+            raise
+          log.info("AI raised exception %s, skipping this turn for it", e)
+
+
     def spinAI(self):
       for ai in self.AI:
-          exc_thread = thread2.Thread(target=ai._spin)
-          try:
-             exc_thread.start()
-             exc_thread.join(AI_CYCLE_SECONDS)
-             if exc_thread.isAlive():
-               log.info("AI %s exceeded execution time of %s seconds",
-                        ai, AI_CYCLE_SECONDS)
-               exc_thread.terminate()
-          except Exception, e:
-              traceback.print_exc()
-              if not settings.IGNORE_EXCEPTIONS:
-                raise
-              log.info("AI raised exception %s, skipping this turn for it", e)
-
+#        self.processSpin(ai)
+#        self.threadedSpin(ai)
+        ai._spin()
     # Private Functions
     def __handleMeleeEvent(self, event, garbage, to_queue):
         unit = event.getUnit()
