@@ -650,8 +650,9 @@ class World:
 
         kills = 0
         for unit in self.dead_units:
-          for killer in unit.killer:
-            if killer.team == team:
+          teams = set(map(lambda k: k.team, unit.killer))
+          for t in teams:
+            if t == team:
               kills += 1
 
         buildings = 0
