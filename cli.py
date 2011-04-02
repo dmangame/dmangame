@@ -43,6 +43,9 @@ def main(ai_classes=[]):
   sys.exit(0)
 
 
+def end_threads():
+  pass
+
 def end_game():
   global CliWorld
   for ai in CliWorld.AI:

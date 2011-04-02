@@ -118,6 +118,7 @@ def run_game():
   except Exception, e:
     traceback.print_exc()
   finally:
+    ui.end_threads()
     ui.end_game()
 
   
