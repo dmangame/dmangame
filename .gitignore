@@ -1,2 +1,4 @@
 *.pyc
 *.sw[a-z]
+tags
+comments
