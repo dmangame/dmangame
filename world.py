@@ -155,6 +155,7 @@ class World:
         #self.eventQueue = EventQueue(self.events, self.mapSize)
 
         self.unitfullpaths = defaultdict(bool)
+        self.endpaths = defaultdict(object)
         self.unitpaths = {}
         self.bulletpaths = {}
         self.bullets = {}
@@ -256,31 +257,39 @@ class World:
         pathlong = self.unitfullpaths[unit]
 
         # Go the distance
-        pathshort = pathlong[:speed]
-        pathlong = pathlong[speed+1:]
+        pathshort = list(itertools.islice(iter(pathlong), 0, speed))
+
+        path_len = len(pathshort)
+        if not path_len >= speed:
+          # If we pulled off no moves, check if we can make any more moves this
+          # turn There is nothing remaining in the unit's path to its
+          # destination, so we can finish movement.
+          event_endsquare = event.getEndSquare()
+          pos = self.map.getPosition(unit)
+          if pos != event_endsquare:
+            if pathshort:
+              pos = pathshort[-1]
+
+            log.debug("Didn't land on square, calculating new path")
+            e = MoveEvent(unit, event_endsquare)
+            pathlong = self.map.calcUnitPath(pos, event_endsquare)
+            pathshort.insert(0, pos)
+            pathshort += list(itertools.islice(iter(pathlong), 0, (speed-path_len)))
+            to_queue.append(e)
+          else:
+            self.unitstatus[unit] = None
+
+          garbage.append(event)
 
         # update internal paths.
         self.unitpaths[unit] = pathshort
         self.unitfullpaths[unit] = pathlong
 
-        endsquare = pathshort[-1]
-        log.debug("Moving %s from %s to %s" , unit, self.map.getPosition(unit), endsquare)
-        self.map.placeObject(unit, endsquare)
 
-        # There is nothing remaining in the unit's path to its destination, so
-        # we can finish movement.
-        if not pathlong:
-            self.unitstatus[unit] = None
-            event_endsquare = event.getEndSquare()
-            if endsquare != event_endsquare:
-              log.debug("Didn't land on square, calculating new path")
-              e = MoveEvent(unit, event_endsquare)
-              pathlong = self.map.calcUnitPath(self.map.getPosition(unit),
-                            event_endsquare)
-              self.unitfullpaths[unit] = pathlong
-              to_queue.append(e)
-
-            garbage.append(event)
+        if pathshort:
+          endsquare = pathshort[-1]
+          log.debug("Moving %s from %s to %s" , unit, self.map.getPosition(unit), endsquare)
+          self.map.placeObject(unit, endsquare)
 
     def __handleCaptureEvent(self, event, garbage, to_queue):
         event.spinCounter()
@@ -423,6 +432,7 @@ class World:
                                 victims.append(victim)
                                 attackers.append(attacker)
                                 break
+
         log.debug("Attackers: %s", attackers)
         log.debug("Victims:   %s", victims)
         index = 0
@@ -585,11 +595,11 @@ class World:
             # If we've already calculated the full path to destination, we
             # don't need to recalculate it. This is so that subsequent move
             # events to the same place don't require recalculation.
-            pathlong = self.unitfullpaths[unit]
-            if not pathlong or pathlong[-1] != square:
+            if self.endpaths[unit] != square:
               pathlong = self.map.calcUnitPath(self.map.getPosition(unit),
                           square)
               self.unitfullpaths[unit] = pathlong
+              self.endpaths[unit] = square
 
             self.__queueEvent(e)
         else:

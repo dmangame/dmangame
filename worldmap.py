@@ -243,57 +243,55 @@ class Map:
     def calcUnitPath(self, start, end):
         x,y = start
         m,n = end
-        up_key = ",".join(map(str, (x,y,m,n)))
-        if not up_key in self.__unit_paths:
-            log.debug("Calculating path from %s to %s", (x, y), (m, n))
-            if x == m:
-                if y == n:
-                    return [(m,n)]
-                else:
-                    slope = 1.0
-            else:
-                slope = float(n-y)/float(m-x)
 
-            path = []
-            i = 0.0
-            j = 0.0
-            xdir = 1
-            ydir = 1
-            if abs(slope) < 1:
-                    xmovement = 1
-                    ymovement = slope
-            else:
-                xmovement = 1/slope
-                ymovement = 1
+        if x == m and y == n:
+          yield (m,n)
 
-            if (x > m):
-                xmovement = -xmovement
-                xdir = -1
-            if (y > n):
-                ymovement = -ymovement
-                ydir = -1
+        else:
+
+          if x == m:
+              slope = 1.0
+          else:
+              slope = float(n-y)/float(m-x)
+
+          path = []
+          i = 0.0
+          j = 0.0
+          xdir = 1
+          ydir = 1
+
+          if abs(slope) < 1:
+                  xmovement = 1
+                  ymovement = slope
+          else:
+              xmovement = 1/slope
+              ymovement = 1
+
+          if (x > m):
+              xmovement = -xmovement
+              xdir = -1
+          if (y > n):
+              ymovement = -ymovement
+              ydir = -1
 
 
-            # [TODO] Generate this the right way
-            while x != m or y != n:
-                if x - m != 0:
-                    for b in xrange(abs(int(xmovement+i))):
-                        x += xdir
-                        path.append((x,y))
-                        if x == m:
-                            break
-                    i = (xmovement+i)-int(xmovement+i)
+          # [TODO] Generate this the right way
+          while x != m or y != n:
+              if x - m != 0:
+                  for b in xrange(abs(int(xmovement+i))):
+                      x += xdir
+                      yield (x,y)
+                      if x == m:
+                          break
+                  i = (xmovement+i)-int(xmovement+i)
 
-                if y - n != 0:
-                    for a in xrange(abs(int(ymovement+j))):
-                        y += ydir
-                        path.append((x,y))
-                        if y == n:
-                            break
-                    j = (ymovement+j)-int(ymovement+j)
-
-            self.__unit_paths[up_key] = path
-        return self.__unit_paths[up_key]
+              if y - n != 0:
+                  for a in xrange(abs(int(ymovement+j))):
+                      y += ydir
+                      yield (x,y)
+                      if y == n:
+                          break
+                  j = (ymovement+j)-int(ymovement+j)
 
 
 if __name__ == "__main__":
