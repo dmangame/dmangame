@@ -69,6 +69,8 @@ class MapGUI:
         self.frame_queue = multiprocessing.Queue(BUFFER_SIZE)
         self.lock = RLock()
 
+        self.processes = []
+
     def initialize_map_window(self):
         self.window = gtk.Window()
         box = gtk.HBox()
@@ -242,6 +244,7 @@ class MapGUI:
     def threaded_world_spinner(self):
         t = multiprocessing.Process(target=self.world_spinner)
         t.start()
+        self.processes.append(t)
 
     def world_spinner(self):
 
@@ -303,8 +306,8 @@ def end_game():
     log.info("%s:%s", ai.__class__, ai.score)
 
 def end_threads(*args, **kwargs):
-  m.stopped = True
-  gtk.gdk.threads_leave()
+  for proc in m.processes:
+    proc.terminate()
 
 if __name__ == "__main__":
   main()

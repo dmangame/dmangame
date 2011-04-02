@@ -3,13 +3,13 @@
 import sys
 sys.path.insert(0, ".")
 
-import worldmap as wm
+import worldmap
 import unittest
 
 
 class TestSecurityFunctions(unittest.TestCase):
   def setUp(self):
-    self.map = wm.Map(100)
+    self.map = worldmap.Map(100)
 
   def test_get_legal_moves(self):
     one_sq_moves = set([(49, 50), (51, 50), (50, 51), (50, 49), (50, 50)])

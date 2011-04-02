@@ -10,10 +10,7 @@ from collections import defaultdict
 import sys
 import math
 
-def calcDistance(start, end):
-    x,y = start
-    m,n = end
-    return math.sqrt((m-x)**2 + (n-y)**2)
+from worldmap import calcDistance
 
 # TODO: add permissions checking for all commands that are issued on a unit.
 # Including visible_enemies, visible_units, etc
@@ -55,23 +52,20 @@ class WorldTalker:
         if unit in self.__world.corpses:
             pos = self.__world.corpses[unit]
 
-        if pos and self.__isVisible(pos):
+        if pos and self.__isVisible(pos): # Special case for _isVisible
             return unit in self.__world.units
 
 
     def isCapturing(self, unit):
-        pos = unit.position
-        if self.__isVisible(pos):
+        if self.__isVisibleObject(unit):
             return self.__world.unitstatus[unit] == world.CAPTURING
 
     def isMoving(self, unit):
-        pos = unit.position
-        if self.__isVisible(pos):
+        if self.__isVisibleObject(unit):
             return self.__world.unitstatus[unit] == world.MOVING
 
     def isShooting(self, unit):
-        pos = unit.position
-        if self.__isVisible(pos):
+        if self.__isVisibleObject(unit):
             return self.__world.unitstatus[unit] == world.SHOOTING
 
     # Calculates if a position is visible to this AI or a specific unit
@@ -97,7 +91,7 @@ class WorldTalker:
         else:
             units = self.getUnits(ai_id)
 
-        om = self.__world.map.objectMap 
+        om = self.__world.map.objectMap
         # Try not to reach in here too often, bad practice
         for unit in units:
             unit_square = om[unit]
@@ -112,9 +106,22 @@ class WorldTalker:
         self.__visible_sq_cache[v_key] = False
         return False
 
+    def __isVisibleObject(self, obj, unit=None, ai_id=None):
+        if not obj:
+            return
+
+        if not ai_id: ai_id = self.getID()
+
+#        if obj in self.getUnits(ai_id):
+#            return True
+
+        if unit:
+            return obj in self.__world.visibleobjects[unit]
+        else:
+            return obj in self.__world.visibleobjects[ai_id]
+
     def isUnderAttack(self, unit):
-        pos = unit.position
-        if self.__isVisible(pos):
+        if self.__isVisibleObject(unit):
             return unit in self.__world.under_attack
 
     def inRange(self, unit):
@@ -130,7 +137,7 @@ class WorldTalker:
 
             for vunit in self.__world.ai_units[an_ai_id]:
                 square = om[vunit]
-                if not self.__isVisible(square):
+                if not self.__isVisibleObject(vunit):
                     continue
 
                 if calcDistance(unit_square, square) < self.__world.bulletRange:
@@ -153,7 +160,7 @@ class WorldTalker:
         if unit.__class__ == mapobject.Building:
             return position
 
-        if unit in self.getUnits() or self.__isVisible(position):
+        if unit in self.getUnits() or self.__isVisibleObject(unit):
             return position
 
     def getStats(self, unit):
@@ -222,8 +229,7 @@ class WorldTalker:
         if unit: self.checkOwner(unit)
 
         for b in self.__world.buildings:
-            pos = self.__world.map.getPosition(b)
-            if self.__isVisible(pos, unit):
+            if self.__isVisibleObject(b, unit):
                 buildings.append(b)
 
         return buildings
@@ -231,42 +237,21 @@ class WorldTalker:
     def getVisibleEnemies(self, unit=None):
         ai_id = self.getID()
         if unit: self.checkOwner(unit, ai_id)
-        v_key = "%s_%s" % (ai_id, unit)
-        ct = self.__world.currentTurn
-
-        if self.__visible_en_cached_turn < ct:
-            self.__visible_en_cache.clear()
-            self.__visible_en_cached_turn = ct
-        try:
-            return self.__visible_en_cache[v_key]
-        except:
-            pass
-
-        units = []
-        om = self.__world.map.objectMap
-        my_units = []
 
         if unit:
-            my_units.append(unit)
+            vis_objs = self.__world.visibleobjects[unit]
         else:
-            my_units = self.getUnits()
+            vis_objs = self.__world.visibleobjects[ai_id]
 
-        for an_ai_id in self.__world.ai_units:
-            if an_ai_id == ai_id:
+        visibles = []
+        for vunit in vis_objs:
+            if vunit.__class__ != Unit:
                 continue
 
-            for vunit in self.__world.ai_units[an_ai_id]:
-                square = om[vunit]
-                if not square:
-                    raise Exception("WHAT SQUARE WAS THIS FOR: %s" % (vunit))
+            if vunit.team != unit.team:
+                visibles.append(vunit)
 
-                for my_unit in my_units:
-                    sight = self.__getStats(my_unit).sight
-                    if calcDistance(om[my_unit], square) < sight:
-                        units.append(vunit)
-
-        self.__visible_en_cache[v_key] = units
-        return units
+        return visibles
 
     # Calculation Functions
     def calcBulletPath(self, unit, square):
@@ -282,16 +267,16 @@ class WorldTalker:
         unit_square = self.__world.map.getPosition(unit)
 
 
-        if unit in self.getUnits(ai_id) or self.__isVisible(unit_square, unit, ai_id=ai_id):
+        if unit in self.getUnits(ai_id) or self.__isVisibleObject(unit, ai_id=ai_id):
             return calcDistance(unit_square, square)
 
     def calcUnitPath(self, unit, square):
         ai_id = self.getID()
         pos = self.__world.map.getPosition(unit)
         if not unit in self.getUnits(ai_id) and \
-            not self.__isVisible(pos):
+            not self.__isVisibleObject(unit):
             return []
-        return self.__world.map.calcUnitPath(pos)
+        return self.__world.map.calcUnitPath(pos, square)
 
     # Return all the units that would be hit by a bullet shot at target square.
     # (Assuming they stay still)
@@ -299,11 +284,15 @@ class WorldTalker:
         ai_id = self.getID()
         self.checkOwner(unit, ai_id)
         self.checkAlive(unit)
-        path = self.__world.map.calcBulletPath(self.__world.map.getPosition(unit), square, self.__world.bulletRange)
+        pos = self.__world.map.getPosition(unit)
+        path = self.__world.map.calcBulletPath(pos, square, self.__world.bulletRange)
         victims = []
-        for unit in self.__world.units:
-            if self.__world.map.getPosition(unit) in path:
-                victims.append(unit)
+
+        for vunit in self.__world.visibleobjects[ai_id]:
+            if vunit.__class__ == Unit:
+                vpos = self.__world.map.getPosition(vunit)
+                if vpos in path:
+                    victims.append(vunit)
         return victims
 
 

@@ -17,6 +17,10 @@ class SecurityWorld(world.World):
     at = getattr(self, '_World__createUnit')
     return at(stats, square)
 
+  def calcVisibility(self):
+    at = getattr(self, '_World__calcVisibility')
+    return at()
+
 class SecurityAI(ai.AI):
   # Tests that an AI can not manipulate units from another
   # AI's team
@@ -155,7 +159,9 @@ class TestSecurityFunctions(unittest.TestCase):
       self.do_test_action("calcDistance", args=[(10,10)], false_comp=lambda x: x != False)
 
   def test_victims(self):
+      self.w.map.placeObject(self.own_unit, (7,7))
       self.w.map.placeObject(self.other_unit, (10,10))
+      self.w.calcVisibility()
       self.do_test_action("calcVictims", args=[(10,10)])
 
   # Property Tests
@@ -181,11 +187,13 @@ class TestSecurityFunctions(unittest.TestCase):
       def false_comp(x):
         return len(x) == 0
 
+      self.w.calcVisibility()
       self.do_test_property("visible_buildings", true_comp, false_comp)
 
   def test_visible_enemies(self):
       self.w.map.placeObject(self.own_unit, self.top_left)
       self.w.map.placeObject(self.other_unit, self.top_left)
+      self.w.calcVisibility()
       def true_comp(x):
         return len(x) > 0
 

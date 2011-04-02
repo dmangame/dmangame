@@ -1,5 +1,12 @@
 # A map class, responsible for map functions, like
-# finding the square a unit is on or what occupies a square
+# finding the square a unit is on or what occupies a square.
+# This is at the top so there are no circular dependencies
+# between modules (not clean, will fix)
+def calcDistance(start, end):
+    x,y = start
+    m,n = end
+    return math.sqrt((m-x)**2 + (n-y)**2)
+
 import ai
 import mapobject
 import math
@@ -10,6 +17,7 @@ from unit import Unit
 import operator
 
 log = logging.getLogger("MAP")
+
 
 
 def draw_map(cairo_context, width, height, world_data):

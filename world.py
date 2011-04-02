@@ -17,6 +17,8 @@ from collections import defaultdict
 
 import json
 
+from worldmap import calcDistance
+
 log = logging.getLogger("WORLD")
 logging.basicConfig(level=logging.INFO)
 
@@ -166,6 +168,7 @@ class World:
 
 
 
+        self.__calcVisibility()
         self.wt = worldtalker.WorldTalker(self)
 
 
@@ -217,7 +220,6 @@ class World:
         if settings.PROFILE:
           ai._spin()
         else:
-          # self.processSpin(ai)
           self.threadedSpin(ai)
 
     # Private Functions
@@ -340,6 +342,8 @@ class World:
         stats.ai_id = owner.ai_id
         stats.team = owner.team
         unit = self.__createUnit(stats, square)
+        # Need to give sight to unit
+        self.__calcVisibility()
         try:
           owner._unit_spawned(unit)
         except Exception, e:
@@ -525,6 +529,21 @@ class World:
         self.under_attack = set()
         self.unitstatus.clear()
 
+    def __calcVisibility(self):
+        self.visibleobjects = defaultdict(set)
+        all_obj = self.map.getAllObjects()
+        for unit in self.units:
+          stats = self.units[unit]
+          sight = stats.sight
+          unit_square = self.map.getPosition(unit)
+          ai_id = stats.ai_id
+          for obj in all_obj:
+            obj_square = self.map.getPosition(obj)
+            if calcDistance(unit_square, obj_square) <= sight:
+              self.visibleobjects[unit].add(obj)
+              self.visibleobjects[ai_id].add(obj)
+
+
     def __queueEvent(self, event):
         self.events.add(event)
         self.unitevents[event.getUnit()].add(event)
@@ -619,6 +638,8 @@ class World:
         self.__dealMeleeDamage()
         self.__cleanupDead()
         self.__spawnUnits()
+        # Recalculate what everyone in the world can see.
+        self.__calcVisibility()
         self.currentTurn += 1
 
     def calcScore(self, team):
