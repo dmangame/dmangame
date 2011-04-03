@@ -441,7 +441,7 @@ class World:
             attacker = attackers[index]
             attack = self.units[attacker].attack
             armor = self.units[victim].armor
-            damage = attack * math.log(self.mapSize) - armor
+            damage = attack - armor
             if damage > 0:
                 self.units[victim].energy -= int(damage)
                 self.under_attack.add(victim)
@@ -479,7 +479,7 @@ class World:
         stats = copy.copy(stats)
         stats.armor  = stats.armor  * settings.ARMOR_MODIFIER
         stats.energy = stats.energy * settings.ENERGY_MODIFIER
-        stats.attack = stats.attack * settings.ATTACK_MODIFIER
+        stats.attack = stats.attack * settings.ATTACK_MODIFIER * math.log(self.mapSize)
         stats.sight  = int((stats.sight * self.bulletRange) * settings.SIGHT_MODIFIER)
         stats.speed  = int(stats.speed * (settings.SPEED_MODIFIER * math.log(settings.MAP_SIZE)))
 

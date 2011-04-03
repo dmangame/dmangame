@@ -169,9 +169,25 @@ class WorldTalker:
         stats.ai_id = None
         return stats
 
+    def getArmor(self, unit):
+        self.checkOwner(unit)
+        return self.__getStats(unit).armor
+
+    def getAttack(self, unit):
+        self.checkOwner(unit)
+        return self.__getStats(unit).attack
+
+    def getEnergy(self, unit):
+        self.checkOwner(unit)
+        return self.__getStats(unit).energy
+
     def getSight(self, unit):
         self.checkOwner(unit)
         return self.__getStats(unit).sight
+
+    def getSpeed(self, unit):
+        self.checkOwner(unit)
+        return self.__getStats(unit).speed
 
     def getTeam(self, unit):
         return self.__getTeam(unit)

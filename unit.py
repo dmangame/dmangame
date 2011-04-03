@@ -48,6 +48,16 @@ class Unit(mapobject.MapObject):
         return self.__wt.isUnderAttack(self)
     is_under_attack = property(isUnderAttack)
 
+    def getArmor(self):
+        "The armor of the unit, represents the damage this unit absorbs when it gets shot by a bullet."
+        return self.__wt.getArmor(self)
+    armor = property(getArmor)
+
+    def getAttack(self):
+        "The attack of the unit, represents the damage this unit does with its bullets."
+        return self.__wt.getAttack(self)
+    attack = property(getAttack)
+
     def getEnergy(self):
         "The energy of the unit, represents the health of the unit"
         return self.__wt.getStats(self).energy
@@ -57,6 +67,11 @@ class Unit(mapobject.MapObject):
         "The sight of the unit, use: sight as R of unit"
         return self.__wt.getSight(self)
     sight = property(getSight)
+
+    def getSpeed(self):
+        "The speed of the unit - the number of units distance the unit can travel in one turn."
+        return self.__wt.getSpeed(self)
+    speed = property(getSpeed)
 
     def getTeam(self):
         " The owner of the unit (an ai_id) "
