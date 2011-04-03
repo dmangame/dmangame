@@ -107,10 +107,8 @@ class WorldTalker:
         return False
 
     def __isVisibleObject(self, obj, unit=None, ai_id=None):
-        if not obj:
-            return
+        if not obj: return
 
-        if not ai_id: ai_id = self.getID()
 
 #        if obj in self.getUnits(ai_id):
 #            return True
@@ -118,6 +116,7 @@ class WorldTalker:
         if unit:
             return obj in self.__world.visibleobjects[unit]
         else:
+            if not ai_id: ai_id = self.getID()
             return obj in self.__world.visibleobjects[ai_id]
 
     def isUnderAttack(self, unit):
