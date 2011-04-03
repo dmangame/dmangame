@@ -182,7 +182,32 @@ class World:
         ai_player._init()
         b = mapobject.Building(self.wt)
         self.buildings[b] = next(self.ai_cycler)
-        self.map.placeObject(b, self.map.getRandomSquare())
+
+        # Make sure this building is not within a distance
+        # from any other buildings.
+        attempts = 0
+        while True:
+          attempts += 1
+          rand_square = self.map.getRandomSquare()
+          within_range_of_other_building = False
+          for building in self.buildings:
+            pos = self.map.getPosition(building)
+            if building == b or not pos:
+              continue
+            spawn_distance = settings.BUILDING_SPAWN_DISTANCE * math.log(self.mapSize)
+            if calcDistance(pos, rand_square) < spawn_distance:
+              within_range_of_other_building = True
+
+
+          if not within_range_of_other_building:
+            # Redistribute all buildings?
+            break
+
+          if attempts >= 5:
+            log.info("Couldn't place %s's building far enough away after five tries, taking last guess", ai_player)
+
+
+        self.map.placeObject(b, rand_square)
         return ai_player
 
     def processSpin(self, ai):
