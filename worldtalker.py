@@ -136,10 +136,10 @@ class WorldTalker:
                 continue
 
             for vunit in self.__world.ai_units[an_ai_id]:
-                square = om[vunit]
-                if not self.__isVisibleObject(vunit):
+                if not self.__isVisibleObject(vunit, ai_id=unit_ai_id):
                     continue
 
+                square = om[vunit]
                 if calcDistance(unit_square, square) < self.__world.bulletRange:
                     units.append(vunit)
         return units
@@ -156,12 +156,11 @@ class WorldTalker:
         return self.__world.mapSize
 
     def getPosition(self, unit):
-        position = self.__getPosition(unit)
         if unit.__class__ == mapobject.Building:
-            return position
+            return self.__getPosition(unit)
 
-        if unit in self.getUnits() or self.__isVisibleObject(unit):
-            return position
+        if self.__isVisibleObject(unit) or unit in self.getUnits():
+            return self.__getPosition(unit)
 
     def getStats(self, unit):
         ai_id = self.getID()
@@ -290,7 +289,7 @@ class WorldTalker:
         ai_id = self.getID()
         pos = self.__world.map.getPosition(unit)
         if not unit in self.getUnits(ai_id) and \
-            not self.__isVisibleObject(unit):
+            not self.__isVisibleObject(unit, ai_id=ai_id):
             return []
         return self.__world.map.calcUnitPath(pos, square)
 

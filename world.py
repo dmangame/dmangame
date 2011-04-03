@@ -376,8 +376,6 @@ class World:
         stats.ai_id = owner.ai_id
         stats.team = owner.team
         unit = self.__createUnit(stats, square)
-        # Need to give sight to unit
-        self.__calcVisibility()
         try:
           owner._unit_spawned(unit)
         except Exception, e:
@@ -567,13 +565,14 @@ class World:
     def __calcVisibility(self):
         self.visibleobjects = defaultdict(set)
         all_obj = self.map.getAllObjects()
+        om = self.map.objectMap
         for unit in self.units:
           stats = self.units[unit]
           sight = stats.sight
-          unit_square = self.map.getPosition(unit)
+          unit_square = om[unit]
           ai_id = stats.ai_id
           for obj in all_obj:
-            obj_square = self.map.getPosition(obj)
+            obj_square = om[obj]
             if calcDistance(unit_square, obj_square) <= sight:
               self.visibleobjects[unit].add(obj)
               self.visibleobjects[ai_id].add(obj)
