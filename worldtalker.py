@@ -252,17 +252,21 @@ class WorldTalker:
         ai_id = self.getID()
         if unit: self.checkOwner(unit, ai_id)
 
+        
+
         if unit:
             vis_objs = self.__world.visibleobjects[unit]
+            team = unit.team
         else:
             vis_objs = self.__world.visibleobjects[ai_id]
+            team = self.__world.teams[ai_id]
 
         visibles = []
         for vunit in vis_objs:
-            if vunit.__class__ != Unit:
+            if not vunit or vunit.__class__ != Unit:
                 continue
 
-            if vunit.team != unit.team:
+            if vunit.team != team:
                 visibles.append(vunit)
 
         return visibles

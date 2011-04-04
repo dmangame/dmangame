@@ -123,6 +123,7 @@ class World:
           mapsize = settings.MAP_SIZE
 
         self.AI = []
+        self.teams = {}
         self.ai_cycler = itertools.cycle(self.AI)
         self.units = {} # instead of a list, it will point to the unit's attributes.
         self.all_units = {} # instead of a list, it will point to the unit's attributes.
@@ -165,6 +166,7 @@ class World:
     def addAI(self, ai_class):
         ai_player = ai_class(self.wt)
         self.AI.append(ai_player)
+        self.teams[ai_player.ai_id] = ai_player.team
         ai_player._init()
         b = mapobject.Building(self.wt)
         self.buildings[b] = next(self.ai_cycler)
