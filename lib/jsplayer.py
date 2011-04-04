@@ -20,11 +20,12 @@ HTML_SKELETON_END= """
 JS_PLAYER = """
 width=window.innerWidth;
 height=window.innerHeight;
-var paper = Raphael(0, 0, width, height);
+side = Math.min(width, height);
+var paper = Raphael(0, 0, side, side);
 
 function draw_world(world_data) {
-  deltax = width/world_data.mapsize
-  deltay = height/world_data.mapsize
+  var deltax = side/world_data.mapsize,
+      deltay = side/world_data.mapsize;
   paper.clear();
 
   for (u in world_data["units"]) {
@@ -37,10 +38,10 @@ function draw_world(world_data) {
         color_str = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+")";
 
     var this_unit = paper.rect(deltax*x, deltay*y, deltax, deltay);
-    this_unit.attr({"fill" : color_str, "stroke-width" : 0 })
+    this_unit.attr({"fill" : color_str, "stroke" : "none" })
 
     var this_unit_sight = paper.circle(deltax*x, deltay*y, unit_data.stats.sight*deltax);
-    this_unit_sight.attr({"fill" : color_str, "opacity" : 0.15, "stroke-width" : 0 });
+    this_unit_sight.attr({"fill" : color_str, "opacity" : 0.15, "stroke" : "none" });
 
     if (unit_data.unitpath) {
       var path_color_str = "rgb("+color[0]*128+","+color[1]*128+","+color[2]*128+")";
@@ -51,21 +52,22 @@ function draw_world(world_data) {
         var x = pos[0],
             y = pos[1];
         var trail = paper.rect(x*deltax, y*deltay, deltax, deltay);
-        trail.attr({"fill" : path_color_str, "stroke-width" : 0, "opacity" : 0.25 })
+        trail.attr({"fill" : path_color_str, "stroke" : "none", "opacity" : 0.25 })
       }
     }
 
 
     if (unit_data.bulletpath) {
         for (p in unit_data.bulletpath) {
-          for (sq in unit_data.bulletpath[p]) {
-            var pos = unit_data.bulletpath[p][sq];
+          var path = unit_data.bulletpath[p];
+          for (sq in path) {
+            var pos = path[sq];
             var x = pos[0],
                 y = pos[1];
             var path_color_str = "rgb(128, 128, 128)";
             console.log(x,y);
             var trail = paper.rect(x*deltax, y*deltay, deltax, deltay);
-            trail.attr({"fill" : path_color_str, "stroke-width" : 0, "opacity" : 0.5 })
+            trail.attr({"fill" : path_color_str, "stroke" : "none", "opacity" : 0.5 })
           }
         }
     }
@@ -79,7 +81,7 @@ function draw_world(world_data) {
 
 
     var this_bullet = paper.rect(x*deltax, y*deltay, deltax, deltay);
-    this_bullet.attr({"fill" : "black", "stroke-width" : 0 });
+    this_bullet.attr({"fill" : "black", "stroke" : "none" });
 
   }
 
@@ -92,8 +94,8 @@ function draw_world(world_data) {
     var color = world_data.colors[building_data.team],
         color_str = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+")";
 
-    var this_building = paper.rect(deltax*x, deltay*y, deltax, deltay);
-        this_building.attr({"fill" : color_str, "stroke-width" : 4, "stroke" : "black" })
+    var this_building = paper.rect(deltax*x-(deltax/2), deltay*y-(deltay/2), 2*deltax, 2*deltay);
+        this_building.attr({"fill" : color_str, "stroke-width" : 1, "stroke" : "black" })
 
   }
 
