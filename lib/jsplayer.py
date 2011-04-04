@@ -95,7 +95,7 @@ function draw_world(world_data) {
         color_str = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+")";
 
     var this_building = paper.rect(deltax*x-(deltax/2), deltay*y-(deltay/2), 2*deltax, 2*deltay);
-        this_building.attr({"fill" : color_str, "stroke-width" : 1, "stroke" : "black" })
+        this_building.attr({"fill" : color_str, "stroke" : "none" })
 
   }
 
