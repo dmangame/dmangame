@@ -43,7 +43,7 @@ def main(ai_classes=[]):
       w.Turn()
       if settings.SAVE_IMAGES:
         worldmap.draw_map(cairo_context, 200, 200, w.dumpToDict())
-      w.world_turns.append(w.dumpToDict())
+      w.world_turns.append((w.dumpToDict(), w.dumpScores()))
   log.info("Finished simulating the world")
 
   sys.exit(0)
