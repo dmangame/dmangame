@@ -217,26 +217,7 @@ class MapGUI:
 
     def save_map_and_ai_data_to_queue(self):
 
-        ai_data = {}
-        for ai in self.world.AI:
-          team = ai.team
-          score = self.world.calcScore(team)
-          ai_data[team] = { "units" : score["units"], "shooting" : 0, "capturing" : 0, "moving" : 0, "kills" : score["kills"], "idle" : 0, "bldgs" : score["buildings"]}
-          for unit in self.world.units:
-            status = self.world.unitstatus[unit]
-            if self.world.units[unit].ai != ai:
-              continue
-
-            if status == world.MOVING:
-              ai_data[team]["moving"] += 1
-            elif status == world.SHOOTING:
-              ai_data[team]["shooting"] += 1
-            elif status == world.CAPTURING:
-              ai_data[team]["capturing"] += 1
-            else:
-              ai_data[team]["idle"] += 1
-
-
+        ai_data = self.world.dumpScores()
         json_data = json.dumps((self.world.dumpToDict(), ai_data))
         self.frame_queue.put(json_data)
 
