@@ -50,6 +50,9 @@ def parseOptions():
                       action="store_true", dest="profile",
                       default=False)
 
+    parser.add_option("-o", "--output",
+                      dest="replay_file",
+                      help="create HTML replay file")
     (options, args) = parser.parse_args()
     return options,args
 
@@ -107,6 +110,9 @@ def run_game():
   if options.save_images:
     settings.SAVE_IMAGES = True
 
+  if options.replay_file:
+    settings.JS_REPLAY_FILE = options.replay_file
+
 
 
   ui = cli if options.cli else gui
@@ -121,7 +127,7 @@ def run_game():
     ui.end_threads()
     ui.end_game()
 
-  
+
 def main():
   options, args = parseOptions()
   log.info(options)

@@ -10,6 +10,8 @@ import worldtalker
 import itertools
 import settings
 import logging
+
+from lib import jsplayer
 log = logging.getLogger("CLI")
 
 LIFESPAN = 800
@@ -19,6 +21,7 @@ import os
 
 CliWorld = None
 AI = []
+
 
 def main(ai_classes=[]):
   w = world.World()
@@ -34,12 +37,15 @@ def main(ai_classes=[]):
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 200, 200)
     cairo_context = cairo.Context(surface)
 
+  w.world_turns = []
   for i in xrange(LIFESPAN):
       w.spinAI()
       w.Turn()
       if settings.SAVE_IMAGES:
         worldmap.draw_map(cairo_context, 200, 200, w.dumpToDict())
+      w.world_turns.append(w.dumpToDict())
   log.info("Finished simulating the world")
+
   sys.exit(0)
 
 
@@ -50,6 +56,11 @@ def end_game():
   global CliWorld
   for ai in CliWorld.AI:
     log.info("%s:%s", ai.__class__, ai.score)
+
+  
+  # Save the world information to an output file.
+  if settings.JS_REPLAY_FILE:
+    jsplayer.save_to_js_file(CliWorld.world_turns)
 
 if __name__ == "__main__":
   main()
