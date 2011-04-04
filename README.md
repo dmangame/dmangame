@@ -70,18 +70,18 @@ to the square until it arrives or another directive is issued.
 
 If the square is invalid, an exception will be raised.
 
+### Collisions ###
+
+If two or more AI teams have units that occupy the same square during a turn,
+the units collide with each other. All teams then lose the amount of the second
+greatest number of units on the square.
+
+
 ### Attacking ###
-When a unit attacks, they can either attack the square they are currently
-standing on, or a square that is within range.  If they are attacking the same
-square they are on, they use a Melee attack.
-
-The melee attack instantly kills all enemy units on the same square (and no
-allies).
-
-If they are attacking a distant square, they shoot a bullet towards that
-square. The bullet travels at about MAPSIZE/BULLET_SPEED_MODIFIER units a turn,
-while their full range is MAPSIZE/BULLET_RANGE_MODIFIER units. Any unit who
-falls within the path of a bullet will take damage (including allies).
+When a unit attacks, they shoot towards a square that they want to hit.  The
+bullet travels at about MAPSIZE/BULLET_SPEED_MODIFIER units a turn, while their
+full range is MAPSIZE/BULLET_RANGE_MODIFIER units. Any unit who falls within
+the path of a bullet will take damage (including allies).
 
 ### Damage ###
 
