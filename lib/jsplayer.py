@@ -44,7 +44,6 @@ function draw_world(world_data) {
     this_unit_sight.attr({"fill" : color_str, "opacity" : 0.15, "stroke" : "none" });
 
     if (unit_data.unitpath) {
-      var path_color_str = "rgb("+color[0]*128+","+color[1]*128+","+color[2]*128+")";
 
       for (sq in unit_data.unitpath)
       {
@@ -52,7 +51,7 @@ function draw_world(world_data) {
         var x = pos[0],
             y = pos[1];
         var trail = paper.rect(x*deltax, y*deltay, deltax, deltay);
-        trail.attr({"fill" : path_color_str, "stroke" : "none", "opacity" : 0.25 })
+        trail.attr({"fill" : color_str, "stroke" : "none", "opacity" : 0.50 })
       }
     }
 
@@ -65,7 +64,6 @@ function draw_world(world_data) {
             var x = pos[0],
                 y = pos[1];
             var path_color_str = "rgb(128, 128, 128)";
-            console.log(x,y);
             var trail = paper.rect(x*deltax, y*deltay, deltax, deltay);
             trail.attr({"fill" : path_color_str, "stroke" : "none", "opacity" : 0.5 })
           }
