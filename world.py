@@ -696,7 +696,7 @@ class World:
       for ai in self.AI:
         team = ai.team
         score = self.calcScore(team)
-        ai_data[team] = { "units" : score["units"], "shooting" : 0, "capturing" : 0, "moving" : 0, "kills" : score["kills"], "idle" : 0, "bldgs" : score["buildings"]}
+        ai_data[team] = { "units" : score["units"], "shooting" : 0, "capturing" : 0, "moving" : 0, "kills" : score["kills"], "idle" : 0, "bldgs" : score["buildings"], "name" : str(ai.__class__)}
         for unit in self.units:
           status = self.unitstatus[unit]
           if self.units[unit].ai != ai:

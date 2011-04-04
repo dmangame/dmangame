@@ -8,11 +8,36 @@ HTML_SKELETON = """
 </head>
 <body>
 
+<style>
+
+.ai_color_cell {
+  width: 25px;
+  height: 25px;
+  float: left;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-right: 10px;
+}
+
+.ai_header {
+  padding: 10px 0px;
+  font-weight: bold;
+  float: left;
+}
+
+.ai_info_cell {
+  padding: 5px;
+  margin: auto;
+}
+</style>
+<div id="map" style="width: auto; float: left;"> </div>
+<div id="ai_scores" style="width: auto; float: left;"> </div>
 <script>
 """
 
 HTML_SKELETON_END= """
 </script>
+
 </body>
 </html>
 """
@@ -21,7 +46,52 @@ JS_PLAYER = """
 width=window.innerWidth;
 height=window.innerHeight;
 side = Math.min(width, height);
-var paper = Raphael(0, 0, side, side);
+var mapEl = document.getElementById("map");
+var paper = Raphael(mapEl, side, side);
+var hudEl = document.getElementById("ai_scores");
+
+var unit_actions = ['moving', 'shooting', 'idle', 'capturing'];
+var ai_counts =['units', 'bldgs' ];
+
+function draw_ai_scores(ai_data, colors) {
+  ai_data_html = ""
+  for (t in ai_data) {
+    var html_str = "<div id='ai_" + t + "'>";
+    var team = ai_data[t],
+        color = colors[t];
+
+    console.log(t, colors);
+
+
+    var bg_color = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+");";
+    html_str += "<div class='ai_color_cell' style='background-color:"+bg_color+";'></div>";
+    html_str += "<div class='ai_header'>"+team["name"]+"</div>";
+
+    html_str += "<div>";
+    for (a in unit_actions) {
+      action = unit_actions[a];
+      html_str += "<span class='ai_info_cell'>";
+      html_str += action + ":" + team[action];
+      html_str += "</span>";
+    }
+    html_str += "</div>";
+
+    html_str += "<div>";
+    for (c in ai_counts) {
+      count = ai_counts[c];
+      html_str += "<span class='ai_info_cell'>";
+      html_str += count + ":" + team[count];
+      html_str += "</span>";
+    }
+    html_str += "</div>";
+
+    html_str += "</div>";
+
+    ai_data_html += html_str;
+  }
+
+  hudEl.innerHTML = ai_data_html;
+}
 
 function draw_world(world_data) {
   var deltax = side/world_data.mapsize,
@@ -117,9 +187,12 @@ function draw_world(world_data) {
 
 current_turn = 0;
 var world_spinner_id = setInterval(function() {
-  var world_data = WORLD_TURNS[current_turn];
-  if (world_data) {
+  var data = WORLD_TURNS[current_turn],
+      world_data = data[0],
+      ai_data    = data[1];
+  if (data) {
     draw_world(world_data);
+    draw_ai_scores(ai_data, world_data.colors);
   } else {
     clearTimeout(world_spinner_id);
   }
