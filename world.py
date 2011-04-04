@@ -677,6 +677,12 @@ class World:
 
         kills = 0
         killed_units = filter(lambda k: k.killer, self.dead_units)
+
+        deaths = 0
+        for unit in self.dead_units:
+          if unit.team == team:
+            deaths += 1
+
         for unit in killed_units:
           teams = set(map(lambda k: k.team, unit.killer))
           for t in teams:
@@ -688,7 +694,7 @@ class World:
           if self.buildings[b].team == team:
             buildings += 1
 
-        return { "units" : alive, "kills" : kills, "buildings" : buildings }
+        return { "units" : alive, "kills" : kills, "buildings" : buildings, "deaths" : deaths }
 
 
     def dumpScores(self):
@@ -696,7 +702,7 @@ class World:
       for ai in self.AI:
         team = ai.team
         score = self.calcScore(team)
-        ai_data[team] = { "units" : score["units"], "shooting" : 0, "capturing" : 0, "moving" : 0, "kills" : score["kills"], "idle" : 0, "bldgs" : score["buildings"], "name" : str(ai.__class__)}
+        ai_data[team] = { "units" : score["units"], "shooting" : 0, "capturing" : 0, "moving" : 0, "kills" : score["kills"], "idle" : 0, "bldgs" : score["buildings"], "name" : str(ai.__class__), "deaths" : score["deaths"] }
         for unit in self.units:
           status = self.unitstatus[unit]
           if self.units[unit].ai != ai:

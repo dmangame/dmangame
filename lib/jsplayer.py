@@ -29,6 +29,11 @@ HTML_SKELETON = """
   padding: 5px;
   margin: auto;
 }
+
+.clearfix {
+  clear: both;
+}
+
 </style>
 <div id="map" style="width: auto; float: left;"> </div>
 <div id="ai_scores" style="width: auto; float: left;"> </div>
@@ -51,22 +56,20 @@ var paper = Raphael(mapEl, side, side);
 var hudEl = document.getElementById("ai_scores");
 
 var unit_actions = ['moving', 'shooting', 'idle', 'capturing'];
-var ai_counts =['units', 'bldgs' ];
+var ai_counts =['units', 'bldgs', 'kills', 'deaths' ];
 
 function draw_ai_scores(ai_data, colors) {
-  ai_data_html = ""
+  ai_data_html = "<div class='turn_counter'>" + (current_turn+1) + "/" + total_turns + "</div>";
   for (t in ai_data) {
     var html_str = "<div id='ai_" + t + "'>";
     var team = ai_data[t],
         color = colors[t];
 
-    console.log(t, colors);
-
-
     var bg_color = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+");";
     html_str += "<div class='ai_color_cell' style='background-color:"+bg_color+";'></div>";
     html_str += "<div class='ai_header'>"+team["name"]+"</div>";
 
+    html_str += "<div class='clearfix'>";
     html_str += "<div>";
     for (a in unit_actions) {
       action = unit_actions[a];
@@ -187,6 +190,8 @@ function draw_world(world_data) {
 }
 
 current_turn = 0;
+total_turns = WORLD_TURNS.length;
+
 var world_spinner_id = setInterval(function() {
   var data = WORLD_TURNS[current_turn],
       world_data = data[0],
