@@ -11,6 +11,7 @@ class Unit(mapobject.MapObject):
     def __init__(self, worldtalker, stats):
         self.__wt = worldtalker
         self.__stats = stats
+        self.killer = set()
 
     # Some functions the unit has access to.  The way it will
     # use all these functions is by asking the worldtalker to

@@ -99,22 +99,6 @@ class ShootEvent:
     def getTarget(self):
         return self.__target
 
-class MeleeEvent:
-  def __init__(self, unit, square):
-      self.__type = 'Melee'
-      self.__unit = unit
-      self.__target = square
-
-  def getType(self):
-      return self.__type
-
-  def getUnit(self):
-      return self.__unit
-
-  def getTarget(self):
-      return self.__target
-
-
 def isValidSquare(square, N):
     x, y = square
     return x < N and x >= 0 and y < N and y >= 0
@@ -161,6 +145,8 @@ class World:
         self.bullets = {}
         self.died = {}
         self.corpses = {}
+        self.collisions = defaultdict(int)
+        self.survivors = {}
         self.dead_units = {}
         self.oldbullets = []
         self.bullet_endings = defaultdict(bool)
@@ -249,13 +235,6 @@ class World:
           self.threadedSpin(ai)
 
     # Private Functions
-    def __handleMeleeEvent(self, event, garbage, to_queue):
-        unit = event.getUnit()
-        target = event.getTarget()
-
-        log.debug("%s melees %s", unit, target)
-        self.melees[unit] = target
-
     def __handleShootEvent(self, event, garbage, to_queue):
         unit = event.getUnit()
         target = event.getTarget()
@@ -344,8 +323,6 @@ class World:
                 self.__handleCaptureEvent(event, garbage, to_queue)
             elif event.getType() == 'Shoot':
                 self.__handleShootEvent(event, garbage, to_queue)
-            elif event.getType() == 'Melee':
-                self.__handleMeleeEvent(event, garbage, to_queue)
             elif event.getType() == 'Move':
                 self.__handleMoveEvent(event, garbage, to_queue)
 
@@ -427,17 +404,33 @@ class World:
             del self.unitevents[unit]
 
     def __dealMeleeDamage(self):
-        for attacker in self.melees:
-          square = self.melees[attacker]
-          for obj in self.map.getOccupants(square):
-            if obj.__class__ == Unit:
-              victim = obj
-              if victim.team == attacker.team:
-                continue
+        square_histogram = defaultdict(list)
+        for square in self.map.squareMap:
+          occupants = self.map.squareMap[square]
+          square_histogram.clear()
+          for occupant in occupants:
+            if occupant.__class__ == Unit:
+              square_histogram[occupant.team].append(occupant)
 
-              if victim in self.units:
-                self.units[victim].energy = 0
-                self.__isDead(victim, attacker)
+          if len(square_histogram) > 1:
+            hist_counts = map(lambda x: len(square_histogram[x]), square_histogram)
+            subtract_count = hist_counts[1]
+
+            for team in square_histogram:
+              units = square_histogram[team]
+              for unit in units[:subtract_count]:
+                # Kill Units
+                self.units[unit].energy = 0
+                self.__isDead(unit)
+                self.collisions[square] += 1
+
+              # There should only ever be 1 survivor from a
+              # collision
+              if len(units) > subtract_count:
+                self.survivors[square] = team
+
+          if not square in self.survivors:
+            self.survivors[square] = None
 
     def __dealBulletDamage(self):
         victims = []
@@ -558,7 +551,8 @@ class World:
     def __clearTurnData(self):
         self.unitpaths = {}
         self.bulletpaths = {}
-        self.melees = {}
+        self.collisions.clear()
+        self.survivors.clear()
         self.under_attack = set()
         self.unitstatus.clear()
 
@@ -603,10 +597,7 @@ class World:
         self.__clearQueue(unit)
         if isValidSquare(square, self.mapSize):
             position = self.map.getPosition(unit)
-            if position == square:
-              e = MeleeEvent(unit, square)
-            else:
-              e = ShootEvent(unit, square, range)
+            e = ShootEvent(unit, square, range)
             self.__queueEvent(e)
         else:
             raise ai_exceptions.IllegalSquareException(square)
@@ -683,7 +674,8 @@ class World:
             alive += 1
 
         kills = 0
-        for unit in self.dead_units:
+        killed_units = filter(lambda k: k.killer, self.dead_units)
+        for unit in killed_units:
           teams = set(map(lambda k: k.team, unit.killer))
           for t in teams:
             if t == team:
@@ -703,7 +695,8 @@ class World:
                      "bullets" : [],
                      "mapsize" : self.mapSize,
                      "colors"  : {},
-                     "currentturn" : self.currentTurn}
+                     "currentturn" : self.currentTurn,
+                     "collisions"  : [] }
 
       for ai_player in self.AI:
         ai_data = { "team" : ai_player.team,
@@ -717,8 +710,7 @@ class World:
         unit_data = { "team" : unit.team,
                       "stats" : { "sight" : stats.sight,
                                   "speed" : stats.speed },
-                      "position" : self.map.getPosition(unit),
-                      "melee"    : unit in self.melees
+                      "position" : self.map.getPosition(unit)
                     }
         if unit in self.unitpaths:
           unit_data["unitpath"] = self.unitpaths[unit]
@@ -740,6 +732,13 @@ class World:
 
         world_data["bullets"].append(bullet_data)
 
+      for square in self.collisions:
+        count = self.collisions[square]
+        survivor = self.survivors[square]
+        collision_data = { "position" : square,
+                           "count" : count,
+                           "survivor" : survivor }
+        world_data["collisions"].append(collision_data)
 
       return world_data
 

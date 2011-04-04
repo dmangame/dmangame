@@ -42,13 +42,6 @@ def draw_map(cairo_context, width, height, world_data):
   for unit in world_data["units"]:
       color = world_data["colors"][str(unit["team"])]
 
-      if unit["melee"]:
-        x, y = unit["position"]
-
-        cairo_context.set_source_rgb(*color)
-        cairo_context.rectangle(deltax*x-(deltax), deltay*y-(deltay), 4*deltax, 4*deltay)
-        cairo_context.fill()
-
       x, y = unit["position"]
       alpha_color = (color[0], color[1], color[2], .15)
       cairo_context.set_source_rgba(*alpha_color)
@@ -99,6 +92,21 @@ def draw_map(cairo_context, width, height, world_data):
                                deltax, deltay)
     cairo_context.fill()
 
+  for collision in world_data["collisions"]:
+      x, y = collision["position"]
+      count = collision["count"] * 2
+      survivor = collision["survivor"]
+      if survivor:
+        color = world_data["colors"][survivor]
+      else:
+        color = (0.25, 0.25, 0.25)
+
+
+      cairo_context.set_source_rgb(*color)
+      cairo_context.rectangle(deltax*x-(count/2*deltax), deltay*y-(count/2*deltay), count*deltax, count*deltay)
+      cairo_context.fill()
+
+
   if settings.SAVE_IMAGES:
     surface.write_to_png("_output_%02i.png"%world_data["currentturn"])
 
@@ -128,7 +136,12 @@ class Map:
     # Remove the object from the map
     def removeObject(self, mapobject):
         if mapobject in self.objectMap:
-            self.squareMap[self.objectMap[mapobject]].remove(mapobject)
+            square = self.objectMap[mapobject]
+            occupant_list = self.squareMap[square]
+            occupant_list.remove(mapobject)
+            if not occupant_list:
+              del self.squareMap[square]
+
             del self.objectMap[mapobject]
 
     # Returns the square mapobject is on
