@@ -573,6 +573,17 @@ class World:
               self.visibleobjects[unit].add(obj)
               self.visibleobjects[ai_id].add(obj)
 
+    # The game is over when there all buildings and units are
+    # owned by one AI.
+    def __checkGameOver(self):
+      # If all buildings are owned:
+      building_owners = set(self.buildings.values())
+      if len(building_owners) == 1:
+        # Check number of alive AI units?
+        ai_units = filter(lambda x: x, self.ai_units.values())
+        if len(ai_units) == 1:
+          self.__winner = building_owners.pop()
+          return True
 
     def __queueEvent(self, event):
         self.events.add(event)
@@ -668,6 +679,7 @@ class World:
         # Recalculate what everyone in the world can see.
         self.__calcVisibility()
         self.currentTurn += 1
+        return self.__checkGameOver()
 
     def calcScore(self, team):
         alive = 0

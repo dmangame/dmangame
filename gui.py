@@ -185,6 +185,8 @@ class MapGUI:
     def draw_map_and_ai_data(self):
         try:
           world_data, ai_data = json.loads(self.frame_queue.get(False))
+        except TypeError:
+          sys.exit(0)
         except Queue.Empty, e:
           return
 
@@ -229,6 +231,7 @@ class MapGUI:
 
     def world_spinner(self):
 
+        turns_left = settings.END_GAME_TURNS
         try:
             while not self.stopped:
 
@@ -239,7 +242,12 @@ class MapGUI:
                 time.sleep(0.05)
 
               self.world.spinAI()
-              self.world.Turn()
+              if self.world.Turn():
+                if turns_left > 0:
+                  turns_left -= 1
+                else:
+                  self.frame_queue.put((None,None))
+                  break
 
               # Save world into a canvas that we put on a thread
               # safe queue
@@ -278,7 +286,7 @@ def main(ais=[]):
     for ai in ais:
       m.add_ai(ai)
 
-    gobject.timeout_add(100, m.gui_spinner)
+    gobject.timeout_add(50, m.gui_spinner)
     m.threaded_world_spinner()
     gtk.main()
 

@@ -14,7 +14,7 @@ import logging
 from lib import jsplayer
 log = logging.getLogger("CLI")
 
-LIFESPAN = 800
+LIFESPAN = 2000
 
 import sys
 import os
@@ -38,9 +38,14 @@ def main(ai_classes=[]):
     cairo_context = cairo.Context(surface)
 
   w.world_turns = []
+  turns_left = settings.END_GAME_TURNS
   for i in xrange(LIFESPAN):
       w.spinAI()
-      w.Turn()
+      if w.Turn():
+        if turns_left > 0:
+          turns_left -= 1
+        else:
+          break
       if settings.SAVE_IMAGES:
         worldmap.draw_map(cairo_context, 200, 200, w.dumpToDict())
       w.world_turns.append((w.dumpToDict(), w.dumpScores()))
