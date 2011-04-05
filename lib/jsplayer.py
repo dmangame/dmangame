@@ -1,5 +1,7 @@
 import settings
 import json
+import logging
+log = logging.getLogger("JSPLAYER")
 
 HTML_SKELETON = """
 <html>
@@ -181,8 +183,11 @@ function draw_world(world_data) {
     var color = world_data.colors[building_data.team],
         color_str = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+")";
 
-    context.fillStyle = color_str;
+    context.fillStyle = "#000";
     context.fillRect(deltax*x-(deltax/2), deltay*y-(deltay/2), 2*deltax, 2*deltay);
+
+    context.fillStyle = color_str;
+    context.fillRect(deltax*x, deltay*y, deltax, deltay);
 
   }
 
@@ -224,6 +229,7 @@ var world_spinner_id = setInterval(function() {
 """
 
 def save_to_js_file(world_turns):
+  log.info("Saving %s turns to %s", len(world_turns), settings.JS_REPLAY_FILE)
   f = open(settings.JS_REPLAY_FILE, "w")
   f.write(HTML_SKELETON)
   f.write("WORLD_TURNS = %s;" %(json.dumps(world_turns)))
