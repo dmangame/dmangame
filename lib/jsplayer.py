@@ -15,6 +15,10 @@ HTML_SKELETON = """
   border: 2px solid black;
 }
 
+#ai_scores {
+  margin-left: 5px;
+}
+
 .ai_color_cell {
   width: 25px;
   height: 25px;
@@ -53,13 +57,17 @@ HTML_SKELETON_END= """
 """
 
 JS_PLAYER = """
-width=window.innerWidth;
-height=window.innerHeight;
-side = Math.min(width, height);
 var mapEl = document.getElementById("map");
+window.onresize = function() {
+  width=window.innerWidth;
+  height=window.innerHeight;
+  side = Math.min(width, height) - 20;
+  mapEl.width = side;
+  mapEl.height = side;
+}
 
-mapEl.width = side;
-mapEl.height = side;
+window.onresize();
+
 
 var context = mapEl.getContext('2d');
 
