@@ -16,6 +16,12 @@ objective is to crush its enemies and hear the lamentation of their pixels.
 
 Your objective is to code this AI.
 
+## Dependencies ##
+
+If using graphics, pygtk (which should include cairo).
+
+If not, then just python.
+
 ## Playing ##
 
     # Play with graphics (you probably want this)
@@ -23,6 +29,13 @@ Your objective is to code this AI.
 
     # Play without graphics
     python main.py ai/capture.ai ai/killncapture.py -c
+
+    # Generate a web replay
+    # NOTE: This file is a massive JSON crusty file. If you want to copy it
+    # somewhere, make sure to compress it (scp -C) or use gzip before sending
+    # it.
+    python main.py ai/capture.ai ai/killncapture.py -c -o replay.html
+
 
 
     # Play on a specific map
