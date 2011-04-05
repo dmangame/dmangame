@@ -36,12 +36,6 @@ class WorldTalker:
         elif unit.__class__ == mapobject.Building:
             return self.__world.buildings[unit].ai_id
 
-    def __getTeam(self, unit):
-        if unit.__class__ == Unit:
-            return self.__getStats(unit).team
-        elif unit.__class__ == mapobject.Building:
-            return self.__world.buildings[unit].team
-
     def __getPosition(self, mapobject):
         return self.__world.map.getPosition(mapobject)
 
@@ -188,7 +182,12 @@ class WorldTalker:
         return self.__getStats(unit).speed
 
     def getTeam(self, unit):
-        return self.__getTeam(unit)
+        try:
+            return self.__world.teams[unit]
+        except KeyError:
+            return self.__world.buildings[unit].team
+        except Exception:
+            pass
 
     def getBuildings(self):
         ai_id = self.getID()

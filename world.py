@@ -412,7 +412,7 @@ class World:
           square_histogram.clear()
           for occupant in occupants:
             if occupant.__class__ == Unit:
-              square_histogram[occupant.team].append(occupant)
+              square_histogram[self.teams[occupant]].append(occupant)
 
           if len(square_histogram) > 1:
             hist_counts = map(lambda x: len(square_histogram[x]), square_histogram)
@@ -505,6 +505,7 @@ class World:
         self.units[unit] = stats
         self.all_units[unit] = stats
         self.ai_units[stats.ai_id].add(unit)
+        self.teams[unit] = stats.team
 
         stats.unit = unit
 
@@ -684,7 +685,7 @@ class World:
     def calcScore(self, team):
         alive = 0
         for unit in self.units:
-          if unit.team == team:
+          if self.teams[unit] == team:
             alive += 1
 
         kills = 0
@@ -692,11 +693,11 @@ class World:
 
         deaths = 0
         for unit in self.dead_units:
-          if unit.team == team:
+          if self.teams[unit] == team:
             deaths += 1
 
         for unit in killed_units:
-          teams = set(map(lambda k: k.team, unit.killer))
+          teams = set(map(lambda k: self.teams[k], unit.killer))
           for t in teams:
             if t == team:
               kills += 1
@@ -749,7 +750,7 @@ class World:
 
       for unit in self.units:
         stats = self.units[unit]
-        unit_data = { "team" : unit.team,
+        unit_data = { "team" : self.teams[unit],
                       "stats" : { "sight" : stats.sight,
                                   "speed" : stats.speed },
                       "position" : self.map.getPosition(unit)
