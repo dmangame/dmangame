@@ -202,8 +202,12 @@ function draw_world(world_data, turn_data) {
         x = pos[0],
         y = pos[1];
 
-    var color = world_data.colors[building_data.team],
-        color_str = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+")";
+      var color = world_data.colors[building_data.team];
+      if (color) {
+          var color_str = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+")";
+      } else {
+          var color_str = "rgb(0,0,0)";
+      }
 
     context.fillStyle = "#000";
     context.fillRect(deltax*x-(midx), deltay*y-(midy), 2*deltax, 2*deltay);
