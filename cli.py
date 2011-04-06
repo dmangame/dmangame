@@ -14,7 +14,7 @@ import logging
 from lib import jsplayer
 log = logging.getLogger("CLI")
 
-LIFESPAN = 2000
+LIFESPAN = 10000
 
 import sys
 import os
@@ -65,7 +65,7 @@ def end_game():
   
   # Save the world information to an output file.
   if settings.JS_REPLAY_FILE:
-    jsplayer.save_to_js_file(CliWorld.world_turns)
+    jsplayer.save_to_js_file(CliWorld.dumpWorldToDict(), CliWorld.world_turns)
 
 if __name__ == "__main__":
   main()

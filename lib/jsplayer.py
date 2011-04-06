@@ -114,20 +114,21 @@ function draw_ai_scores(ai_data, colors) {
   hudEl.innerHTML = ai_data_html;
 }
 
-function draw_world(world_data) {
+function draw_world(world_data, turn_data) {
   var deltax = side/world_data.mapsize,
       deltay = side/world_data.mapsize;
 
   context.fillStyle = "#fff";
   context.fillRect(0, 0, side, side);
 
-  for (u in world_data["units"]) {
-    var unit_data = world_data["units"][u],
+  for (u in turn_data["units"]) {
+    var unit_data = turn_data["units"][u],
+        unit_static_data = world_data["units"][unit_data.unit_id],
         pos = unit_data["position"],
         x = pos[0],
         y = pos[1];
 
-    var color = world_data.colors[unit_data.team],
+    var color = world_data.colors[unit_static_data["team"]],
         color_str = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+")",
         alpha_color_str = "rgba("+color[0]*255+","+color[1]*255+","+color[2]*255+", 0.15)";
         path_color_str = "rgba("+color[0]*255+","+color[1]*255+","+color[2]*255+", 0.5)";
@@ -138,7 +139,7 @@ function draw_world(world_data) {
 
     context.beginPath();
     context.fillStyle = alpha_color_str;
-    context.arc(deltax*x, deltay*y, unit_data.stats.sight*deltax, 0, Math.PI * 2, false);
+    context.arc(deltax*x, deltay*y, unit_static_data.stats.sight*deltax, 0, Math.PI * 2, false);
     context.closePath();
     context.fill();
 
@@ -182,9 +183,10 @@ function draw_world(world_data) {
 
   }
 
-  for (b in world_data.buildings) {
-    var building_data = world_data.buildings[b],
-        pos = building_data.position,
+  for (b in turn_data.buildings) {
+    var building_data = turn_data.buildings[b],
+        building_static_data = world_data.buildings[building_data.building_id],
+        pos = building_static_data.position,
         x = pos[0],
         y = pos[1];
 
@@ -222,12 +224,12 @@ current_turn = 0;
 total_turns = WORLD_TURNS.length;
 
 var world_spinner_id = setInterval(function() {
-  var data = WORLD_TURNS[current_turn],
-      world_data = data[0],
-      ai_data    = data[1];
+  var data = WORLD_TURNS[current_turn];
   if (data) {
-    draw_world(world_data);
-    draw_ai_scores(ai_data, world_data.colors);
+    turn_data = data[0],
+    ai_data    = data[1];
+    draw_world(WORLD_DATA, turn_data);
+    draw_ai_scores(ai_data, WORLD_DATA.colors);
   } else {
     clearTimeout(world_spinner_id);
   }
@@ -236,11 +238,12 @@ var world_spinner_id = setInterval(function() {
 
 """
 
-def save_to_js_file(world_turns):
+def save_to_js_file(world_data, world_turns):
   log.info("Saving %s turns to %s", len(world_turns), settings.JS_REPLAY_FILE)
   f = open(settings.JS_REPLAY_FILE, "w")
   f.write(HTML_SKELETON)
   f.write("WORLD_TURNS = %s;" %(json.dumps(world_turns)))
+  f.write("WORLD_DATA = %s;" %(json.dumps(world_data)))
 
   f.write(JS_PLAYER)
   f.write(HTML_SKELETON_END)

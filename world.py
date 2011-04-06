@@ -745,8 +745,8 @@ class World:
         world_data["AI"].append(ai_data)
         world_data["colors"][ai_player.team] = ai.AI_COLORS[ai_player.team]
 
-      for unit in self.units:
-        stats = self.units[unit]
+      for unit in self.all_units:
+        stats = self.all_units[unit]
         unit_data = {
           "team" : self.teams[unit],
           "stats" : { "sight" : stats.sight,
