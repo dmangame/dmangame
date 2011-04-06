@@ -122,6 +122,8 @@ function draw_world(world_data, turn_data) {
   context.fillRect(0, 0, side, side);
 
   for (u in turn_data["units"]) {
+    context.strokeStyle = "none";
+    context.lineWidth = 0;
     var unit_data = turn_data["units"][u],
         unit_static_data = world_data["units"][unit_data.unit_id],
         pos = unit_data["position"],
@@ -136,12 +138,6 @@ function draw_world(world_data, turn_data) {
 
     context.fillStyle = color_str;
     context.fillRect(deltax*x, deltay*y, deltax, deltay);
-
-    context.beginPath();
-    context.fillStyle = alpha_color_str;
-    context.arc(deltax*x, deltay*y, unit_static_data.stats.sight*deltax, 0, Math.PI * 2, false);
-    context.closePath();
-    context.fill();
 
     if (unit_data.unitpath) {
 
@@ -159,16 +155,27 @@ function draw_world(world_data, turn_data) {
     if (unit_data.bulletpath) {
         for (p in unit_data.bulletpath) {
           var path = unit_data.bulletpath[p];
-          for (sq in path) {
-            var pos = path[sq];
-            var x = pos[0],
-                y = pos[1];
-            var path_color_str = "rgba(128, 128, 128, 0.5)";
-            context.fillRect(x*deltax, y*deltay, deltax, deltay);
-            context.fillStyle = path_color_str;
-          }
+          var start = path[0],
+              end   = path[1];
+
+          context.beginPath();
+          context.strokeStyle = path_color_str;
+          context.moveTo(start[0]*deltax, start[1]*deltay);
+          context.lineTo(end[0]*deltax, end[1]*deltay);
+          context.closePath();
+          context.lineWidth = deltax/2;
+          context.stroke();
         }
     }
+    context.strokeStyle = "none";
+    context.lineWidth = 0;
+
+    context.beginPath();
+    context.fillStyle = alpha_color_str;
+    context.arc(deltax*x, deltay*y, unit_static_data.stats.sight*deltax, 0, Math.PI * 2, false);
+    context.closePath();
+    context.fill();
+
   }
 
   for (b in world_data.bullets) {
@@ -234,7 +241,7 @@ var world_spinner_id = setInterval(function() {
     clearTimeout(world_spinner_id);
   }
   current_turn += 1;
-}, 100);
+}, 50);
 
 """
 

@@ -778,7 +778,9 @@ class World:
           unit_data["unitpath"] = self.unitpaths[unit]
 
         if unit in self.bulletpaths:
-          unit_data["bulletpath"] = self.bulletpaths[unit]
+          unit_data["bulletpath"] = []
+          for path in self.bulletpaths[unit]:
+            unit_data["bulletpath"].append((path[0], path[-1]))
 
         turn_data["units"].append(unit_data)
 
