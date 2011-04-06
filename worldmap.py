@@ -20,7 +20,7 @@ log = logging.getLogger("MAP")
 
 
 
-def draw_map(cairo_context, width, height, world_data):
+def draw_map(cairo_context, width, height, world_data, turn_data):
 
   surface = cairo_context.get_target()
 
@@ -39,13 +39,15 @@ def draw_map(cairo_context, width, height, world_data):
 #
   # try getting the color from our color dictionary.
 
-  for unit in world_data["units"]:
-      color = world_data["colors"][str(unit["team"])]
+  for unit in turn_data["units"]:
+      unit_data = world_data["units"][unit["unit_id"]]
+      team = unit_data["team"]
+      color = world_data["colors"][str(team)]
 
       x, y = unit["position"]
       alpha_color = (color[0], color[1], color[2], .15)
       cairo_context.set_source_rgba(*alpha_color)
-      cairo_context.arc(deltax*x, deltay*y, (unit["stats"]["sight"])*deltax, 0, 360.0)
+      cairo_context.arc(deltax*x, deltay*y, (unit_data["stats"]["sight"])*deltax, 0, 360.0)
       cairo_context.fill()
 
       if "unitpath" in unit:
@@ -72,10 +74,13 @@ def draw_map(cairo_context, width, height, world_data):
 
 
 
-  for building in world_data["buildings"]:
+  for building in turn_data["buildings"]:
       try:
-        color = world_data["colors"][str(building["team"])]
-        x, y = building["position"]
+        building_data = world_data["buildings"][building["building_id"]]
+
+        team = turn_data["buildings"][building]["team"]
+        color = world_data["colors"][team] 
+        x, y = building_data["position"]
         cairo_context.set_source_rgb(0,0,0)
         cairo_context.rectangle(deltax*x-(deltax/2), deltay*y-(deltay/2), 2*deltax, 2*deltay)
         cairo_context.fill()
@@ -86,13 +91,13 @@ def draw_map(cairo_context, width, height, world_data):
         pass
 
   cairo_context.set_source_rgb(0,0,0)
-  for bullet in world_data["bullets"]:
+  for bullet in turn_data["bullets"]:
     x,y = bullet["position"]
     cairo_context.rectangle(deltax*x, deltay*y,
                                deltax, deltay)
     cairo_context.fill()
 
-  for collision in world_data["collisions"]:
+  for collision in turn_data["collisions"]:
       x, y = collision["position"]
       count = collision["count"] * 2
       survivor = collision["survivor"]

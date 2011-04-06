@@ -13,6 +13,10 @@ class Unit(mapobject.MapObject):
         self.__stats = stats
         self.killer = set()
 
+    def getUnitID(self):
+      return str(id(self))
+    unit_id = property(getUnitID)
+
     # Some functions the unit has access to.  The way it will
     # use all these functions is by asking the worldtalker to
     # do all teh dirty business.

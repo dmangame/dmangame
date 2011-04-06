@@ -18,6 +18,10 @@ class Building(MapObject):
                         "speed"   : 1
                        })
 
+    def getBuildingID(self):
+      return str(id(self))
+    building_id = property(getBuildingID)
+
     def getTeam(self):
         " Returns the owner of the building's team"
         return self.__wt.getTeam(self)

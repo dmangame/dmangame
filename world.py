@@ -731,49 +731,69 @@ class World:
             ai_data[team]["idle"] += 1
       return ai_data
 
-    def dumpToDict(self):
-      world_data = { "units" : [],
-                     "AI" : [],
-                     "buildings" : [],
-                     "bullets" : [],
-                     "mapsize" : self.mapSize,
-                     "colors"  : {},
-                     "currentturn" : self.currentTurn,
-                     "collisions"  : [] }
-
+    def dumpWorldToDict(self):
+      world_data = {
+                  "AI" : [],
+                  "mapsize" : self.mapSize,
+                  "colors"  : {},
+                  "units"   : {},
+                  "buildings" : {}
+                  }
       for ai_player in self.AI:
         ai_data = { "team" : ai_player.team,
                     "color" : ai.AI_COLORS[ai_player.team] }
-
         world_data["AI"].append(ai_data)
         world_data["colors"][ai_player.team] = ai.AI_COLORS[ai_player.team]
 
       for unit in self.units:
         stats = self.units[unit]
-        unit_data = { "team" : self.teams[unit],
-                      "stats" : { "sight" : stats.sight,
-                                  "speed" : stats.speed },
-                      "position" : self.map.getPosition(unit)
-                    }
+        unit_data = {
+          "team" : self.teams[unit],
+          "stats" : { "sight" : stats.sight,
+                      "speed" : stats.speed }
+        }
+        world_data["units"][unit.unit_id] = unit_data
+
+      for building in self.buildings:
+        building_data = {
+          "position" : building.position
+        }
+        world_data["buildings"][building.building_id] = building_data
+
+      return world_data
+
+
+    def dumpTurnToDict(self):
+      turn_data = {  "units" : [],
+                     "buildings" : [],
+                     "bullets" : [],
+                     "currentturn" : self.currentTurn,
+                     "collisions"  : [] }
+
+
+      for unit in self.units:
+        unit_data = {"position" : self.map.getPosition(unit),
+                     "unit_id"  : unit.unit_id }
         if unit in self.unitpaths:
           unit_data["unitpath"] = self.unitpaths[unit]
 
         if unit in self.bulletpaths:
           unit_data["bulletpath"] = self.bulletpaths[unit]
 
-        world_data["units"].append(unit_data)
+        turn_data["units"].append(unit_data)
 
       for building in self.buildings:
-        building_data = { "position" : self.map.getPosition(building),
+        building_data = {
+                          "building_id" : building.building_id,
                           "team"    : building.team
                         }
 
-        world_data["buildings"].append(building_data)
+        turn_data["buildings"].append(building_data)
 
       for bullet in self.bullets:
         bullet_data = { "position" : self.map.getPosition(bullet) }
 
-        world_data["bullets"].append(bullet_data)
+        turn_data["bullets"].append(bullet_data)
 
       for square in self.collisions:
         count = self.collisions[square]
@@ -781,13 +801,9 @@ class World:
         collision_data = { "position" : square,
                            "count" : count,
                            "survivor" : survivor }
-        world_data["collisions"].append(collision_data)
+        turn_data["collisions"].append(collision_data)
 
-      return world_data
-
-
-    def dumpToJSON(self):
-      return json.dumps(self.dumpToDict())
+      return turn_data
 
 #Map1 = {unit:position, building:position}
 #2Map = {}

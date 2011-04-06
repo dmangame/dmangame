@@ -151,7 +151,7 @@ class MapGUI:
             context.line_to(deltax*i, height)
             context.stroke()
 
-    def draw_map(self, world_data):
+    def draw_map(self, world_data, turn_data):
 
 
         width = self.drawSize
@@ -160,7 +160,7 @@ class MapGUI:
         surface = cairo.ImageSurface (cairo.FORMAT_ARGB32, width, height)
         cr = cairo.Context (surface)
         gdkcr = gtk.gdk.CairoContext (cr)
-        worldmap.draw_map(gdkcr, width, height, world_data)
+        worldmap.draw_map(gdkcr, width, height, world_data, turn_data)
 
         self.guiTurn += 1
 
@@ -184,13 +184,13 @@ class MapGUI:
 
     def draw_map_and_ai_data(self):
         try:
-          world_data, ai_data = json.loads(self.frame_queue.get(False))
+          world_data, turn_data, ai_data = json.loads(self.frame_queue.get(False))
         except TypeError:
           sys.exit(0)
         except Queue.Empty, e:
           return
 
-        self.draw_map(world_data)
+        self.draw_map(world_data, turn_data)
         self.update_ai_stats(ai_data, world_data["colors"])
 
     def update_ai_stats(self, ai_data, colors):
@@ -220,7 +220,9 @@ class MapGUI:
     def save_map_and_ai_data_to_queue(self):
 
         ai_data = self.world.dumpScores()
-        json_data = json.dumps((self.world.dumpToDict(), ai_data))
+        json_data = json.dumps((self.world.dumpWorldToDict(),
+                                self.world.dumpTurnToDict(),
+                                ai_data))
         self.frame_queue.put(json_data)
 
 
