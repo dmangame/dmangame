@@ -26,6 +26,8 @@ def draw_map(cairo_context, width, height, world_data, turn_data):
 
   deltax = float(width)/world_data["mapsize"]
   deltay = float(height)/world_data["mapsize"]
+  midx = deltax/2
+  midy = deltay/2
 
   cairo_context.set_source_rgb(1, 1, 1)
   cairo_context.rectangle(0, 0, width, height)
@@ -53,9 +55,14 @@ def draw_map(cairo_context, width, height, world_data, turn_data):
       if "unitpath" in unit:
         path_color = map(operator.div, color, [2,2,2])
         cairo_context.set_source_rgb(*path_color)
-        for x,y in unit["unitpath"]:
-            cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
-            cairo_context.fill()
+        if unit["unitpath"]:
+          start, end = unit["unitpath"]
+          cairo_context.move_to(start[0]*deltax+midx, start[1]*deltay+midy)
+          cairo_context.line_to(end[0]*deltax+midx, end[1]*deltay+midy)
+          cairo_context.set_line_width(deltax/2)
+          cairo_context.stroke()
+          cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
+          cairo_context.fill()
 
       if "bulletpath" in unit:
         # Draw the bullet paths
@@ -64,8 +71,8 @@ def draw_map(cairo_context, width, height, world_data, turn_data):
         cairo_context.set_source_rgba(*path_color)
         for path in unit["bulletpath"]:
           start, end = path
-          cairo_context.move_to(start[0]*deltax, start[1]*deltay)
-          cairo_context.line_to(end[0]*deltax, end[1]*deltay)
+          cairo_context.move_to(start[0]*deltax+midx, start[1]*deltay+midy)
+          cairo_context.line_to(end[0]*deltax+midx, end[1]*deltay+midy)
           cairo_context.set_line_width(deltax/2)
           cairo_context.stroke()
 

@@ -221,7 +221,7 @@ class MapGUI:
 
         ai_data = self.world.dumpScores()
         json_data = json.dumps((self.world.dumpWorldToDict(),
-                                self.world.dumpTurnToDict(),
+                                self.world.dumpTurnToDict(shorten=True),
                                 ai_data))
         self.frame_queue.put(json_data)
 
