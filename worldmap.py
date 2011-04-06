@@ -79,20 +79,17 @@ def draw_map(cairo_context, width, height, world_data, turn_data):
 
 
   for building in turn_data["buildings"]:
-      try:
-        building_data = world_data["buildings"][building["building_id"]]
+      building_data = world_data["buildings"][building["building_id"]]
 
-        team = turn_data["buildings"][building]["team"]
-        color = world_data["colors"][team] 
-        x, y = building_data["position"]
-        cairo_context.set_source_rgb(0,0,0)
-        cairo_context.rectangle(deltax*x-(deltax/2), deltay*y-(deltay/2), 2*deltax, 2*deltay)
-        cairo_context.fill()
-        cairo_context.set_source_rgb(*color)
-        cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
-        cairo_context.fill()
-      except TypeError:
-        pass
+      team = building["team"]
+      color = world_data["colors"][team] 
+      x, y = building_data["position"]
+      cairo_context.set_source_rgb(0,0,0)
+      cairo_context.rectangle(deltax*x-(deltax/2), deltay*y-(deltay/2), 2*deltax, 2*deltay)
+      cairo_context.fill()
+      cairo_context.set_source_rgb(*color)
+      cairo_context.rectangle(deltax*x, deltay*y, deltax, deltay)
+      cairo_context.fill()
 
   cairo_context.set_source_rgb(0,0,0)
 
