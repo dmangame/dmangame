@@ -288,7 +288,7 @@ def main(ais=[]):
     for ai in ais:
       m.add_ai(ai)
 
-    gobject.timeout_add(100, m.gui_spinner)
+    gobject.timeout_add(1000 / settings.FPS, m.gui_spinner)
     m.threaded_world_spinner()
     gtk.main()
 

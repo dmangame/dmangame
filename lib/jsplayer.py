@@ -246,9 +246,9 @@ var world_spinner_id = setInterval(function() {
     clearTimeout(world_spinner_id);
   }
   current_turn += 1;
-}, 50);
+}, %s);
 
-"""
+""" % (1000 / settings.FPS)
 
 def save_to_js_file(world_data, world_turns):
   log.info("Saving %s turns to %s", len(world_turns), settings.JS_REPLAY_FILE)
