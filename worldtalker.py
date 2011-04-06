@@ -34,7 +34,10 @@ class WorldTalker:
         if unit.__class__ == Unit:
             return self.__world.all_units[unit].ai_id
         elif unit.__class__ == mapobject.Building:
-            return self.__world.buildings[unit].ai_id
+            ai = self.__world.buildings[unit]
+            if ai:
+                return ai.ai_id
+
 
     def __getPosition(self, mapobject):
         return self.__world.map.getPosition(mapobject)
@@ -185,7 +188,9 @@ class WorldTalker:
         try:
             return self.__world.teams[unit]
         except KeyError:
-            return self.__world.buildings[unit].team
+            b = self.__world.buildings[unit]
+            if b:
+                return b.team
         except Exception:
             pass
 

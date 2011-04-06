@@ -11,6 +11,7 @@ from unit import Unit
 import copy
 import itertools
 import logging
+import random
 import traceback
 from lib import thread2
 from collections import defaultdict
@@ -160,6 +161,36 @@ class World:
         self.wt = worldtalker.WorldTalker(self)
 
 
+
+    def placeRandomBuilding(self):
+      b = mapobject.Building(self.wt)
+      # Make sure this building is not within a distance
+      # from any other buildings.
+      attempts = 0
+      while True:
+        attempts += 1
+        rand_square = self.map.getRandomSquare()
+        within_range_of_other_building = False
+        for building in self.buildings:
+          pos = self.map.getPosition(building)
+          if building == b or not pos:
+            continue
+          spawn_distance = settings.BUILDING_SPAWN_DISTANCE * math.log(self.mapSize)
+          if calcDistance(pos, rand_square) < spawn_distance:
+            within_range_of_other_building = True
+
+
+        if not within_range_of_other_building:
+          # Redistribute all buildings?
+          break
+
+        if attempts >= 5:
+          log.info("Couldn't place %s's building far enough away after five tries, taking last guess", ai_player)
+
+
+      self.map.placeObject(b, rand_square)
+      return b
+
     # Adding AIs should be done by the creator of the world.
     # This accepts a subclass ai.AI, instantiates the class
     # and places a building on the map for that AI.
@@ -168,34 +199,15 @@ class World:
         self.AI.append(ai_player)
         self.teams[ai_player.ai_id] = ai_player.team
         ai_player._init()
-        b = mapobject.Building(self.wt)
+        b = self.placeRandomBuilding()
+        # TODO: Set this up using settings
+#        num_buildings = random.randint(1, 5)
+#        print 'Adding %s buildings to map' % (num_buildings)
+#        for i in xrange(num_buildings):
+#          self.buildings[self.placeRandomBuilding()] = None
+
         self.buildings[b] = next(self.ai_cycler)
 
-        # Make sure this building is not within a distance
-        # from any other buildings.
-        attempts = 0
-        while True:
-          attempts += 1
-          rand_square = self.map.getRandomSquare()
-          within_range_of_other_building = False
-          for building in self.buildings:
-            pos = self.map.getPosition(building)
-            if building == b or not pos:
-              continue
-            spawn_distance = settings.BUILDING_SPAWN_DISTANCE * math.log(self.mapSize)
-            if calcDistance(pos, rand_square) < spawn_distance:
-              within_range_of_other_building = True
-
-
-          if not within_range_of_other_building:
-            # Redistribute all buildings?
-            break
-
-          if attempts >= 5:
-            log.info("Couldn't place %s's building far enough away after five tries, taking last guess", ai_player)
-
-
-        self.map.placeObject(b, rand_square)
         return ai_player
 
     def processSpin(self, ai):
@@ -704,6 +716,9 @@ class World:
 
         buildings = 0
         for b in self.buildings:
+          if not self.buildings[b]:
+            continue
+
           if self.buildings[b].team == team:
             buildings += 1
 

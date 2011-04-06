@@ -89,7 +89,10 @@ def draw_map(cairo_context, width, height, world_data, turn_data):
       building_data = world_data["buildings"][building["building_id"]]
 
       team = building["team"]
-      color = world_data["colors"][team] 
+      if team:
+        color = world_data["colors"][team] 
+      else:
+        color = (0,0,0)
       x, y = building_data["position"]
       cairo_context.set_source_rgb(0,0,0)
       cairo_context.rectangle(deltax*x-(deltax/2), deltay*y-(deltay/2), 2*deltax, 2*deltay)
