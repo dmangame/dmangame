@@ -123,6 +123,7 @@ class World:
         if not mapsize:
           mapsize = settings.MAP_SIZE
 
+        self.wt = worldtalker.WorldTalker(self)
         self.AI = []
         self.teams = {}
         self.ai_cycler = itertools.cycle(self.AI)
@@ -138,7 +139,10 @@ class World:
         self.ai_units = defaultdict(set)
 
         self.buildings = {}
-        #self.eventQueue = EventQueue(self.events, self.mapSize)
+        log.info('Adding %s buildings to map', settings.ADDITIONAL_BUILDINGS)
+        for i in xrange(settings.ADDITIONAL_BUILDINGS):
+          self.buildings[self.placeRandomBuilding()] = None
+
 
         self.unitfullpaths = defaultdict(bool)
         self.endpaths = defaultdict(object)
@@ -158,7 +162,6 @@ class World:
 
 
         self.__calcVisibility()
-        self.wt = worldtalker.WorldTalker(self)
 
 
 
@@ -201,11 +204,6 @@ class World:
         ai_player._init()
         b = self.placeRandomBuilding()
         num_buildings = random.randint(0, 2)
-
-#        print 'Adding %s buildings to map' % (num_buildings)
-#        for i in xrange(num_buildings):
-#          self.buildings[self.placeRandomBuilding()] = None
-
         self.buildings[b] = next(self.ai_cycler)
 
         return ai_player
@@ -583,13 +581,14 @@ class World:
           unit_square = om[unit]
           ai_id = stats.ai_id
           sight = stats.sight
+          ai_vis = self.visibleobjects[ai_id]
+          unit_vis = self.visibleobjects[unit]
           for obj in all_obj:
-            objs_sq = om[obj]
+            obj_square = om[obj]
             # Calc Distance formula
-            if math.sqrt((unit_square[0]-objs_sq[0])**2 + (unit_square[1]-objs_sq[1])**2) <= sight:
-              ai_id = stats.ai_id
-              self.visibleobjects[unit].add(obj)
-              self.visibleobjects[ai_id].add(obj)
+            if calcDistance(unit_square, obj_square) <= sight:
+              unit_vis.add(obj)
+              ai_vis.add(obj)
 
     # The game is over when there all buildings and units are
     # owned by one AI.
