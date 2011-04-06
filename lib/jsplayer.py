@@ -116,7 +116,9 @@ function draw_ai_scores(ai_data, colors) {
 
 function draw_world(world_data, turn_data) {
   var deltax = side/world_data.mapsize,
-      deltay = side/world_data.mapsize;
+      deltay = side/world_data.mapsize,
+      midx   = deltax/2,
+      midy   = deltay/2;
 
   context.fillStyle = "#fff";
   context.fillRect(0, 0, side, side);
@@ -133,7 +135,7 @@ function draw_world(world_data, turn_data) {
     var color = world_data.colors[unit_static_data["team"]],
         color_str = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+")",
         alpha_color_str = "rgba("+color[0]*255+","+color[1]*255+","+color[2]*255+", 0.15)";
-        path_color_str = "rgba("+color[0]*255+","+color[1]*255+","+color[2]*255+", 0.5)";
+        path_color_str = "rgba("+color[0]*128+","+color[1]*128+","+color[2]*128+", 0.5)";
         ;
 
     context.fillStyle = color_str;
@@ -141,13 +143,16 @@ function draw_world(world_data, turn_data) {
 
     if (unit_data.unitpath) {
 
-      for (sq in unit_data.unitpath)
-      {
-        var pos = unit_data.unitpath[sq];
-        var x = pos[0],
-            y = pos[1];
-        context.fillStyle = path_color_str;
-        context.fillRect(x*deltax, y*deltay, deltax, deltay);
+      start = unit_data.unitpath[0];
+      end = unit_data.unitpath[1];
+      if (start && end) {
+        context.beginPath();
+        context.strokeStyle = path_color_str;
+        context.moveTo(start[0]*deltax+midx, start[1]*deltay+midy);
+        context.lineTo(end[0]*deltax+midx, end[1]*deltay+midy);
+        context.closePath();
+        context.lineWidth = deltax;
+        context.stroke();
       }
     }
 
@@ -160,10 +165,10 @@ function draw_world(world_data, turn_data) {
 
           context.beginPath();
           context.strokeStyle = path_color_str;
-          context.moveTo(start[0]*deltax, start[1]*deltay);
-          context.lineTo(end[0]*deltax, end[1]*deltay);
+          context.moveTo(start[0]*deltax+midx, start[1]*deltay+midy);
+          context.lineTo(end[0]*deltax+midx, end[1]*deltay+midy);
           context.closePath();
-          context.lineWidth = deltax/2;
+          context.lineWidth = midx;
           context.stroke();
         }
     }
@@ -201,7 +206,7 @@ function draw_world(world_data, turn_data) {
         color_str = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+")";
 
     context.fillStyle = "#000";
-    context.fillRect(deltax*x-(deltax/2), deltay*y-(deltay/2), 2*deltax, 2*deltay);
+    context.fillRect(deltax*x-(midx), deltay*y-(midy), 2*deltax, 2*deltay);
 
     context.fillStyle = color_str;
     context.fillRect(deltax*x, deltay*y, deltax, deltay);

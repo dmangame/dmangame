@@ -48,7 +48,7 @@ def main(ai_classes=[]):
           break
       if settings.SAVE_IMAGES:
         worldmap.draw_map(cairo_context, 200, 200, w.dumpTurnToDict())
-      w.world_turns.append((w.dumpTurnToDict(), w.dumpScores()))
+      w.world_turns.append((w.dumpTurnToDict(shorten=True), w.dumpScores()))
   log.info("Finished simulating the world")
 
   sys.exit(0)

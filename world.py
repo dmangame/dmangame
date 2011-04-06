@@ -763,7 +763,7 @@ class World:
       return world_data
 
 
-    def dumpTurnToDict(self):
+    def dumpTurnToDict(self, shorten=False):
       turn_data = {  "units" : [],
                      "buildings" : [],
                      "bullets" : [],
@@ -774,13 +774,23 @@ class World:
       for unit in self.units:
         unit_data = {"position" : self.map.getPosition(unit),
                      "unit_id"  : unit.unit_id }
+
+
         if unit in self.unitpaths:
-          unit_data["unitpath"] = self.unitpaths[unit]
+          up = self.unitpaths[unit]
+          if shorten and up:
+            unit_data["unitpath"] = (up[0], up[-1])
+          else:
+            unit_data["unitpath"] = up
+
 
         if unit in self.bulletpaths:
           unit_data["bulletpath"] = []
           for path in self.bulletpaths[unit]:
-            unit_data["bulletpath"].append((path[0], path[-1]))
+            if shorten and path:
+              unit_data["bulletpath"].append((path[0], path[-1]))
+            else:
+              unit_data["bulletpath"].append(path)
 
         turn_data["units"].append(unit_data)
 
