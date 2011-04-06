@@ -256,7 +256,7 @@ class WorldTalker:
         ai_id = self.getID()
         if unit: self.checkOwner(unit, ai_id)
 
-        
+
 
         if unit:
             vis_objs = self.__world.visibleobjects[unit]

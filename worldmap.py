@@ -42,11 +42,11 @@ def draw_map(cairo_context, width, height, world_data, turn_data):
   # try getting the color from our color dictionary.
 
   for unit in turn_data["units"]:
-      unit_data = world_data["units"][unit["unit_id"]]
+      unit_data = world_data["units"][unit["id"]]
       team = unit_data["team"]
       color = world_data["colors"][str(team)]
 
-      x, y = unit["position"]
+      x, y = unit["pos"]
       alpha_color = (color[0], color[1], color[2], .15)
       cairo_context.set_source_rgba(*alpha_color)
       cairo_context.arc(deltax*x, deltay*y, (unit_data["stats"]["sight"])*deltax, 0, 360.0)
@@ -86,14 +86,14 @@ def draw_map(cairo_context, width, height, world_data, turn_data):
 
 
   for building in turn_data["buildings"]:
-      building_data = world_data["buildings"][building["building_id"]]
+      building_data = world_data["buildings"][building["id"]]
 
       team = building["team"]
       if team:
         color = world_data["colors"][team] 
       else:
         color = (0,0,0)
-      x, y = building_data["position"]
+      x, y = building_data["pos"]
       cairo_context.set_source_rgb(0,0,0)
       cairo_context.rectangle(deltax*x-(deltax/2), deltay*y-(deltay/2), 2*deltax, 2*deltay)
       cairo_context.fill()
@@ -104,7 +104,7 @@ def draw_map(cairo_context, width, height, world_data, turn_data):
   cairo_context.set_source_rgb(0,0,0)
 
   for collision in turn_data["collisions"]:
-      x, y = collision["position"]
+      x, y = collision["pos"]
       count = collision["count"] * 2
       survivor = collision["survivor"]
       if survivor:

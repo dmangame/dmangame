@@ -200,8 +200,8 @@ class World:
         self.teams[ai_player.ai_id] = ai_player.team
         ai_player._init()
         b = self.placeRandomBuilding()
-        # TODO: Set this up using settings
-#        num_buildings = random.randint(1, 5)
+        num_buildings = random.randint(0, 2)
+
 #        print 'Adding %s buildings to map' % (num_buildings)
 #        for i in xrange(num_buildings):
 #          self.buildings[self.placeRandomBuilding()] = None
@@ -386,6 +386,9 @@ class World:
             square = self.map.getPosition(b)
             if owner and square:
               self.__spawnUnit(b.getStats(), owner, square)
+          log.info("Scores:")
+          for ai in self.AI:
+            log.info(ai.score)
 
 
     def __unitCleanup(self, unit):
@@ -577,12 +580,14 @@ class World:
         om = self.map.objectMap
         for unit in self.units:
           stats = self.units[unit]
-          sight = stats.sight
           unit_square = om[unit]
           ai_id = stats.ai_id
+          sight = stats.sight
           for obj in all_obj:
-            obj_square = om[obj]
-            if calcDistance(unit_square, obj_square) <= sight:
+            objs_sq = om[obj]
+            # Calc Distance formula
+            if math.sqrt((unit_square[0]-objs_sq[0])**2 + (unit_square[1]-objs_sq[1])**2) <= sight:
+              ai_id = stats.ai_id
               self.visibleobjects[unit].add(obj)
               self.visibleobjects[ai_id].add(obj)
 
@@ -595,6 +600,7 @@ class World:
         # Check number of alive AI units?
         ai_units = filter(lambda x: x, self.ai_units.values())
         if len(ai_units) == 1:
+          log.info("GAME FINISHED, RUNNING POST GAME")
           self.__winner = building_owners.pop()
           return True
 
@@ -771,7 +777,7 @@ class World:
 
       for building in self.buildings:
         building_data = {
-          "position" : building.position
+          "pos" : building.position
         }
         world_data["buildings"][building.building_id] = building_data
 
@@ -787,8 +793,8 @@ class World:
 
 
       for unit in self.units:
-        unit_data = {"position" : self.map.getPosition(unit),
-                     "unit_id"  : unit.unit_id }
+        unit_data = {"pos" : self.map.getPosition(unit),
+                     "id"  : unit.unit_id }
 
 
         if unit in self.unitpaths:
@@ -811,21 +817,21 @@ class World:
 
       for building in self.buildings:
         building_data = {
-                          "building_id" : building.building_id,
+                          "id" : building.building_id,
                           "team"    : building.team
                         }
 
         turn_data["buildings"].append(building_data)
 
       for bullet in self.bullets:
-        bullet_data = { "position" : self.map.getPosition(bullet) }
+        bullet_data = { "pos" : self.map.getPosition(bullet) }
 
         turn_data["bullets"].append(bullet_data)
 
       for square in self.collisions:
         count = self.collisions[square]
         survivor = self.survivors[square]
-        collision_data = { "position" : square,
+        collision_data = { "pos" : square,
                            "count" : count,
                            "survivor" : survivor }
         turn_data["collisions"].append(collision_data)

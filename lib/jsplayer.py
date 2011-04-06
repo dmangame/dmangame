@@ -127,8 +127,8 @@ function draw_world(world_data, turn_data) {
     context.strokeStyle = "none";
     context.lineWidth = 0;
     var unit_data = turn_data["units"][u],
-        unit_static_data = world_data["units"][unit_data.unit_id],
-        pos = unit_data["position"],
+        unit_static_data = world_data["units"][unit_data.id],
+        pos = unit_data["pos"],
         x = pos[0],
         y = pos[1];
 
@@ -185,7 +185,7 @@ function draw_world(world_data, turn_data) {
 
   for (b in world_data.bullets) {
     var bullet_data = world_data.bullets[b],
-        pos = bullet_data.position,
+        pos = bullet_data.pos,
         x = pos[0],
         y = pos[1];
 
@@ -197,8 +197,8 @@ function draw_world(world_data, turn_data) {
 
   for (b in turn_data.buildings) {
     var building_data = turn_data.buildings[b],
-        building_static_data = world_data.buildings[building_data.building_id],
-        pos = building_static_data.position,
+        building_static_data = world_data.buildings[building_data.id],
+        pos = building_static_data.pos,
         x = pos[0],
         y = pos[1];
 
@@ -219,7 +219,7 @@ function draw_world(world_data, turn_data) {
 
   for (c in world_data.collisions) {
     var collision_data = world_data.collisions[c],
-        pos = collision_data.position,
+        pos = collision_data.pos,
         x = pos[0],
         y = pos[1];
         count = collision_data.count;
