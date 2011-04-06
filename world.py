@@ -185,7 +185,7 @@ class World:
           break
 
         if attempts >= 5:
-          log.info("Couldn't place %s's building far enough away after five tries, taking last guess", ai_player)
+          log.info("Couldn't place building far enough away after five tries, taking last guess")
 
 
       self.map.placeObject(b, rand_square)
