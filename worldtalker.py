@@ -19,9 +19,11 @@ class WorldTalker:
         self.__world = world
         self.__world.wt = self
         self.__visible_en_cache = {}
-        self.__visible_en_cached_turn = 0
+        self.__visible_en_cached_turn = -1
         self.__visible_sq_cache = {}
-        self.__visible_sq_cached_turn = 0
+        self.__visible_sq_cached_turn = -1
+        self.__scores_cached_turn = -1
+        self.__scores_cached = {}
         self.__cached_turn = None
         self.__teams = []
         self.__stats_cache = defaultdict(dict)
@@ -86,7 +88,7 @@ class WorldTalker:
         if unit:
             units = [unit]
         else:
-            units = self.getUnits(ai_id)
+            units = self.__getUnits(ai_id)
 
         om = self.__world.map.objectMap
         # Try not to reach in here too often, bad practice
@@ -107,7 +109,7 @@ class WorldTalker:
         if not obj: return
 
 
-#        if obj in self.getUnits(ai_id):
+#        if obj in self.__getUnits(ai_id):
 #            return True
 
         if unit:
@@ -155,7 +157,7 @@ class WorldTalker:
         if unit.__class__ == mapobject.Building:
             return self.__getPosition(unit)
 
-        if self.__isVisibleObject(unit) or unit in self.getUnits():
+        if self.__isVisibleObject(unit) or unit in self.__getUnits():
             return self.__getPosition(unit)
 
     def getStats(self, unit):
@@ -203,7 +205,10 @@ class WorldTalker:
 
         return buildings
 
-    def getUnits(self, ai_id=None):
+    def getUnits(self):
+        return self.__getUnits()
+
+    def __getUnits(self, ai_id=None):
         ai_id = ai_id or self.getID()
         units = self.__world.ai_units[ai_id] or []
         return units
@@ -223,7 +228,7 @@ class WorldTalker:
         if not vs_key in self.__cached_visible_squares:
             if not unit:
                 squares = set()
-                for unit in self.getUnits(ai_id):
+                for unit in self.__getUnits(ai_id):
                     stats = self.__getStats(unit)
                     square = self.__world.map.getPosition(unit)
                     # TODO Properly calculate the sight of the unit.
@@ -289,13 +294,13 @@ class WorldTalker:
         unit_square = self.__world.map.getPosition(unit)
 
 
-        if unit in self.getUnits(ai_id) or self.__isVisibleObject(unit, ai_id=ai_id):
+        if self.__isVisibleObject(unit, ai_id=ai_id) or unit in self.__getUnits(ai_id):
             return calcDistance(unit_square, square)
 
     def calcUnitPath(self, unit, square):
         ai_id = self.getID()
         pos = self.__world.map.getPosition(unit)
-        if not unit in self.getUnits(ai_id) and \
+        if not unit in self.__getUnits(ai_id) and \
             not self.__isVisibleObject(unit, ai_id=ai_id):
             return []
         return self.__world.map.calcUnitPath(pos, square)
@@ -381,7 +386,11 @@ class WorldTalker:
         return True
 
     def calcScore(self, team, ai_id):
+        if self.__scores_cached_turn < self.__world.currentTurn:
+            self.__scores_cached = self.__world.calcScores()
+            self.__scores_cached_turn = self.__world.currentTurn
+
         if ai_id == self.getID():
-            return self.__world.calcScore(team)
+            return self.__scores_cached[team]
 
 # vim: set expandtab shiftwidth=4 softtabstop=4 textwidth=79:

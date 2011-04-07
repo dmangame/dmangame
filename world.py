@@ -708,42 +708,43 @@ class World:
         self.currentTurn += 1
         return self.__checkGameOver()
 
-    def calcScore(self, team):
+    def calcScores(self):
         alive = 0
-        for unit in self.units:
-          if self.teams[unit] == team:
-            alive += 1
+        base_scores = { "units" : 0, "deaths" : 0, "kills" : 0, "buildings" : 0 }
+        scores = defaultdict(lambda: copy.copy(base_scores))
+
+        for ai_id in self.ai_units:
+          scores[self.teams[ai_id]]["units"] = len(self.ai_units[ai_id])
 
         kills = 0
         killed_units = filter(lambda k: k.killer, self.dead_units)
 
         deaths = 0
         for unit in self.dead_units:
-          if self.teams[unit] == team:
-            deaths += 1
+          scores[self.teams[unit]]["deaths"] += 1
 
         for unit in killed_units:
           teams = set(map(lambda k: self.teams[k], unit.killer))
           for t in teams:
-            if t == team:
-              kills += 1
+            scores[t]["kills"] += 1
 
         buildings = 0
         for b in self.buildings:
           if not self.buildings[b]:
             continue
 
-          if self.buildings[b].team == team:
-            buildings += 1
+          b_team = self.buildings[b].team
+          scores[b_team]["buildings"] += 1
 
-        return { "units" : alive, "kills" : kills, "buildings" : buildings, "deaths" : deaths }
+        return scores
 
 
     def dumpScores(self):
       ai_data = {}
+      scores = self.calcScores()
       for ai in self.AI:
         team = ai.team
-        score = self.calcScore(team)
+        score = scores[team]
         ai_data[team] = { "units" : score["units"], "shooting" : 0, "capturing" : 0, "moving" : 0, "kills" : score["kills"], "idle" : 0, "bldgs" : score["buildings"], "name" : str(ai.__class__), "deaths" : score["deaths"] }
         for unit in self.units:
           status = self.unitstatus[unit]
