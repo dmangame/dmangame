@@ -188,6 +188,7 @@ class MapGUI:
         try:
           world_data, turn_data, ai_data = json.loads(self.frame_queue.get(False))
         except TypeError:
+          end_game()
           sys.exit(0)
         except Queue.Empty, e:
           return
