@@ -2,6 +2,8 @@ import settings
 import json
 import logging
 import copy
+import re
+
 log = logging.getLogger("JSPLAYER")
 
 JSLOOKUP = {
@@ -273,16 +275,8 @@ var world_spinner_id = setInterval(function() {
 
 """ % (1000 / settings.FPS)
 
-def flatten(l, limit=1000, counter=0):
-  for i in xrange(len(l)):
-    if (isinstance(l[i], (list, tuple)) and
-        counter < limit):
-      for a in l.pop(i):
-        l.insert(i, a)
-        i += 1
-      counter += 1
-      return flatten(l, limit, counter)
-  return l
+def strip_whitespace(st):
+  return re.sub('\s', '', st)
 
 def translate_array(arr, translation_key):
   for a in arr:
@@ -314,9 +308,9 @@ def save_to_js_file(world_data, world_turns):
   world_turns = copy.deepcopy(world_turns)
   translate_array(world_turns, JSLOOKUP)
   translate_dict(world_data, JSLOOKUP)
-  f.write("JSLOOKUP = %s;\n" %(json.dumps(JSLOOKUP)))
-  f.write("WORLD_DATA = %s;\n" %(json.dumps(world_data)))
-  f.write("WORLD_TURNS = %s;" %(json.dumps(world_turns)))
+  f.write("JSLOOKUP = %s;\n" % strip_whitespace((json.dumps(JSLOOKUP))))
+  f.write("WORLD_DATA = %s;\n" % (strip_whitespace(json.dumps(world_data))))
+  f.write("WORLD_TURNS = %s;" %( strip_whitespace(json.dumps(world_turns))))
 
   f.write(JS_PLAYER)
   f.write(HTML_SKELETON_END)
