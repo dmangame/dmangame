@@ -161,6 +161,16 @@ class WorldTalker:
     def getUnits(self):
         return self.__getUnits()
 
+    def getDeadUnits(self):
+        ai_id = self.getID()
+        units = self.__world.ai_dead_units[ai_id] or []
+        return units
+
+    def getNewUnits(self):
+        ai_id = self.getID()
+        units = self.__world.ai_new_units[ai_id] or []
+        return units
+
     def __getUnits(self, ai_id=None):
         ai_id = ai_id or self.getID()
         units = self.__world.ai_units[ai_id] or []

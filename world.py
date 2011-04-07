@@ -13,6 +13,7 @@ import itertools
 import logging
 import random
 import traceback
+import threading
 from lib import thread2
 from collections import defaultdict
 
@@ -137,6 +138,8 @@ class World:
         self.unitevents = defaultdict(set)
         self.unitstatus = defaultdict(object)
         self.ai_units = defaultdict(set)
+        self.ai_new_units = defaultdict(set)
+        self.ai_dead_units = defaultdict(set)
 
         self.buildings = {}
         log.info('Adding %s buildings to map', settings.ADDITIONAL_BUILDINGS)
@@ -234,7 +237,11 @@ class World:
          if exc_thread.isAlive():
            log.info("AI %s exceeded execution time of %s seconds",
                     ai, AI_CYCLE_SECONDS)
+         try:
            exc_thread.terminate()
+         except threading.ThreadError:
+          pass
+
       except Exception, e:
           traceback.print_exc()
           if not settings.IGNORE_EXCEPTIONS:
@@ -368,6 +375,7 @@ class World:
         stats.ai_id = owner.ai_id
         stats.team = owner.team
         unit = self.__createUnit(stats, square)
+        self.ai_new_units[owner.ai_id].add(unit)
         return unit
 
     def __spawnUnits(self):
@@ -482,6 +490,7 @@ class World:
             self.corpses[unit] = self.map.getPosition(unit)
             owner = stats.ai
             self.ai_units[owner.ai_id].remove(unit)
+            self.ai_dead_units[owner.ai_id].add(unit)
 
             self.__unitCleanup(unit)
         self.died = {}
@@ -550,7 +559,11 @@ class World:
         self.bullets = bullets
         self.oldbullets = oldbullets
 
-    def __clearTurnData(self):
+    def __clearAfterTurnData(self):
+        self.ai_new_units = defaultdict(set)
+        self.ai_dead_units = defaultdict(set)
+
+    def __clearBeforeTurnData(self):
         self.unitpaths = {}
         self.bulletpaths = {}
         self.collisions.clear()
@@ -710,14 +723,20 @@ class World:
     # Runs the world one iteration
     def Turn(self):
         log.info("Turning the World, %s", self.currentTurn)
-        self.__clearTurnData()
+        self.__clearBeforeTurnData()
         self.__processPendingEvents()
+
         self.__createUnitPaths()
         self.__createBulletPaths()
+
         self.__dealBulletDamage()
         self.__dealMeleeDamage()
+
+        # Clear Carryover data
+        self.__clearAfterTurnData()
         self.__cleanupDead()
         self.__spawnUnits()
+
         # Recalculate what everyone in the world can see.
         self.__calcVisibility()
         self.currentTurn += 1

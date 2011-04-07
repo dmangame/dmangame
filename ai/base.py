@@ -25,6 +25,14 @@ class BareAI(object):
     def ai_id(self):
         return self.__ai_id
 
+    @property
+    def new_units(self):
+        return self.wt.getNewUnits()
+
+    @property
+    def dead_units(self):
+        return self.wt.getDeadUnits()
+
 
     def getMyUnits(self):
         """
@@ -89,11 +97,9 @@ class AI(BareAI):
 
     def init(self):
         self._init()
-        self.__units = set()
 
     def turn(self):
-        __cur_units = set(self.my_units)
-        for unit in iter(__cur_units.difference(self.__units)):
+        for unit in self.new_units:
             try:
                 self._unit_spawned(unit)
             except Exception, e:
@@ -104,7 +110,7 @@ class AI(BareAI):
                 traceback.print_exc()
                 raise e
 
-        for unit in iter(self.__units.difference(__cur_units)):
+        for unit in self.dead_units:
             try:
                 self._unit_died(unit)
             except Exception, e:
@@ -115,7 +121,6 @@ class AI(BareAI):
                 traceback.print_exc()
                 raise e
 
-        self.__units = __cur_units
         self._spin()
 
     # Overrode definitions
