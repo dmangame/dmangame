@@ -42,15 +42,9 @@ class WorldTalker:
 
 
     def isAlive(self, unit):
-        if unit in self.__world.units:
-            pos = self.__world.map.objectMap[unit]
-
-        if unit in self.__world.corpses:
-            pos = self.__world.corpses[unit]
-
-        if pos and self.__isVisible(pos): # Special case for _isVisible
+        unit_ai_id = self.__getOwner(unit)
+        if unit_ai_id == self.getID():
             return unit in self.__world.units
-
 
     def isCapturing(self, unit):
         if self.__isVisibleObject(unit):
