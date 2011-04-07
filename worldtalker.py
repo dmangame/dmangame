@@ -104,11 +104,14 @@ class WorldTalker:
         if unit.__class__ == mapobject.Building:
             return self.__world.map.objectMap[unit]
 
-        unit_ai_id = self.__getOwner(unit)
-        ai_id = self.getID()
-
         if self.__isVisibleObject(unit):
-            return self.__world.map.objectMap[unit]
+            try:
+                return self.__world.map.objectMap[unit]
+            except KeyError:
+                unit_ai_id = self.__getOwner(unit)
+                ai_id = self.getID()
+                if unit_ai_id == ai_id:
+                    return self.__world.corpses[unit]
 
     def getStats(self, unit):
         ai_id = self.getID()
