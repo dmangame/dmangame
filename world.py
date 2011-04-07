@@ -748,7 +748,8 @@ class World:
         scores = defaultdict(lambda: copy.copy(base_scores))
 
         for ai_id in self.ai_units:
-          scores[self.teams[ai_id]]["units"] = len(self.ai_units[ai_id])
+          if ai_id in self.teams:
+            scores[self.teams[ai_id]]["units"] = len(self.ai_units[ai_id])
 
         killed_units = filter(lambda k: k.killer, self.dead_units)
 
