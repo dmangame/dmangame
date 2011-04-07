@@ -386,9 +386,11 @@ class World:
             square = self.map.getPosition(b)
             if owner and square:
               self.__spawnUnit(b.getStats(), owner, square)
-          log.info("Scores:")
-          for ai in self.AI:
-            log.info(ai.score)
+          log.info("SCORES:")
+          scores = self.calcScores()
+          for k in scores:
+            log.info(k)
+            log.info(scores[k])
 
 
     def __unitCleanup(self, unit):
@@ -579,8 +581,9 @@ class World:
         self.visiblebuildings.clear()
         om = self.map.objectMap
         ai_ids = self.ai_units.keys()
+        ai_id_l = len(ai_ids)
 
-        for i in xrange(len(ai_ids)):
+        for i in xrange(ai_id_l):
           ai_id = ai_ids[i]
           ai_units = self.ai_units[ai_id]
           ai_vis_obj = self.visibleunits[ai_id]
@@ -596,10 +599,8 @@ class World:
             sight = stats.sight
 
             # Do a all pairs add of unit visibility
-            for j in xrange(i+1, len(ai_ids)):
+            for j in xrange(i+1, ai_id_l):
               other_ai_id = ai_ids[j]
-              if other_ai_id == ai_id:
-                continue
 
               other_units = self.ai_units[other_ai_id]
               other_ai_vis_obj = self.visibleunits[other_ai_id]
@@ -814,10 +815,10 @@ class World:
         world_data["units"][unit.unit_id] = unit_data
 
       for building in self.buildings:
-        building_data = {
-          "pos" : building.position
-        }
-        world_data["buildings"][building.building_id] = building_data
+        pos = self.map.getPosition(building)
+        if pos:
+          building_data = { "pos" : pos }
+          world_data["buildings"][building.building_id] = building_data
 
       return world_data
 

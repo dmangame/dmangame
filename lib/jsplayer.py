@@ -1,7 +1,24 @@
 import settings
 import json
 import logging
+import copy
 log = logging.getLogger("JSPLAYER")
+
+JSLOOKUP = {
+  "buildings"    : "b",
+  "capturing"    : "c",
+  "idle"         : "i",
+  "kills"        : "k",
+  "shooting"     : "s",
+  "units"        : "u",
+  "currentturn"  : "ct",
+  "collisions"   : "co",
+  "bullets"      : "bt",
+  "unitpath"     : "up",
+  "bulletpath"   : "bp",
+  "survivor"     : "sr",
+  "count"        : "cnt"
+}
 
 HTML_SKELETON = """
 <html>
@@ -92,7 +109,7 @@ function draw_ai_scores(ai_data, colors) {
     for (a in unit_actions) {
       action = unit_actions[a];
       html_str += "<span class='ai_info_cell'>";
-      html_str += action + ":" + team[action];
+      html_str += action + ":" + team[JSLOOKUP[action]];
       html_str += "</span>";
     }
     html_str += "</div>";
@@ -123,11 +140,11 @@ function draw_world(world_data, turn_data) {
   context.fillStyle = "#fff";
   context.fillRect(0, 0, side, side);
 
-  for (u in turn_data["units"]) {
+  for (u in turn_data[JSLOOKUP.units]) {
     context.strokeStyle = "none";
     context.lineWidth = 0;
-    var unit_data = turn_data["units"][u],
-        unit_static_data = world_data["units"][unit_data.id],
+    var unit_data = turn_data[JSLOOKUP.units][u],
+        unit_static_data = world_data[JSLOOKUP.units][unit_data.id],
         pos = unit_data["pos"],
         x = pos[0],
         y = pos[1];
@@ -141,10 +158,10 @@ function draw_world(world_data, turn_data) {
     context.fillStyle = color_str;
     context.fillRect(deltax*x, deltay*y, deltax, deltay);
 
-    if (unit_data.unitpath) {
+    if (unit_data[JSLOOKUP.unitpath]) {
 
-      start = unit_data.unitpath[0];
-      end = unit_data.unitpath[1];
+      start = unit_data[JSLOOKUP.unitpath][0];
+      end = unit_data[JSLOOKUP.unitpath][1];
       if (start && end) {
         context.beginPath();
         context.strokeStyle = path_color_str;
@@ -157,9 +174,9 @@ function draw_world(world_data, turn_data) {
     }
 
 
-    if (unit_data.bulletpath) {
-        for (p in unit_data.bulletpath) {
-          var path = unit_data.bulletpath[p];
+    if (unit_data[JSLOOKUP.bulletpath]) {
+        for (p in unit_data[JSLOOKUP.bulletpath]) {
+          var path = unit_data[JSLOOKUP.bulletpath][p];
           var start = path[0],
               end   = path[1];
 
@@ -183,8 +200,8 @@ function draw_world(world_data, turn_data) {
 
   }
 
-  for (b in world_data.bullets) {
-    var bullet_data = world_data.bullets[b],
+  for (b in world_data[JSLOOKUP.bullets]) {
+    var bullet_data = world_data[JSLOOKUP.bullets][b],
         pos = bullet_data.pos,
         x = pos[0],
         y = pos[1];
@@ -195,9 +212,9 @@ function draw_world(world_data, turn_data) {
 
   }
 
-  for (b in turn_data.buildings) {
-    var building_data = turn_data.buildings[b],
-        building_static_data = world_data.buildings[building_data.id],
+  for (b in turn_data[JSLOOKUP.buildings]) {
+    var building_data = turn_data[JSLOOKUP.buildings][b],
+        building_static_data = world_data[JSLOOKUP.buildings][building_data.id],
         pos = building_static_data.pos,
         x = pos[0],
         y = pos[1];
@@ -217,13 +234,13 @@ function draw_world(world_data, turn_data) {
 
   }
 
-  for (c in world_data.collisions) {
-    var collision_data = world_data.collisions[c],
+  for (c in world_data[JSLOOKUP.collisions]) {
+    var collision_data = world_data[JSLOOKUP.collisions][c],
         pos = collision_data.pos,
         x = pos[0],
         y = pos[1];
-        count = collision_data.count;
-        survivor = collision_data.survivor;
+        count = collision_data[JSLOOKUP.count];
+        survivor = collision_data[JSLOOKUP.survivor];
         if (survivor) {
           var color = world_data.colors[survivor];
         } else {
@@ -254,12 +271,51 @@ var world_spinner_id = setInterval(function() {
 
 """ % (1000 / settings.FPS)
 
+def flatten(l, limit=1000, counter=0):
+  for i in xrange(len(l)):
+    if (isinstance(l[i], (list, tuple)) and
+        counter < limit):
+      for a in l.pop(i):
+        l.insert(i, a)
+        i += 1
+      counter += 1
+      return flatten(l, limit, counter)
+  return l
+
+def translate_array(arr, translation_key):
+  for a in arr:
+    if isinstance(a, (list, tuple)):
+      translate_array(a, translation_key)
+    if isinstance(a, (dict)):
+      translate_dict(a, translation_key)
+
+# Need a recursive strategy to replace dictionaries with
+# dictionaries that have their keys translated.
+def translate_dict(d, translation_key):
+  for k in d.keys():
+    v = d[k]
+    if k in translation_key:
+      d[translation_key[k]] = v
+      del d[k]
+    if isinstance(v, (list, tuple)):
+      translate_array(v, translation_key)
+    if isinstance(v, (dict)):
+      translate_dict(v, translation_key)
+
+# It needs to translate the world data into smaller format
+# words using minification or something.
 def save_to_js_file(world_data, world_turns):
   log.info("Saving %s turns to %s", len(world_turns), settings.JS_REPLAY_FILE)
   f = open(settings.JS_REPLAY_FILE, "w")
   f.write(HTML_SKELETON)
+  world_data = copy.deepcopy(world_data)
+  world_turns = copy.deepcopy(world_turns)
+  translate_array(world_turns, JSLOOKUP)
+  translate_dict(world_data, JSLOOKUP)
+  print world_data
+  f.write("JSLOOKUP = %s;\n" %(json.dumps(JSLOOKUP)))
+  f.write("WORLD_DATA = %s;\n" %(json.dumps(world_data)))
   f.write("WORLD_TURNS = %s;" %(json.dumps(world_turns)))
-  f.write("WORLD_DATA = %s;" %(json.dumps(world_data)))
 
   f.write(JS_PLAYER)
   f.write(HTML_SKELETON_END)
