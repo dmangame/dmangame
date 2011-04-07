@@ -58,43 +58,6 @@ class WorldTalker:
         if self.__isVisibleObject(unit):
             return self.__world.unitstatus[unit] == world.SHOOTING
 
-    # Calculates if a position is visible to this AI or a specific unit
-    def __isVisible(self, position, unit=None, ai_id=None):
-        if not position:
-            return
-
-        if not ai_id:
-            ai_id = self.getID()
-        v_key = "%s_%s_%s" % (ai_id, position, unit)
-        ct = self.__world.currentTurn
-        if self.__visible_sq_cached_turn < ct:
-            self.__visible_sq_cache.clear()
-            self.__visible_sq_cached_turn = ct
-        try:
-            return self.__visible_sq_cache[v_key]
-        except:
-            pass
-
-
-        if unit:
-            units = [unit]
-        else:
-            units = self.__getUnits(ai_id)
-
-        om = self.__world.map.objectMap
-        # Try not to reach in here too often, bad practice
-        for unit in units:
-            unit_square = om[unit]
-            if not unit_square:
-                continue
-
-            dist = calcDistance(position, unit_square)
-            stats = self.__getStats(unit)
-            if dist <= stats.sight:
-                self.__visible_sq_cache[v_key] = True
-                return True
-        self.__visible_sq_cache[v_key] = False
-        return False
 
     def __isVisibleObject(self, obj, unit=None, ai_id=None):
         if not obj: return
