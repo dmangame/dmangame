@@ -161,6 +161,8 @@ class World:
 
 
 
+        self.visibleunits = defaultdict(set)
+        self.visiblebuildings = defaultdict(set)
         self.__calcVisibility()
 
 
@@ -573,16 +575,21 @@ class World:
         self.unitstatus.clear()
 
     def __calcVisibility(self):
-        self.visibleobjects = defaultdict(set)
-        all_obj = self.map.getAllObjects()
+        self.visibleunits.clear()
+        self.visiblebuildings.clear()
         om = self.map.objectMap
         for ai_id in self.ai_units:
           ai_units = self.ai_units[ai_id]
-          ai_vis = self.visibleobjects[ai_id]
+          ai_vis_obj = self.visibleunits[ai_id]
+          ai_vis_bldg = self.visiblebuildings[ai_id]
           for unit in ai_units:
+            if not unit in self.units:
+              continue
+
             stats = self.units[unit]
             unit_square = om[unit]
-            unit_vis = self.visibleobjects[unit]
+            unit_vis_obj = self.visibleunits[unit]
+            unit_vis_bldg = self.visiblebuildings[unit]
             sight = stats.sight
             for other_ai_id in self.ai_units:
               if other_ai_id == ai_id:
@@ -591,19 +598,23 @@ class World:
               for enemy in other_units:
                 obj_square = om[enemy]
                 if calcDistance(unit_square, obj_square) <= sight:
-                  unit_vis.add(enemy)
-                  ai_vis.add(enemy)
+                  unit_vis_obj.add(enemy)
+                  ai_vis_obj.add(enemy)
 
             for building in self.buildings:
-              if calcDistance(unit_square, om[building]) <= sight:
-                  unit_vis.add(building)
-                  ai_vis.add(building)
+              if building in om:
+                if calcDistance(unit_square, om[building]) <= sight:
+                    unit_vis_bldg.add(building)
+                    ai_vis_bldg.add(building)
 
     # The game is over when there all buildings and units are
     # owned by one AI.
     def __checkGameOver(self):
       # If all buildings are owned:
       building_owners = set(self.buildings.values())
+      if None in building_owners:
+        building_owners.remove(None)
+
       if len(building_owners) == 1:
         # Check number of alive AI units?
         ai_units = filter(lambda x: x, self.ai_units.values())
@@ -716,10 +727,8 @@ class World:
         for ai_id in self.ai_units:
           scores[self.teams[ai_id]]["units"] = len(self.ai_units[ai_id])
 
-        kills = 0
         killed_units = filter(lambda k: k.killer, self.dead_units)
 
-        deaths = 0
         for unit in self.dead_units:
           scores[self.teams[unit]]["deaths"] += 1
 
@@ -728,7 +737,6 @@ class World:
           for t in teams:
             scores[t]["kills"] += 1
 
-        buildings = 0
         for b in self.buildings:
           if not self.buildings[b]:
             continue

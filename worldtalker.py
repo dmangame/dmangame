@@ -41,12 +41,9 @@ class WorldTalker:
                 return ai.ai_id
 
 
-    def __getPosition(self, mapobject):
-        return self.__world.map.getPosition(mapobject)
-
     def isAlive(self, unit):
         if unit in self.__world.units:
-            pos = self.__world.map.getPosition(unit)
+            pos = self.__world.map.objectMap[unit]
 
         if unit in self.__world.corpses:
             pos = self.__world.corpses[unit]
@@ -107,39 +104,32 @@ class WorldTalker:
 
     def __isVisibleObject(self, obj, unit=None, ai_id=None):
         if not obj: return
+        if not ai_id: ai_id = self.getID()
 
-
-#        if obj in self.__getUnits(ai_id):
-#            return True
+        if self.__getOwner(obj) == ai_id:
+            return True
 
         if unit:
-            return obj in self.__world.visibleobjects[unit]
+            return obj in self.__world.visibleunits[unit] or obj in self.__world.visiblebuildings[unit]
         else:
-            if not ai_id: ai_id = self.getID()
-            return obj in self.__world.visibleobjects[ai_id]
+            return obj in self.__world.visibleunits[ai_id] or obj in self.__world.visiblebuildings[ai_id]
 
     def isUnderAttack(self, unit):
         if self.__isVisibleObject(unit):
             return unit in self.__world.under_attack
 
     def inRange(self, unit):
-        # Find all visible units in range of this unit's firing capabilities.
+        # Find all visible enemy units in range of this unit's firing
+        # capabilities.
         units = []
-        unit_ai_id = self.__getOwner(unit)
         om = self.__world.map.objectMap
         unit_square = om[unit]
+        unit_ai_id = self.__getOwner(unit)
 
-        for an_ai_id in self.__world.ai_units:
-            if an_ai_id == unit_ai_id:
-                continue
-
-            for vunit in self.__world.ai_units[an_ai_id]:
-                if not self.__isVisibleObject(vunit, ai_id=unit_ai_id):
-                    continue
-
-                square = om[vunit]
-                if calcDistance(unit_square, square) < self.__world.bulletRange:
-                    units.append(vunit)
+        for vunit in self.__world.visibleunits[unit_ai_id]:
+            square = om[vunit]
+            if calcDistance(unit_square, square) < self.__world.bulletRange:
+                units.append(vunit)
         return units
 
     # Get functions
@@ -155,10 +145,13 @@ class WorldTalker:
 
     def getPosition(self, unit):
         if unit.__class__ == mapobject.Building:
-            return self.__getPosition(unit)
+            return self.__world.map.objectMap[unit]
 
-        if self.__isVisibleObject(unit) or unit in self.__getUnits():
-            return self.__getPosition(unit)
+        unit_ai_id = self.__getOwner(unit)
+        ai_id = self.getID()
+
+        if self.__isVisibleObject(unit):
+            return self.__world.map.objectMap[unit]
 
     def getStats(self, unit):
         ai_id = self.getID()
@@ -241,7 +234,7 @@ class WorldTalker:
                 self.checkOwner(unit, ai_id)
                 self.checkAlive(unit)
                 stats = self.__getStats(unit)
-                square = self.__getPosition(unit)
+                square = self.__world.map.objectMap[unit]
                 squares = self.__world.map.getLegalMoves(square, stats.sight)
                 self.__cached_visible_squares[vs_key] = squares
         return self.__cached_visible_squares[vs_key]
@@ -251,11 +244,14 @@ class WorldTalker:
         buildings = []
         if unit: self.checkOwner(unit)
 
-        for b in self.__world.buildings:
-            if self.__isVisibleObject(b, unit):
-                buildings.append(b)
+        if unit:
+            objs = self.__world.visiblebuildings[unit]
+        else:
+            ai_id = self.getID()
+            objs = self.__world.visiblebuildings[ai_id]
 
-        return buildings
+        return list(objs)
+
 
     def getVisibleEnemies(self, unit=None):
         ai_id = self.getID()
@@ -264,21 +260,13 @@ class WorldTalker:
 
 
         if unit:
-            vis_objs = self.__world.visibleobjects[unit]
+            vis_objs = self.__world.visibleunits[unit]
             team = unit.team
         else:
-            vis_objs = self.__world.visibleobjects[ai_id]
+            vis_objs = self.__world.visibleunits[ai_id]
             team = self.__world.teams[ai_id]
 
-        visibles = []
-        for vunit in vis_objs:
-            if not vunit or vunit.__class__ != Unit:
-                continue
-
-            if vunit.team != team:
-                visibles.append(vunit)
-
-        return visibles
+        return list(vis_objs)
 
     # Calculation Functions
     def calcBulletPath(self, unit, square):
@@ -292,16 +280,17 @@ class WorldTalker:
     def calcDistance(self, unit, square):
         ai_id = self.getID()
         unit_square = self.__world.map.getPosition(unit)
+        unit_ai_id = self.__getOwner(unit)
 
 
-        if self.__isVisibleObject(unit, ai_id=ai_id) or unit in self.__getUnits(ai_id):
+        if self.__isVisibleObject(unit, ai_id=ai_id):
             return calcDistance(unit_square, square)
 
     def calcUnitPath(self, unit, square):
         ai_id = self.getID()
         pos = self.__world.map.getPosition(unit)
-        if not unit in self.__getUnits(ai_id) and \
-            not self.__isVisibleObject(unit, ai_id=ai_id):
+        unit_ai_id = self.__getOwner(unit)
+        if not self.__isVisibleObject(unit, ai_id=ai_id):
             return []
         return self.__world.map.calcUnitPath(pos, square)
 
@@ -315,11 +304,10 @@ class WorldTalker:
         path = self.__world.map.calcBulletPath(pos, square, self.__world.bulletRange)
         victims = []
 
-        for vunit in self.__world.visibleobjects[ai_id]:
-            if vunit.__class__ == Unit:
-                vpos = self.__world.map.getPosition(vunit)
-                if vpos in path:
-                    victims.append(vunit)
+        for vunit in self.__world.visibleunits[ai_id]:
+            vpos = self.__world.map.objectMap[vunit]
+            if vpos in path:
+                victims.append(vunit)
         return victims
 
 
