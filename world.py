@@ -578,7 +578,10 @@ class World:
         self.visibleunits.clear()
         self.visiblebuildings.clear()
         om = self.map.objectMap
-        for ai_id in self.ai_units:
+        ai_ids = self.ai_units.keys()
+
+        for i in xrange(len(ai_ids)):
+          ai_id = ai_ids[i]
           ai_units = self.ai_units[ai_id]
           ai_vis_obj = self.visibleunits[ai_id]
           ai_vis_bldg = self.visiblebuildings[ai_id]
@@ -591,21 +594,39 @@ class World:
             unit_vis_obj = self.visibleunits[unit]
             unit_vis_bldg = self.visiblebuildings[unit]
             sight = stats.sight
-            for other_ai_id in self.ai_units:
+
+            # Do a all pairs add of unit visibility
+            for j in xrange(i+1, len(ai_ids)):
+              other_ai_id = ai_ids[j]
               if other_ai_id == ai_id:
                 continue
-              other_units = self.ai_units[other_ai_id]
-              for enemy in other_units:
-                obj_square = om[enemy]
-                if calcDistance(unit_square, obj_square) <= sight:
-                  unit_vis_obj.add(enemy)
-                  ai_vis_obj.add(enemy)
 
+              other_units = self.ai_units[other_ai_id]
+              other_ai_vis_obj = self.visibleunits[other_ai_id]
+
+              for other_unit in other_units:
+                other_unit_vis_obj = self.visibleunits[other_unit]
+                enemy_sight = self.units[other_unit].sight
+                obj_square = om[other_unit]
+
+                dist = calcDistance(unit_square, obj_square)
+
+                if dist <= sight:
+                  unit_vis_obj.add(other_unit)
+                  ai_vis_obj.add(other_unit)
+
+                if dist <= enemy_sight:
+                  other_unit_vis_obj.add(unit)
+                  other_ai_vis_obj.add(unit)
+
+            # Then just loop through buildings
             for building in self.buildings:
-              if building in om:
+              try:
                 if calcDistance(unit_square, om[building]) <= sight:
                     unit_vis_bldg.add(building)
                     ai_vis_bldg.add(building)
+              except KeyError:
+                pass
 
     # The game is over when there all buildings and units are
     # owned by one AI.
