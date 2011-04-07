@@ -70,6 +70,8 @@ class MapGUI:
         self.lock = RLock()
 
         self.processes = []
+        self.world_turns = []
+        self.world_data = {}
 
     def initialize_map_window(self):
         self.window = gtk.Window()
@@ -190,7 +192,9 @@ class MapGUI:
         except Queue.Empty, e:
           return
 
+        self.world_turns.append((turn_data, ai_data))
         self.draw_map(world_data, turn_data)
+        self.world_data.update(world_data)
         self.update_ai_stats(ai_data, world_data["colors"])
 
     def update_ai_stats(self, ai_data, colors):
@@ -293,6 +297,10 @@ def main(ais=[]):
     gtk.main()
 
 def end_game():
+  if settings.JS_REPLAY_FILE:
+    from lib import jsplayer
+    jsplayer.save_to_js_file(m.world_data, m.world_turns)
+
   for ai in m.world.AI:
     log.info("%s:%s", ai.__class__, ai.score)
 

@@ -62,7 +62,7 @@ def end_game():
   for ai in CliWorld.AI:
     log.info("%s:%s", ai.__class__, ai.score)
 
-  
+
   # Save the world information to an output file.
   if settings.JS_REPLAY_FILE:
     jsplayer.save_to_js_file(CliWorld.dumpWorldToDict(), CliWorld.world_turns)
