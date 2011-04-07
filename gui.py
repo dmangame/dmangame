@@ -44,7 +44,7 @@ AI_STATS=[
   ]
 
 AI_STAT_COLORS={
-  'bldgs'          : (0.0,0.5,0.0),
+  'buildings'          : (0.0,0.5,0.0),
   'moving'         : (0.0,0.5,0.0),
   'shooting'       : (0.5,0.0,0.0),
   'capturing'      : (0.0,0.0,0.5),
@@ -130,7 +130,7 @@ class MapGUI:
         b_chart = pygtk_chart.bar_chart.BarChart()
         vbox.pack_start(b_chart)
 
-        for stat in ['units', 'bldgs']:
+        for stat in ['units', 'buildings']:
           area = pygtk_chart.bar_chart.Bar(stat, 0, stat)
           area.set_color(gtk.gdk.Color(*AI_STAT_COLORS[stat]))
           b_chart.add_bar(area)
@@ -203,7 +203,7 @@ class MapGUI:
           team = str(team)
           labels, b_chart = self.ai_drawables[team]
           color = colors[team]
-          for k in ['units', 'bldgs']:
+          for k in ['units', 'buildings']:
             v = ai_data[team][k]
             bar = b_chart.get_area(k)
             if bar.get_value() != v:
