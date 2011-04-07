@@ -217,9 +217,20 @@ not continue to its final destination).
 The [dmanai][d_src] repository contains AIs for dmangame.
 [d_src]:http://github.com/okayzed/dmanai
 
+
 ## AI API ##
 
 See ai/base.py for the available AI functions, and look in ai/ for more example AIs.
+
+If you don't care for _unit_died and _unit_spawned (or want
+to do your own book keeping), you can subclass from ai.BareAI
+- in which case you need to implement the following two
+  functions:
+
+    # At the moment, new_units and dead_units are empty, so
+    # you need to do all book keeping by hand.
+    def turn(self, new_units=[], dead_units=[])
+    def init(self)
 
 ##Unit API##
 
