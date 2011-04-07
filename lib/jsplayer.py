@@ -6,19 +6,20 @@ log = logging.getLogger("JSPLAYER")
 
 JSLOOKUP = {
   "buildings"    : "b",
+  "bulletpath"   : "+",
+  "bullets"      : "_",
   "capturing"    : "c",
-  "idle"         : "i",
+  "collisions"   : "l",
+  "count"        : "n",
+  "currentturn"  : "t",
   "deaths"       : "d",
+  "idle"         : "i",
   "kills"        : "k",
+  "moving"       : "m",
   "shooting"     : "s",
+  "survivor"     : "r",
+  "unitpath"     : ".",
   "units"        : "u",
-  "currentturn"  : "ct",
-  "collisions"   : "co",
-  "bullets"      : "bt",
-  "unitpath"     : "up",
-  "bulletpath"   : "bp",
-  "survivor"     : "sr",
-  "count"        : "cnt"
 }
 
 HTML_SKELETON = """
@@ -94,7 +95,7 @@ var hudEl = document.getElementById("ai_scores");
 var unit_actions = ['moving', 'shooting', 'idle', 'capturing'];
 var ai_counts =['units', 'buildings', 'kills', 'deaths' ];
 
-function draw_ai_scores(ai_data, colors) {
+function draw_ai_scores(ai_data, colors, names) {
   ai_data_html = "<div class='turn_counter'>" + (current_turn+1) + "/" + total_turns + "</div>";
   for (t in ai_data) {
     var html_str = "<div id='ai_" + t + "'>";
@@ -103,7 +104,7 @@ function draw_ai_scores(ai_data, colors) {
 
     var bg_color = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+");";
     html_str += "<div class='ai_color_cell' style='background-color:"+bg_color+";'></div>";
-    html_str += "<div class='ai_header'>"+team["name"]+"</div>";
+    html_str += "<div class='ai_header'>"+names[t]+"</div>";
 
     html_str += "<div class='clearfix'>";
     html_str += "<div>";
@@ -263,7 +264,7 @@ var world_spinner_id = setInterval(function() {
     turn_data = data[0],
     ai_data    = data[1];
     draw_world(WORLD_DATA, turn_data);
-    draw_ai_scores(ai_data, WORLD_DATA.colors);
+    draw_ai_scores(ai_data, WORLD_DATA.colors, WORLD_DATA.names);
   } else {
     clearTimeout(world_spinner_id);
   }

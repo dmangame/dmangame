@@ -775,7 +775,7 @@ class World:
       for ai in self.AI:
         team = ai.team
         score = scores[team]
-        ai_data[team] = { "units" : score["units"], "shooting" : 0, "capturing" : 0, "moving" : 0, "kills" : score["kills"], "idle" : 0, "buildings" : score["buildings"], "name" : str(ai.__class__), "deaths" : score["deaths"] }
+        ai_data[team] = { "units" : score["units"], "shooting" : 0, "capturing" : 0, "moving" : 0, "kills" : score["kills"], "idle" : 0, "buildings" : score["buildings"], "deaths" : score["deaths"] }
         for unit in self.units:
           status = self.unitstatus[unit]
           if self.units[unit].ai != ai:
@@ -796,6 +796,7 @@ class World:
                   "AI" : [],
                   "mapsize" : self.mapSize,
                   "colors"  : {},
+                  "names"   : {},
                   "units"   : {},
                   "buildings" : {}
                   }
@@ -804,6 +805,7 @@ class World:
                     "color" : ai.AI_COLORS[ai_player.team] }
         world_data["AI"].append(ai_data)
         world_data["colors"][ai_player.team] = ai.AI_COLORS[ai_player.team]
+        world_data["names"][ai_player.team] = str(ai_player.__class__)
 
       for unit in self.all_units:
         stats = self.all_units[unit]
