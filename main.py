@@ -26,7 +26,14 @@ import traceback
 from optparse import OptionParser
 
 import cli
-import gui
+IMPORT_GUI_FAILURE=False
+
+try:
+  import gui
+except Exception, e:
+  IMPORT_GUI_FAILURE=True
+  log.info("Couldn't import GUI: %s", e)
+
 import world
 
 def parseOptions():
@@ -115,7 +122,7 @@ def run_game():
 
 
 
-  ui = cli if options.cli else gui
+  ui = cli if options.cli or IMPORT_GUI_FAILURE else gui
 
   try:
     ui.main(ais)

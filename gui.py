@@ -1,4 +1,3 @@
-
 import ai
 import mapobject
 import settings
