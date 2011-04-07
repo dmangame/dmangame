@@ -132,7 +132,7 @@ class Map:
 
     # Returns a random valid square on the map
     def getRandomSquare(self):
-        return (random.randint(0, self.size), random.randint(0, self.size))
+        return (random.randint(0, self.size-1), random.randint(0, self.size-1))
 
     # Place a map object onto the map
     def placeObject(self, mapobject, square):

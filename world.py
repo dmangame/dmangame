@@ -191,6 +191,7 @@ class World:
 
         if attempts >= 5:
           log.info("Couldn't place building far enough away after five tries, taking last guess")
+          break
 
 
       self.map.placeObject(b, rand_square)
