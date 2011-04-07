@@ -33,23 +33,22 @@ class CaptureAI(ai.AI):
 
     def search_for_buildings(self, unit):
         corner = self.corners[unit]
-        if unit.is_alive:
-            if unit.position == corner:
-                x = random.randint(0, self.mapsize)
-                y = random.randint(0, self.mapsize)
-                self.squares[unit] = (x,y)
-                self.torandom[unit] = True
-            try:
-                if unit.position == self.squares[unit]:
-                    self.torandom[unit] = False
-            except KeyError:
-                pass
+        if unit.position == corner:
+            x = random.randint(0, self.mapsize)
+            y = random.randint(0, self.mapsize)
+            self.squares[unit] = (x,y)
+            self.torandom[unit] = True
+        try:
+            if unit.position == self.squares[unit]:
+                self.torandom[unit] = False
+        except KeyError:
+            pass
 
-            if not self.capture_building(unit):
-                if self.torandom[unit]:
-                    unit.move(self.squares[unit])
-                else:
-                    unit.move(self.corners[unit])
+        if not self.capture_building(unit):
+            if self.torandom[unit]:
+                unit.move(self.squares[unit])
+            else:
+                unit.move(self.corners[unit])
 
     def _spin(self):
         for unit in self.my_units:

@@ -48,23 +48,23 @@ class KillNCapture(ai.AI):
             y = random.randint(0, self.mapsize)
             self.squares[unit] = (x,y)
         corner = self.unit_corners[unit]
-        if unit.is_alive:
-            if unit.position == corner:
-                x = random.randint(0, self.mapsize)
-                y = random.randint(0, self.mapsize)
-                self.squares[unit] = (x,y)
-                self.torandom[unit] = True
-            try:
-                if unit.position == self.squares[unit]:
-                    self.torandom[unit] = False
-            except KeyError:
-                pass
 
-            if not self.prey(unit):
-                if self.torandom[unit]:
-                    unit.move(self.squares[unit])
-                else:
-                    unit.move(self.unit_corners[unit])
+        if unit.position == corner:
+            x = random.randint(0, self.mapsize)
+            y = random.randint(0, self.mapsize)
+            self.squares[unit] = (x,y)
+            self.torandom[unit] = True
+        try:
+            if unit.position == self.squares[unit]:
+                self.torandom[unit] = False
+        except KeyError:
+            pass
+
+        if not self.prey(unit):
+            if self.torandom[unit]:
+                unit.move(self.squares[unit])
+            else:
+                unit.move(self.unit_corners[unit])
 
     def _spin(self):
         for unit in self.my_units:
