@@ -1,13 +1,16 @@
 #! /usr/bin/env python
 import random
-import world
+import traceback
+import logging
+log = logging.getLogger("AI")
 
-class AI:
+import settings
+class BareAI(object):
     def __init__(self, worldtalker):
         self.wt = worldtalker
         self.mapsize = self.wt.getMapSize() - 1
 
-        #TODO: These should be much shorter. 
+        #TODO: These should be much shorter.
         # Maybe like 3 or 4 letters?
         self.__ai_id = str(random.randint(-100000000, 100000000))
         self.__team = str(random.randint(-100000000, 100000000))
@@ -73,6 +76,47 @@ class AI:
         """
         return self.wt.getCurrentTurn()
     current_turn = property(currentTurn)
+
+
+    # Overrode definitions
+    def init(self):
+        """Needs to be implemented"""
+
+    def turn(self):
+        """Needs to be implemented"""
+
+class AI(BareAI):
+
+    def init(self):
+        self._init()
+        self.__units = set()
+
+    def turn(self):
+        __cur_units = set(self.my_units)
+        for unit in iter(__cur_units.difference(self.__units)):
+            try:
+                self._unit_spawned(unit)
+            except Exception, e:
+              if settings.IGNORE_EXCEPTIONS:
+                log.info("Spawn exception")
+                log.info(e)
+              else:
+                traceback.print_exc()
+                raise e
+
+        for unit in iter(self.__units.difference(__cur_units)):
+            try:
+                self._unit_died(unit)
+            except Exception, e:
+              if settings.IGNORE_EXCEPTIONS:
+                log.info("Death exception")
+                log.info(e)
+              else:
+                traceback.print_exc()
+                raise e
+
+        self.__units = __cur_units
+        self._spin()
 
     # Overrode definitions
     def _init(self):

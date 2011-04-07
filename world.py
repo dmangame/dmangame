@@ -204,7 +204,7 @@ class World:
         ai_player = ai_class(self.wt)
         self.AI.append(ai_player)
         self.teams[ai_player.ai_id] = ai_player.team
-        ai_player._init()
+        ai_player.init()
         b = self.placeRandomBuilding()
         num_buildings = random.randint(0, 2)
         self.buildings[b] = next(self.ai_cycler)
@@ -212,7 +212,7 @@ class World:
         return ai_player
 
     def processSpin(self, ai):
-      exc_thread = multiprocess.Process(target=ai._spin)
+      exc_thread = multiprocess.Process(target=ai.turn)
       try:
          exc_thread.start()
          exc_thread.join(AI_CYCLE_SECONDS)
@@ -227,7 +227,7 @@ class World:
           log.info("AI raised exception %s, skipping this turn for it", e)
 
     def threadedSpin(self, ai):
-      exc_thread = thread2.Thread(target=ai._spin)
+      exc_thread = thread2.Thread(target=ai.turn)
       try:
          exc_thread.start()
          exc_thread.join(AI_CYCLE_SECONDS)
@@ -245,7 +245,7 @@ class World:
     def spinAI(self):
       for ai in self.AI:
         if settings.PROFILE:
-          ai._spin()
+          ai.turn()
         else:
           self.threadedSpin(ai)
 
@@ -368,15 +368,6 @@ class World:
         stats.ai_id = owner.ai_id
         stats.team = owner.team
         unit = self.__createUnit(stats, square)
-        try:
-          owner._unit_spawned(unit)
-        except Exception, e:
-          if settings.IGNORE_EXCEPTIONS:
-            log.info("Spawn exception")
-            log.info(e)
-          else:
-            traceback.print_exc()
-            raise
         return unit
 
     def __spawnUnits(self):
@@ -490,16 +481,6 @@ class World:
             self.dead_units[unit] = copy.copy(stats)
             self.corpses[unit] = self.map.getPosition(unit)
             owner = stats.ai
-            try:
-              owner._unit_died(unit)
-            except Exception, e:
-              if settings.IGNORE_EXCEPTIONS:
-                log.info("Death exception")
-                log.info(e)
-              else:
-                traceback.print_exc()
-                raise e
-
             self.ai_units[owner.ai_id].remove(unit)
 
             self.__unitCleanup(unit)
