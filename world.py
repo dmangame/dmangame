@@ -576,19 +576,28 @@ class World:
         self.visibleobjects = defaultdict(set)
         all_obj = self.map.getAllObjects()
         om = self.map.objectMap
-        for unit in self.units:
-          stats = self.units[unit]
-          unit_square = om[unit]
-          ai_id = stats.ai_id
-          sight = stats.sight
+        for ai_id in self.ai_units:
+          ai_units = self.ai_units[ai_id]
           ai_vis = self.visibleobjects[ai_id]
-          unit_vis = self.visibleobjects[unit]
-          for obj in all_obj:
-            obj_square = om[obj]
-            # Calc Distance formula
-            if calcDistance(unit_square, obj_square) <= sight:
-              unit_vis.add(obj)
-              ai_vis.add(obj)
+          for unit in ai_units:
+            stats = self.units[unit]
+            unit_square = om[unit]
+            unit_vis = self.visibleobjects[unit]
+            sight = stats.sight
+            for other_ai_id in self.ai_units:
+              if other_ai_id == ai_id:
+                continue
+              other_units = self.ai_units[other_ai_id]
+              for enemy in other_units:
+                obj_square = om[enemy]
+                if calcDistance(unit_square, obj_square) <= sight:
+                  unit_vis.add(enemy)
+                  ai_vis.add(enemy)
+
+            for building in self.buildings:
+              if calcDistance(unit_square, om[building]) <= sight:
+                  unit_vis.add(building)
+                  ai_vis.add(building)
 
     # The game is over when there all buildings and units are
     # owned by one AI.
