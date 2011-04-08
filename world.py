@@ -807,7 +807,7 @@ class World:
                     "color" : ai.AI_COLORS[ai_player.team] }
         world_data["AI"].append(ai_data)
         world_data["colors"][ai_player.team] = ai.AI_COLORS[ai_player.team]
-        world_data["names"][ai_player.team] = str(ai_player.__class__)
+        world_data["names"][ai_player.team] = ai_player.__class__.__name__
 
       for unit in self.all_units:
         stats = self.all_units[unit]

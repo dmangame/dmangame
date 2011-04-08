@@ -106,7 +106,7 @@ class MapGUI:
         vbox = gtk.VBox()
         label_box = gtk.HBox()
         label_color_box = gtk.EventBox()
-        label = gtk.Label(str(ai_class).split(".")[-1])
+        label = gtk.Label(ai_class.__name__)
         label_color_box.set_size_request(20, -1)
         label_color_box.modify_bg(gtk.STATE_NORMAL,
           gtk.gdk.Color(*ai.AI_COLORS[a.team]))
