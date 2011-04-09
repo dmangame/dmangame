@@ -186,7 +186,7 @@ function draw_ai_scores(ai_data, colors, names) {
 
     html_arr.push("</div>");
 
-    ai_data_html += html_arr.join('');
+    ai_data_html += html_arr.join('').replace(/undefined/g, "0");
   }
 
   hudEl.innerHTML = ai_data_html;
@@ -382,25 +382,30 @@ TIMER_ID=startWorld();
 def strip_whitespace(st):
   return re.sub('\s', '', st)
 
-def translate_array(arr, translation_key):
+def translate_array(arr, translation_key, drop_zeroes=False):
   for a in arr:
     if isinstance(a, (list, tuple)):
-      translate_array(a, translation_key)
+      translate_array(a, translation_key, drop_zeroes)
     if isinstance(a, (dict)):
-      translate_dict(a, translation_key)
+      translate_dict(a, translation_key, drop_zeroes)
 
 # Need a recursive strategy to replace dictionaries with
 # dictionaries that have their keys translated.
-def translate_dict(d, translation_key):
+def translate_dict(d, translation_key, drop_zeroes=False):
   for k in d.keys():
     v = d[k]
+
+    if v == 0 and drop_zeroes:
+      del d[k]
+      continue
+
     if k in translation_key:
       d[translation_key[k]] = v
       del d[k]
     if isinstance(v, (list, tuple)):
-      translate_array(v, translation_key)
+      translate_array(v, translation_key, drop_zeroes)
     if isinstance(v, (dict)):
-      translate_dict(v, translation_key)
+      translate_dict(v, translation_key, drop_zeroes)
 
 # It needs to translate the world data into smaller format
 # words using minification or something.
@@ -410,7 +415,7 @@ def save_to_js_file(world_data, world_turns):
   f.write(HTML_SKELETON)
   world_data = copy.deepcopy(world_data)
   world_turns = copy.deepcopy(world_turns)
-  translate_array(world_turns, JSLOOKUP)
+  translate_array(world_turns, JSLOOKUP, drop_zeroes=True)
   translate_dict(world_data, JSLOOKUP)
   f.write("JSLOOKUP = %s;\n" % strip_whitespace((json.dumps(JSLOOKUP))))
   f.write("WORLD_DATA = %s;\n" % (strip_whitespace(json.dumps(world_data))))
