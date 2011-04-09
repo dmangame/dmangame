@@ -5,6 +5,20 @@ import logging
 log = logging.getLogger("AI")
 
 import settings
+import string
+
+used_ids = set()
+def id_generator():
+    len = 2
+    while True:
+        i = ''.join(random.choice(string.letters) for i in xrange(len))
+        if i not in used_ids:
+            used_ids.add(i)
+            yield i
+
+ID_GENERATOR=id_generator()
+TEAM_GENERATOR=id_generator()
+
 class BareAI(object):
     def __init__(self, worldtalker):
         self.wt = worldtalker
@@ -12,8 +26,8 @@ class BareAI(object):
 
         #TODO: These should be much shorter.
         # Maybe like 3 or 4 letters?
-        self.__ai_id = str(random.randint(-100000000, 100000000))
-        self.__team = str(random.randint(-100000000, 100000000))
+        self.__ai_id = str(next(ID_GENERATOR))
+        self.__team = str(next(TEAM_GENERATOR))
         self.teamName = "Default AI"
 
 

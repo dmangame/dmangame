@@ -1,5 +1,11 @@
 import mapobject
 
+def unit_id_generator():
+  i = 0
+  while True:
+    yield i
+    i += 1
+
 class Unit(mapobject.MapObject):
     """
     Represents a Unit on the map. A Unit can move, shoot or capture for events, at the moment
@@ -8,13 +14,15 @@ class Unit(mapobject.MapObject):
     # It can shoot, move and capture a square. Can two units occupy the same
     # square? I forget.
 
+    ID_GENERATOR = unit_id_generator()
     def __init__(self, worldtalker, stats):
         self.__wt = worldtalker
         self.__stats = stats
         self.killer = set()
+        self.__unit_id = next(Unit.ID_GENERATOR)
 
     def getUnitID(self):
-      return str(id(self))
+      return str(self.__unit_id)
     unit_id = property(getUnitID)
 
     # Some functions the unit has access to.  The way it will

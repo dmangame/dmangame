@@ -7,6 +7,14 @@ class MapObject:
     def __init__():
         pass
 
+def building_id_generator():
+  i = 0
+  while True:
+    yield i
+    i += 1
+
+ID_GENERATOR=building_id_generator()
+
 class Building(MapObject):
     def __init__(self, worldtalker):
         self.__wt = worldtalker
@@ -17,9 +25,10 @@ class Building(MapObject):
                         "energy"  : 1,
                         "speed"   : 1
                        })
+        self.__building_id = next(ID_GENERATOR)
 
     def getBuildingID(self):
-      return str(id(self))
+      return str(self.__building_id)
     building_id = property(getBuildingID)
 
     def getTeam(self):
