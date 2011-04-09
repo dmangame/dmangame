@@ -7,21 +7,27 @@ import re
 log = logging.getLogger("JSPLAYER")
 
 JSLOOKUP = {
-  "buildings"    : "b",
-  "bulletpath"   : "+",
-  "bullets"      : "_",
-  "capturing"    : "c",
-  "collisions"   : "l",
-  "count"        : "n",
-  "currentturn"  : "t",
-  "deaths"       : "d",
+  "buildings"    : "a",
+  "bulletpath"   : "b",
+  "bullets"      : "c",
+  "capturing"    : "d",
+  "collisions"   : "e",
+  "count"        : "f",
+  "currentturn"  : "g",
+  "deaths"       : "h",
   "idle"         : "i",
-  "kills"        : "k",
-  "moving"       : "m",
-  "shooting"     : "s",
-  "survivor"     : "r",
-  "unitpath"     : ".",
-  "units"        : "u",
+  "kills"        : "j",
+  "moving"       : "k",
+  "shooting"     : "l",
+  "survivor"     : "m",
+  "team"         : "n",
+  "unitpath"     : "o",
+  "units"        : "p",
+  "stats"        : "q",
+  "sight"        : "r",
+  "speed"        : "s",
+  "position"     : "t"
+
 }
 
 HTML_SKELETON = """
@@ -149,11 +155,11 @@ function draw_world(world_data, turn_data) {
     context.lineWidth = 0;
     var unit_data = turn_data[JSLOOKUP.units][u],
         unit_static_data = world_data[JSLOOKUP.units][unit_data.id],
-        pos = unit_data["pos"],
+        pos = unit_data[JSLOOKUP.position],
         x = pos[0],
         y = pos[1];
 
-    var color = world_data.colors[unit_static_data["team"]],
+    var color = world_data.colors[unit_static_data[JSLOOKUP.team]],
         color_str = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+")",
         alpha_color_str = "rgba("+color[0]*255+","+color[1]*255+","+color[2]*255+", 0.15)";
         path_color_str = "rgba("+color[0]*128+","+color[1]*128+","+color[2]*128+", 0.5)";
@@ -198,7 +204,7 @@ function draw_world(world_data, turn_data) {
 
     context.beginPath();
     context.fillStyle = alpha_color_str;
-    context.arc(deltax*x, deltay*y, unit_static_data.stats.sight*deltax, 0, Math.PI * 2, false);
+    context.arc(deltax*x, deltay*y, unit_static_data[JSLOOKUP.stats][JSLOOKUP.sight]*deltax, 0, Math.PI * 2, false);
     context.closePath();
     context.fill();
 
@@ -206,7 +212,7 @@ function draw_world(world_data, turn_data) {
 
   for (b in world_data[JSLOOKUP.bullets]) {
     var bullet_data = world_data[JSLOOKUP.bullets][b],
-        pos = bullet_data.pos,
+        pos = bullet_data[JSLOOKUP.position],
         x = pos[0],
         y = pos[1];
 
@@ -219,11 +225,11 @@ function draw_world(world_data, turn_data) {
   for (b in turn_data[JSLOOKUP.buildings]) {
     var building_data = turn_data[JSLOOKUP.buildings][b],
         building_static_data = world_data[JSLOOKUP.buildings][building_data.id],
-        pos = building_static_data.pos,
+        pos = building_static_data[JSLOOKUP.position],
         x = pos[0],
         y = pos[1];
 
-      var color = world_data.colors[building_data.team];
+      var color = world_data.colors[building_data[JSLOOKUP.team]];
       if (color) {
           var color_str = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+")";
       } else {
@@ -240,7 +246,7 @@ function draw_world(world_data, turn_data) {
 
   for (c in world_data[JSLOOKUP.collisions]) {
     var collision_data = world_data[JSLOOKUP.collisions][c],
-        pos = collision_data.pos,
+        pos = collision_data[JSLOOKUP.position],
         x = pos[0],
         y = pos[1];
         count = collision_data[JSLOOKUP.count];

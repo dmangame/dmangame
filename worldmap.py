@@ -46,7 +46,7 @@ def draw_map(cairo_context, width, height, world_data, turn_data):
       team = unit_data["team"]
       color = world_data["colors"][str(team)]
 
-      x, y = unit["pos"]
+      x, y = unit["position"]
       alpha_color = (color[0], color[1], color[2], .15)
       cairo_context.set_source_rgba(*alpha_color)
       cairo_context.arc(deltax*x, deltay*y, (unit_data["stats"]["sight"])*deltax, 0, 360.0)
@@ -93,7 +93,7 @@ def draw_map(cairo_context, width, height, world_data, turn_data):
         color = world_data["colors"][team] 
       else:
         color = (0,0,0)
-      x, y = building_data["pos"]
+      x, y = building_data["position"]
       cairo_context.set_source_rgb(0,0,0)
       cairo_context.rectangle(deltax*x-(deltax/2), deltay*y-(deltay/2), 2*deltax, 2*deltay)
       cairo_context.fill()
@@ -104,7 +104,7 @@ def draw_map(cairo_context, width, height, world_data, turn_data):
   cairo_context.set_source_rgb(0,0,0)
 
   for collision in turn_data["collisions"]:
-      x, y = collision["pos"]
+      x, y = collision["position"]
       count = collision["count"] * 2
       survivor = collision["survivor"]
       if survivor:

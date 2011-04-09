@@ -821,7 +821,7 @@ class World:
       for building in self.buildings:
         pos = self.map.getPosition(building)
         if pos:
-          building_data = { "pos" : pos }
+          building_data = { "position" : pos }
           world_data["buildings"][building.building_id] = building_data
 
       return world_data
@@ -836,7 +836,7 @@ class World:
 
 
       for unit in self.units:
-        unit_data = {"pos" : self.map.getPosition(unit),
+        unit_data = {"position" : self.map.getPosition(unit),
                      "id"  : unit.unit_id }
 
 
@@ -867,14 +867,14 @@ class World:
         turn_data["buildings"].append(building_data)
 
       for bullet in self.bullets:
-        bullet_data = { "pos" : self.map.getPosition(bullet) }
+        bullet_data = { "position" : self.map.getPosition(bullet) }
 
         turn_data["bullets"].append(bullet_data)
 
       for square in self.collisions:
         count = self.collisions[square]
         survivor = self.survivors[square]
-        collision_data = { "pos" : square,
+        collision_data = { "position" : square,
                            "count" : count,
                            "survivor" : survivor }
         turn_data["collisions"].append(collision_data)
