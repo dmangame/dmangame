@@ -107,36 +107,37 @@ var ai_counts =['units', 'buildings', 'kills', 'deaths' ];
 function draw_ai_scores(ai_data, colors, names) {
   ai_data_html = "<div class='turn_counter'>" + (current_turn+1) + "/" + total_turns + "</div>";
   for (t in ai_data) {
-    var html_str = "<div id='ai_" + t + "'>";
+    var html_arr = new Array();
     var team = ai_data[t],
         color = colors[t];
 
+    html_arr.push("<div id='ai_" + t + "'>");
     var bg_color = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+");";
-    html_str += "<div class='ai_color_cell' style='background-color:"+bg_color+";'></div>";
-    html_str += "<div class='ai_header'>"+names[t]+"</div>";
+    html_arr.push("<div class='ai_color_cell' style='background-color:"+bg_color+";'></div>");
+    html_arr.push("<div class='ai_header'>"+names[t]+"</div>");
 
-    html_str += "<div class='clearfix'>";
-    html_str += "<div>";
+    html_arr.push("<div class='clearfix'>");
+    html_arr.push("<div>");
     for (a in unit_actions) {
       action = unit_actions[a];
-      html_str += "<span class='ai_info_cell'>";
-      html_str += action + ":" + team[JSLOOKUP[action]];
-      html_str += "</span>";
+      html_arr.push("<span class='ai_info_cell'>");
+      html_arr.push(action + ":" + team[JSLOOKUP[action]]);
+      html_arr.push("</span>");
     }
-    html_str += "</div>";
+    html_arr.push("</div>");
 
-    html_str += "<div>";
+    html_arr.push("<div>");
     for (c in ai_counts) {
       count = ai_counts[c];
-      html_str += "<span class='ai_info_cell'>";
-      html_str += count + ":" + team[JSLOOKUP[count]];
-      html_str += "</span>";
+      html_arr.push("<span class='ai_info_cell'>");
+      html_arr.push(count + ":" + team[JSLOOKUP[count]]);
+      html_arr.push("</span>");
     }
-    html_str += "</div>";
+    html_arr.push("</div>");
 
-    html_str += "</div>";
+    html_arr.push("</div>");
 
-    ai_data_html += html_str;
+    ai_data_html += html_arr.join('');
   }
 
   hudEl.innerHTML = ai_data_html;
