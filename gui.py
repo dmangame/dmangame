@@ -263,6 +263,7 @@ class MapGUI:
             if not settings.IGNORE_EXCEPTIONS:
               self.stopped = True
               end_game()
+              self.frame_queue.put((None, None))
               sys.exit(1)
 
     def gui_spinner(self):
