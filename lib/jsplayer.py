@@ -47,6 +47,18 @@ HTML_SKELETON = """
   margin-left: 5px;
 }
 
+#map_interactive {
+  position: fixed;
+  opacity: 0.25;
+}
+
+#turn_counter {
+  width: 75px;
+  text-align: right;
+  background: none;
+  border: 0px;
+}
+
 .ai_color_cell {
   width: 25px;
   height: 25px;
@@ -71,9 +83,32 @@ HTML_SKELETON = """
   clear: both;
 }
 
+#map {
+}
+
 </style>
-<canvas id="map" style="width: auto; float: left;"> </canvas>
-<div id="ai_scores" style="width: auto; float: left;"> </div>
+<div>
+  <div>
+    <canvas id="map" style="width: auto; float: left;">
+    </canvas>
+
+    <div id="map_interactive">
+
+      <input type="text" id="turn_counter"></input> / <span id="total_turns"></span>
+
+      <select id="playback_speed">
+        <option value="50">2x</option>
+        <option value="100" selected="True">1x</option>
+        <option value="200">1/2 x</option>
+        <option value="400">1/4 x</option>
+      </select>
+    </div>
+
+  </div>
+
+  <div id="ai_scores" style="width: auto; float: left;"> </div>
+
+</div>
 <script>
 """
 
@@ -85,11 +120,20 @@ HTML_SKELETON_END= """
 """
 
 JS_PLAYER = """
+var playSpeedEl = document.getElementById("playback_speed");
+playSpeedEl.onchange = function(val, a) {
+  var option = this.options[this.selectedIndex],
+      val    = option.value;
+  setWorldSpeed(val);
+};
 var mapEl = document.getElementById("map");
+
+var mapControlEl = document.getElementById("map_interactive");
+
 window.onresize = function() {
   width=window.innerWidth;
   height=window.innerHeight;
-  side = Math.min(width, height) - 20;
+  side = Math.min(width, height) - 40;
   mapEl.width = side;
   mapEl.height = side;
 }
@@ -104,8 +148,13 @@ var hudEl = document.getElementById("ai_scores");
 var unit_actions = ['moving', 'shooting', 'idle', 'capturing'];
 var ai_counts =['units', 'buildings', 'kills', 'deaths' ];
 
+
+function draw_turn_count() {
+  var turnEl = document.getElementById("turn_counter");
+  turnEl.value = current_turn+1;
+}
 function draw_ai_scores(ai_data, colors, names) {
-  ai_data_html = "<div class='turn_counter'>" + (current_turn+1) + "/" + total_turns + "</div>";
+  ai_data_html = "";
   for (t in ai_data) {
     var html_arr = new Array();
     var team = ai_data[t],
@@ -153,7 +202,6 @@ function draw_world(world_data, turn_data) {
   context.fillRect(0, 0, side, side);
 
   for (u in turn_data[JSLOOKUP.units]) {
-    context.strokeStyle = "none";
     context.lineWidth = 0;
     var unit_data = turn_data[JSLOOKUP.units][u],
         unit_static_data = world_data[JSLOOKUP.units][unit_data[JSLOOKUP.id]],
@@ -201,7 +249,6 @@ function draw_world(world_data, turn_data) {
           context.stroke();
         }
     }
-    context.strokeStyle = "none";
     context.lineWidth = 0;
 
     context.beginPath();
@@ -268,18 +315,67 @@ function draw_world(world_data, turn_data) {
 current_turn = 0;
 total_turns = WORLD_TURNS.length;
 
-var world_spinner_id = setInterval(function() {
-  var data = WORLD_TURNS[current_turn];
-  if (data) {
-    turn_data = data[0],
-    ai_data    = data[1];
-    draw_world(WORLD_DATA, turn_data);
-    draw_ai_scores(ai_data, WORLD_DATA.colors, WORLD_DATA.names);
-  } else {
-    clearTimeout(world_spinner_id);
+var turnEl = document.getElementById("turn_counter");
+
+turnEl.onmouseout = function() {
+  current_turn = parseInt(this.value);
+};
+turnEl.onchange = turnEl.onmouseout;
+
+mapControlEl.onmouseout = function() {
+  mapControlEl.style.opacity = 0.25;
+  if (TIMER_ID) {
+    clearTimeout(TIMER_ID);
   }
-  current_turn += 1;
-}, %s);
+  TIMER_ID = startWorld();
+}
+
+mapControlEl.onmouseover = function() {
+  if (TIMER_ID) {
+    clearTimeout(TIMER_ID);
+  }
+  TIMER_ID = null;
+  mapControlEl.style.opacity = 1;
+}
+
+var totalEl = document.getElementById("total_turns");
+totalEl.innerHTML = total_turns;
+
+TIMER = %s;
+
+var startWorld = function() {
+  var world_spinner_id = setInterval(function() {
+    var data = WORLD_TURNS[current_turn];
+    if (data) {
+      turn_data = data[0],
+      ai_data    = data[1];
+      draw_world(WORLD_DATA, turn_data);
+      draw_ai_scores(ai_data, WORLD_DATA.colors, WORLD_DATA.names);
+      draw_turn_count();
+    } else {
+      if (TIMER_ID) {
+        clearTimeout(TIMER_ID);
+      }
+    }
+    current_turn += 1;
+  }, TIMER);
+
+  return world_spinner_id;
+}
+
+var setWorldSpeed = function(interval) {
+  if (TIMER_ID) {
+    clearTimeout(TIMER_ID);
+  }
+  TIMER = interval;
+  TIMER_ID = startWorld();
+}
+
+var setWorldPosition = function(pos) {
+  current_turn = pos;
+}
+
+TIMER_ID=startWorld();
 
 """ % (1000 / settings.FPS)
 
