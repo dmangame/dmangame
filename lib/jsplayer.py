@@ -26,7 +26,8 @@ JSLOOKUP = {
   "stats"        : "q",
   "sight"        : "r",
   "speed"        : "s",
-  "position"     : "t"
+  "position"     : "t",
+  "id"           : "u",
 
 }
 
@@ -154,7 +155,7 @@ function draw_world(world_data, turn_data) {
     context.strokeStyle = "none";
     context.lineWidth = 0;
     var unit_data = turn_data[JSLOOKUP.units][u],
-        unit_static_data = world_data[JSLOOKUP.units][unit_data.id],
+        unit_static_data = world_data[JSLOOKUP.units][unit_data[JSLOOKUP.id]],
         pos = unit_data[JSLOOKUP.position],
         x = pos[0],
         y = pos[1];
@@ -224,7 +225,7 @@ function draw_world(world_data, turn_data) {
 
   for (b in turn_data[JSLOOKUP.buildings]) {
     var building_data = turn_data[JSLOOKUP.buildings][b],
-        building_static_data = world_data[JSLOOKUP.buildings][building_data.id],
+        building_static_data = world_data[JSLOOKUP.buildings][building_data[JSLOOKUP.id]],
         pos = building_static_data[JSLOOKUP.position],
         x = pos[0],
         y = pos[1];
