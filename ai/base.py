@@ -47,6 +47,14 @@ class BareAI(object):
     def dead_units(self):
         return self.wt.getDeadUnits()
 
+    @property
+    def new_buildings(self):
+        return self.wt.getNewBuildings()
+
+    @property
+    def lost_buildings(self):
+        return self.wt.getLostBuildings()
+
 
     def getMyUnits(self):
         """

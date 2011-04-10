@@ -171,6 +171,16 @@ class WorldTalker:
         units = self.__world.ai_new_units[ai_id] or []
         return units
 
+    def getNewBuildings(self):
+        ai_id = self.getID()
+        buildings = self.__world.ai_new_buildings[ai_id]
+        return buildings
+
+    def getLostBuildings(self):
+        ai_id = self.getID()
+        buildings = self.__world.ai_lost_buildings[ai_id]
+        return buildings
+
     def __getUnits(self, ai_id=None):
         ai_id = ai_id or self.getID()
         units = self.__world.ai_units[ai_id] or []

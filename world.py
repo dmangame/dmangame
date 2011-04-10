@@ -140,6 +140,8 @@ class World:
         self.ai_units = defaultdict(set)
         self.ai_new_units = defaultdict(set)
         self.ai_dead_units = defaultdict(set)
+        self.ai_lost_buildings = defaultdict(set)
+        self.ai_new_buildings = defaultdict(set)
 
         self.buildings = {}
         log.info('Adding %s buildings to map', settings.ADDITIONAL_BUILDINGS)
@@ -331,7 +333,14 @@ class World:
           building = event.getBuilding()
           stats = self.units[unit]
           owner = stats.ai
+          old_owner = self.buildings[building]
           self.buildings[building] = owner
+
+          log.info("%s lost %s to %s", old_owner, building, owner)
+          self.ai_new_buildings[owner.ai_id].add(building)
+          if old_owner:
+            self.ai_lost_buildings[old_owner.ai_id].add(building)
+
           garbage.append(event)
 
 
@@ -570,6 +579,11 @@ class World:
         self.survivors.clear()
         self.under_attack = set()
         self.unitstatus.clear()
+
+        # This contains information from this turn that's
+        # passed to AIs
+        self.ai_lost_buildings
+        self.ai_new_buildings
 
     def __calcVisibility(self):
         self.visibleunits.clear()
