@@ -84,6 +84,17 @@ HTML_SKELETON = """
 }
 
 #map {
+
+}
+
+#play_direction {
+  cursor: pointer;
+  display: inline-block;
+  margin: 0 5px;
+}
+
+#play_direction:hover {
+  text-decoration: underline;
 }
 
 </style>
@@ -95,6 +106,7 @@ HTML_SKELETON = """
     <div id="map_interactive">
 
       <input type="text" id="turn_counter"></input> / <span id="total_turns"></span>
+      <span id="play_direction"> &gt; </span>
 
       <select id="playback_speed">
         <option value="50">2x</option>
@@ -120,15 +132,48 @@ HTML_SKELETON_END= """
 """
 
 JS_PLAYER = """
-var playSpeedEl = document.getElementById("playback_speed");
+var playSpeedEl = document.getElementById("playback_speed"),
+    mapEl = document.getElementById("map"),
+    turnEl = document.getElementById("turn_counter"),
+    mapControlEl = document.getElementById("map_interactive"),
+    totalEl = document.getElementById("total_turns"),
+    hudEl = document.getElementById("ai_scores");
+
 playSpeedEl.onchange = function(val, a) {
   var option = this.options[this.selectedIndex],
       val    = option.value;
   setWorldSpeed(val);
 };
-var mapEl = document.getElementById("map");
 
-var mapControlEl = document.getElementById("map_interactive");
+
+turnEl.onmouseout = function() {
+  current_turn = parseInt(this.value);
+};
+turnEl.onchange = turnEl.onmouseout;
+
+mapControlEl.onmouseout = function() {
+  mapControlEl.style.opacity = 0.25;
+  startWorld();
+}
+
+mapControlEl.onmouseover = function() {
+  if (TIMER_ID) {
+    clearTimeout(TIMER_ID);
+  }
+  TIMER_ID = null;
+  mapControlEl.style.opacity = 1;
+}
+
+var playDirectionEl = document.getElementById("play_direction");
+playDirectionEl.onclick = function() {
+  if (DIRECTION == 1) {
+    DIRECTION = -1;
+    playDirectionEl.innerHTML = '&lt;';
+  } else {
+    DIRECTION = 1;
+    playDirectionEl.innerHTML = '&gt;';
+  }
+}
 
 window.onresize = function() {
   width=window.innerWidth;
@@ -142,8 +187,6 @@ window.onresize();
 
 
 var context = mapEl.getContext('2d');
-
-var hudEl = document.getElementById("ai_scores");
 
 var unit_actions = ['moving', 'shooting', 'idle', 'capturing'];
 var ai_counts =['units', 'buildings', 'kills', 'deaths' ];
@@ -312,38 +355,19 @@ function draw_world(world_data, turn_data) {
   };
 }
 
+DIRECTION=1;
+TIMER_ID=null;
 current_turn = 0;
 total_turns = WORLD_TURNS.length;
-
-var turnEl = document.getElementById("turn_counter");
-
-turnEl.onmouseout = function() {
-  current_turn = parseInt(this.value);
-};
-turnEl.onchange = turnEl.onmouseout;
-
-mapControlEl.onmouseout = function() {
-  mapControlEl.style.opacity = 0.25;
-  if (TIMER_ID) {
-    clearTimeout(TIMER_ID);
-  }
-  TIMER_ID = startWorld();
-}
-
-mapControlEl.onmouseover = function() {
-  if (TIMER_ID) {
-    clearTimeout(TIMER_ID);
-  }
-  TIMER_ID = null;
-  mapControlEl.style.opacity = 1;
-}
-
-var totalEl = document.getElementById("total_turns");
 totalEl.innerHTML = total_turns;
+
 
 TIMER = %s;
 
 var startWorld = function() {
+  if (TIMER_ID) {
+    clearTimeout(TIMER_ID);
+  }
   var world_spinner_id = setInterval(function() {
     var data = WORLD_TURNS[current_turn];
     if (data) {
@@ -357,25 +381,22 @@ var startWorld = function() {
         clearTimeout(TIMER_ID);
       }
     }
-    current_turn += 1;
+    current_turn += DIRECTION;
   }, TIMER);
 
-  return world_spinner_id;
+  TIMER_ID =  world_spinner_id;
 }
 
 var setWorldSpeed = function(interval) {
-  if (TIMER_ID) {
-    clearTimeout(TIMER_ID);
-  }
   TIMER = interval;
-  TIMER_ID = startWorld();
+  startWorld();
 }
 
 var setWorldPosition = function(pos) {
   current_turn = pos;
 }
 
-TIMER_ID=startWorld();
+startWorld();
 
 """ % (1000 / settings.FPS)
 
