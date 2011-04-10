@@ -43,6 +43,9 @@ def parseOptions():
     parser.add_option("-c", "--cli", dest="cli",
                       help="Display GUI", default=False,
                       action="store_true")
+
+    parser.add_option("-f", "--fps", dest="fps",
+                      help="Frames Per Second", default=10)
     parser.add_option("-s", "--save", action="store_true",
                       help="save each world turn as a png",
                       dest="save_images", default=False)
@@ -119,6 +122,9 @@ def run_game():
 
   if options.replay_file:
     settings.JS_REPLAY_FILE = options.replay_file
+
+  if options.fps:
+    settings.FPS = int(options.fps)
 
 
 
