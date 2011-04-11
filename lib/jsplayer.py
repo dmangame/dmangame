@@ -325,8 +325,8 @@ function draw_world(world_data, turn_data) {
 
   }
 
-  for (b in world_data[JSLOOKUP.bullets]) {
-    var bullet_data = world_data[JSLOOKUP.bullets][b],
+  for (b in turn_data[JSLOOKUP.bullets]) {
+    var bullet_data = turn_data[JSLOOKUP.bullets][b],
         pos = bullet_data[JSLOOKUP.position],
         x = pos[0],
         y = pos[1];
@@ -359,8 +359,8 @@ function draw_world(world_data, turn_data) {
 
   }
 
-  for (c in world_data[JSLOOKUP.collisions]) {
-    var collision_data = world_data[JSLOOKUP.collisions][c],
+  for (c in turn_data[JSLOOKUP.collisions]) {
+    var collision_data = turn_data[JSLOOKUP.collisions][c],
         pos = collision_data[JSLOOKUP.position],
         x = pos[0],
         y = pos[1];
