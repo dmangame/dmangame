@@ -27,7 +27,7 @@ import Queue
 import logging
 log = logging.getLogger("GUI")
 
-BUFFER_SIZE=100
+BUFFER_SIZE=1000
 
 import pango
 AI_FONT = pango.FontDescription('Sans 10')

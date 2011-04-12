@@ -116,8 +116,7 @@ class BareAI(object):
         """Needs to be implemented"""
 
 class AI(BareAI):
-
-    def init(self):
+    def init(self, *args, **kwargs):
         self._init()
 
     def turn(self):
