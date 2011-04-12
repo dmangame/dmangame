@@ -254,7 +254,9 @@ class World:
     def spinAI(self):
       for ai in self.AI:
         if settings.PROFILE:
-          ai.turn()
+          # The AI only turns when it has units.
+          if self.ai_units[ai.ai_id]:
+            ai.turn()
         else:
           self.threadedSpin(ai)
 
