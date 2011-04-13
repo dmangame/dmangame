@@ -139,7 +139,7 @@ class Bar(chart.Area):
             raise AttributeError, "Property %s does not exist." % property.name
 
     def _do_draw(self, context, rect, n, i, mode, max_value, bar_padding, value_label_size, label_size, draw_labels):
-        if not rect:
+        if not rect or not max_value:
           return
 
         if mode == MODE_VERTICAL:
