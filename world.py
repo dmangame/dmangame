@@ -177,7 +177,7 @@ class World:
       # Make sure this building is not within a distance
       # from any other buildings.
       attempts = 0
-      best_min_guess = self.mapSize**2
+      best_min_guess = 0
       best_base = None
       while True:
         min_guess = self.mapSize**2
@@ -210,6 +210,7 @@ class World:
 
         if min_guess > best_min_guess:
           best_square = rand_square
+          best_min_guess = min_guess
 
         if not within_range_of_other_building:
           # Redistribute all buildings?
