@@ -371,10 +371,16 @@ class World:
                       self.teams[owner.ai_id],
                       building.building_id)
           else:
-            log.info("BUILDING: %s lost %s to %s",
-                      self.teams[old_owner.ai_id],
-                      building.building_id,
-                      self.teams[owner.ai_id])
+            if old_owner:
+              log.info("BUILDING: %s lost %s to %s",
+                        self.teams[old_owner.ai_id],
+                        building.building_id,
+                        self.teams[owner.ai_id])
+            else:
+              log.info("BUILDING: %s captured %s",
+                        self.teams[owner.ai_id],
+                        building.building_id)
+
 
           self.ai_new_buildings[owner.ai_id].add(building)
           if old_owner:
