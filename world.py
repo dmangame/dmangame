@@ -233,8 +233,13 @@ class World:
         self.teams[ai_player.ai_id] = ai_player.team
         ai_player.init()
         b = self.placeRandomBuilding()
-        num_buildings = random.randint(0, 2)
         self.buildings[b] = next(self.ai_cycler)
+
+        log.info("Adding %s new buildings for %s AI to map", settings.ADDITIONAL_BUILDINGS_PER_AI, ai_player)
+        for n in xrange(settings.ADDITIONAL_BUILDINGS_PER_AI):
+          b = self.placeRandomBuilding()
+          self.buildings[b] = None
+
 
         return ai_player
 
