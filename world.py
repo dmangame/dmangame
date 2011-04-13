@@ -365,7 +365,16 @@ class World:
           old_owner = self.buildings[building]
           self.buildings[building] = owner
 
-          log.info("%s lost %s to %s", old_owner, building, owner)
+          if old_owner == owner:
+            log.info("BUILDING: %s recaptured %s",
+                      self.teams[owner.ai_id],
+                      building.building_id)
+          else:
+            log.info("BUILDING: %s lost %s to %s",
+                      self.teams[old_owner.ai_id],
+                      building.building_id,
+                      self.teams[owner.ai_id])
+
           self.ai_new_buildings[owner.ai_id].add(building)
           if old_owner:
             self.ai_lost_buildings[old_owner.ai_id].add(building)
@@ -399,7 +408,7 @@ class World:
             if self.units[unit].energy < 1:
 
                 if not unit in self.died:
-                    log.info("%s lost a unit.", (self.teams[self.units[unit].ai_id]))
+                    log.info("DEATH: %s lost a unit.", (self.teams[self.units[unit].ai_id]))
                     self.died[unit] = self.map.getPosition(unit)
                     if attacker:
                         unit.killer = set((attacker,))
@@ -424,10 +433,14 @@ class World:
             square = self.map.getPosition(b)
             if owner and square:
               self.__spawnUnit(b.getStats(), owner, square)
+
+            log.info("SPAWN: %s gained a unit", (self.teams[owner.ai_id]))
           log.info("SCORES:")
           scores = self.calcScores()
-          for k in scores:
-            log.info("%s:%s", k, scores[k])
+          for t in scores:
+            log.info("%s", t)
+            for k in scores[t]:
+              log.info("  %s:\t%s", k, scores[t][k])
 
 
     def __unitCleanup(self, unit):
@@ -678,7 +691,6 @@ class World:
         # Check number of alive AI units?
         ai_units = filter(lambda x: x, self.ai_units.values())
         if len(ai_units) == 1:
-          log.info("GAME FINISHED, RUNNING POST GAME")
           self.__winner = building_owners.pop()
           return True
 
@@ -764,7 +776,12 @@ class World:
 
     # Runs the world one iteration
     def Turn(self):
-        log.info("Turning the World, %s", self.currentTurn)
+        over = self.__checkGameOver()
+        if not over:
+          log.info("TURN: %s", self.currentTurn)
+        else:
+          log.info("TURN: %s (POST GAME)", self.currentTurn)
+
         self.__clearBeforeTurnData()
         self.__processPendingEvents()
 
@@ -782,7 +799,8 @@ class World:
         # Recalculate what everyone in the world can see.
         self.__calcVisibility()
         self.currentTurn += 1
-        return self.__checkGameOver()
+        over = self.__checkGameOver()
+        return over
 
     def calcScores(self):
         alive = 0
