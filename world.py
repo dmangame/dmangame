@@ -177,18 +177,39 @@ class World:
       # Make sure this building is not within a distance
       # from any other buildings.
       attempts = 0
+      best_min_guess = self.mapSize**2
+      best_base = None
       while True:
+        min_guess = self.mapSize**2
         attempts += 1
         rand_square = self.map.getRandomSquare()
         within_range_of_other_building = False
+        best_square = None
+
+        dist_from_edge = math.sqrt(self.mapSize) / 2
+        if rand_square[0] < dist_from_edge:
+          continue
+        if rand_square[1] < dist_from_edge:
+          continue
+        if self.mapSize - rand_square[0] < dist_from_edge:
+          continue
+        if self.mapSize - rand_square[1] < dist_from_edge:
+          continue
+
         for building in self.buildings:
           pos = self.map.getPosition(building)
           if building == b or not pos:
             continue
           spawn_distance = settings.BUILDING_SPAWN_DISTANCE * math.log(self.mapSize)
-          if calcDistance(pos, rand_square) < spawn_distance:
+          dist = calcDistance(pos, rand_square)
+          if dist < spawn_distance:
             within_range_of_other_building = True
 
+          if dist < min_guess:
+            min_guess = dist
+
+        if min_guess > best_min_guess:
+          best_square = rand_square
 
         if not within_range_of_other_building:
           # Redistribute all buildings?
@@ -196,6 +217,7 @@ class World:
 
         if attempts >= 5:
           log.info("Couldn't place building far enough away after five tries, taking last guess")
+          rand_square = best_square
           break
 
 
