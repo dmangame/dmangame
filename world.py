@@ -435,7 +435,7 @@ class World:
             if owner and square:
               self.__spawnUnit(b.getStats(), owner, square)
 
-            log.info("SPAWN: %s gained a unit", (self.teams[owner.ai_id]))
+              log.info("SPAWN: %s gained a unit", (self.teams[owner.ai_id]))
           log.info("SCORES:")
           scores = self.calcScores()
           for t in scores:
