@@ -399,7 +399,7 @@ class World:
             if self.units[unit].energy < 1:
 
                 if not unit in self.died:
-                    log.info("%s died", (unit))
+                    log.info("%s lost a unit.", (self.teams[self.units[unit].ai_id]))
                     self.died[unit] = self.map.getPosition(unit)
                     if attacker:
                         unit.killer = set((attacker,))
@@ -427,8 +427,7 @@ class World:
           log.info("SCORES:")
           scores = self.calcScores()
           for k in scores:
-            log.info(k)
-            log.info(scores[k])
+            log.info("%s:%s", k, scores[k])
 
 
     def __unitCleanup(self, unit):
