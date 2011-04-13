@@ -127,6 +127,7 @@ class World:
         self.wt = worldtalker.WorldTalker(self)
         self.AI = []
         self.teams = {}
+        self.team_map = {}
         self.ai_cycler = itertools.cycle(self.AI)
         self.units = {} # instead of a list, it will point to the unit's attributes.
         self.all_units = {} # instead of a list, it will point to the unit's attributes.
@@ -232,6 +233,7 @@ class World:
         ai_player = ai_class(self.wt)
         self.AI.append(ai_player)
         self.teams[ai_player.ai_id] = ai_player.team
+        self.team_map[ai_player.team] = ai_player
         ai_player.init()
         b = self.placeRandomBuilding()
         self.buildings[b] = next(self.ai_cycler)
@@ -445,7 +447,7 @@ class World:
           log.info("SCORES:")
           scores = self.calcScores()
           for t in scores:
-            log.info("%s", t)
+            log.info("%s\t%s", t, self.team_map[t].__class__.__name__)
             for k in scores[t]:
               log.info("  %s:\t%s", k, scores[t][k])
 
