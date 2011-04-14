@@ -32,6 +32,7 @@ def main(ai_classes=[]):
   CliWorld = w
   if settings.NCURSES:
     import ncurses_gui
+    ncurses_gui.redirect_outputs()
     ncurses = ncurses_gui.NcursesGui()
 
 
