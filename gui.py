@@ -267,7 +267,7 @@ class MapGUI:
               sys.exit(1)
 
     def gui_spinner(self):
-        log.info("GUI Showing Turn: %s", self.guiTurn)
+        log.info("TURN: %s", self.guiTurn)
         try:
           if self.stopped:
             sys.exit(0)
