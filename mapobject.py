@@ -28,7 +28,7 @@ class Building(MapObject):
         self.__building_id = next(ID_GENERATOR)
 
     def getBuildingID(self):
-      return str(self.__building_id)
+      return self.__building_id
     building_id = property(getBuildingID)
 
     def getTeam(self):

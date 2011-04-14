@@ -42,7 +42,8 @@ def draw_map(cairo_context, width, height, world_data, turn_data):
   # try getting the color from our color dictionary.
 
   for unit in turn_data["units"]:
-      unit_data = world_data["units"][unit["id"]]
+      u_id = str(unit["id"])
+      unit_data = world_data["units"][u_id]
       team = unit_data["team"]
       color = world_data["colors"][str(team)]
 
@@ -86,7 +87,8 @@ def draw_map(cairo_context, width, height, world_data, turn_data):
 
 
   for building in turn_data["buildings"]:
-      building_data = world_data["buildings"][building["id"]]
+      b_id = str(building["id"])
+      building_data = world_data["buildings"][b_id]
 
       team = building["team"]
       if team:

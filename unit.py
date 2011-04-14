@@ -22,7 +22,7 @@ class Unit(mapobject.MapObject):
         self.__unit_id = next(Unit.ID_GENERATOR)
 
     def getUnitID(self):
-      return str(self.__unit_id)
+      return self.__unit_id
     unit_id = property(getUnitID)
 
     # Some functions the unit has access to.  The way it will
