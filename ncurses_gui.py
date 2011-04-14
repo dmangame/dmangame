@@ -6,7 +6,8 @@ import logging
 # Check that both stdout and stderr are redirected if using NCURSES
 
 def redirect_outputs():
-  f = open('dmangame.log', 'w')
+  f = open('game.log', 'w')
+  print("Redirecting game output to game.log")
 
   logging.disable(logging.INFO)
   # Redirect stdout
