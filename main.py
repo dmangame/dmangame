@@ -56,6 +56,9 @@ def parseOptions():
                       action="store_false", dest="whiny",
                       default=True,
                       help="ignore AI exceptions")
+    parser.add_option("-n", "--ncurses",
+                      action="store_true", dest="ncurses",
+                      default=False)
     parser.add_option("-p", "--profile",
                       action="store_true", dest="profile",
                       default=False)
@@ -126,7 +129,8 @@ def run_game():
   if options.fps:
     settings.FPS = int(options.fps)
 
-
+  if options.ncurses:
+    settings.NCURSES = True
 
   ui = cli if options.cli or IMPORT_GUI_FAILURE else gui
 

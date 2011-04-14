@@ -11,6 +11,7 @@ import itertools
 import settings
 import logging
 
+
 from lib import jsplayer
 log = logging.getLogger("CLI")
 
@@ -22,11 +23,17 @@ import os
 CliWorld = None
 AI = []
 
+ncurses = None
 
 def main(ai_classes=[]):
   w = world.World()
-  global CliWorld
+  global CliWorld, ncurses
+
   CliWorld = w
+  if settings.NCURSES:
+    import ncurses_gui
+    ncurses = ncurses_gui.NcursesGui()
+
 
   for ai_class in ai_classes:
     ai_player = w.addAI(ai_class)
@@ -39,6 +46,8 @@ def main(ai_classes=[]):
 
   w.world_turns = []
   turns_left = settings.END_GAME_TURNS
+  if settings.NCURSES:
+    ncurses.init(w)
   for i in xrange(LIFESPAN):
       w.spinAI()
       if w.Turn():
@@ -46,9 +55,15 @@ def main(ai_classes=[]):
           turns_left -= 1
         else:
           break
+
+      t = w.dumpTurnToDict(shorten=True)
+      s = w.dumpScores()
+      w.world_turns.append((t,s))
       if settings.SAVE_IMAGES:
-        worldmap.draw_map(cairo_context, 200, 200, w.dumpTurnToDict())
-      w.world_turns.append((w.dumpTurnToDict(shorten=True), w.dumpScores()))
+        worldmap.draw_map(cairo_context, 200, 200, t)
+
+      if settings.NCURSES:
+        ncurses.update(t, s)
   log.info("Finished simulating the world")
 
   sys.exit(0)
@@ -62,6 +77,8 @@ def end_game():
   for ai in CliWorld.AI:
     log.info("%s:%s", ai.__class__, ai.score)
 
+  if settings.NCURSES:
+    ncurses.end()
 
   # Save the world information to an output file.
   if settings.JS_REPLAY_FILE:
