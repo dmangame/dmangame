@@ -29,7 +29,6 @@ JSLOOKUP = {
   "speed"        : "s",
   "position"     : "t",
   "id"           : "u",
-
 }
 
 HTML_SKELETON = """
@@ -51,14 +50,24 @@ HTML_SKELETON = """
 #map_interactive {
   position: fixed;
   opacity: 0.25;
+  margin-left: 5px;
+  margin-top: 5px;
+  font-size: 150%;
 }
 
 #turn_counter {
-  width: 25px;
-  text-align: right;
+  width: 50px;
+  text-align: center;
   background: none;
   border: 0px;
-  overflow: visible;
+  margin: 1px;
+  font-size: 100%;
+}
+
+#turn_counter:hover {
+  background-color: #ededed;
+  border: 1px dashed #ddd;
+  margin: 0px 1px;
 }
 
 .ai_color_cell {
@@ -165,21 +174,23 @@ turnEl.onchange = turnEl.onmouseout;
 
 mapControlEl.onmouseout = function() {
   mapControlEl.style.opacity = 0.25;
+  STOPPED=false;
 }
 
 mapControlEl.onmouseover = function() {
   mapControlEl.style.opacity = 1;
+  STOPPED=true;
 }
 
 var playDirectionEl = document.getElementById("play_direction");
 var rewindEl = document.getElementById("rewind");
 
 REWIND=false;
-playDirectionEl.onmouseover = function() {
+rewindEl.onmouseover = function() {
     REWIND = true;
 }
 
-playDirectionEl.onmouseout = function() {
+rewindEl.onmouseout = function() {
     REWIND = false;
 }
 
@@ -194,6 +205,9 @@ playDirectionEl.onclick = function() {
   if (!STOPPED) {
     STOPPED=true;
   } else {
+    if (current_turn >= total_turns) {
+      current_turn = 0;
+    }
     STOPPED=false;
     startWorld();
   }
@@ -392,7 +406,7 @@ totalEl.innerHTML = total_turns;
 TIMER = ###INTERVAL###;
 
 var spinWorld = function() {
-  if (STOPPED) {
+  if (!REWIND && STOPPED) {
     playDirectionEl.innerHTML = '=';
     return;
   }
@@ -410,7 +424,6 @@ var spinWorld = function() {
     current_turn = 0;
   } else if (current_turn >= total_turns) {
     current_turn = total_turns - 1;
-    STOPPED=true;
   }
 
   var turn_data = WORLD_TURNS[current_turn],
