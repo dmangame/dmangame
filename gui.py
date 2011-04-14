@@ -198,21 +198,21 @@ class MapGUI:
         self.update_ai_stats(ai_data, world_data["colors"])
 
     def update_ai_stats(self, ai_data, colors):
-        for team in ai_data:
-          team = str(team)
+        for ai_datum in ai_data:
+          team = ai_datum["team"]
           labels, b_chart = self.ai_drawables[team]
           color = colors[team]
           for k in ['units', 'buildings']:
-            v = ai_data[team][k]
+            v = ai_datum[k]
             bar = b_chart.get_area(k)
             if bar.get_value() != v:
               bar.set_value(int(v))
 
           for k in ['moving', 'shooting', 'idle', 'capturing']:
-            v = ai_data[team][k]
+            v = ai_datum[k]
             labels[k].set_text("%s: %s" % (k[0], v))
-          v = ai_data[team][k]
-          labels['kills'].set_text("kills: %s" % (ai_data[team]['kills']))
+          v = ai_datum[k]
+          labels['kills'].set_text("kills: %s" % (ai_datum['kills']))
 
         self.key_area.show_all()
 

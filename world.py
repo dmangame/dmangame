@@ -841,25 +841,28 @@ class World:
 
 
     def dumpScores(self):
-      ai_data = {}
+      ai_data = []
       scores = self.calcScores()
       for ai in self.AI:
         team = ai.team
         score = scores[team]
-        ai_data[team] = { "units" : score["units"], "shooting" : 0, "capturing" : 0, "moving" : 0, "kills" : score["kills"], "idle" : 0, "buildings" : score["buildings"], "deaths" : score["deaths"] }
+        ai_datum = { "team" : team, "units" : score["units"], "shooting" : 0, "capturing" : 0, "moving" : 0, "kills" : score["kills"], "idle" : 0, "buildings" : score["buildings"], "deaths" : score["deaths"] }
         for unit in self.units:
           status = self.unitstatus[unit]
           if self.units[unit].ai != ai:
             continue
 
           if status == MOVING:
-            ai_data[team]["moving"] += 1
+            ai_datum["moving"] += 1
           elif status == SHOOTING:
-            ai_data[team]["shooting"] += 1
+            ai_datum["shooting"] += 1
           elif status == CAPTURING:
-            ai_data[team]["capturing"] += 1
+            ai_datum["capturing"] += 1
           else:
-            ai_data[team]["idle"] += 1
+            ai_datum["idle"] += 1
+
+        ai_data.append(ai_datum)
+
       return ai_data
 
     def dumpWorldToDict(self):

@@ -3,6 +3,7 @@ import json
 import logging
 import copy
 import re
+from collections import defaultdict
 
 log = logging.getLogger("JSPLAYER")
 
@@ -109,10 +110,10 @@ HTML_SKELETON = """
       <span id="play_direction"> &gt; </span>
 
       <select id="playback_speed">
-        <option value="50">2x</option>
-        <option value="100" selected="True">1x</option>
-        <option value="200">1/2 x</option>
-        <option value="400">1/4 x</option>
+        <option value="%s">2x</option>
+        <option value="%s" selected="True">1x</option>
+        <option value="%s">1/2 x</option>
+        <option value="%s">1/4 x</option>
       </select>
     </div>
 
@@ -122,7 +123,7 @@ HTML_SKELETON = """
 
 </div>
 <script>
-"""
+""" % tuple([ x * 1000 / settings.FPS for x in (0.5,1,2,4)])
 
 HTML_SKELETON_END= """
 </script>
@@ -219,24 +220,28 @@ function draw_turn_count() {
   var turnEl = document.getElementById("turn_counter");
   turnEl.value = current_turn+1;
 }
+
 function draw_ai_scores(ai_data, colors, names) {
   ai_data_html = "";
   for (t in ai_data) {
     var html_arr = new Array();
-    var team = ai_data[t],
-        color = colors[t];
+    var team_data = ai_data[t],
+        ai_lookup = AI_LOOKUP_SUPPL[t];
 
-    html_arr.push("<div id='ai_" + t + "'>");
+    var team = team_data[ai_lookup.team],
+        color = colors[team];
+
+    html_arr.push("<div id='ai_" + team + "'>");
     var bg_color = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+");";
     html_arr.push("<div class='ai_color_cell' style='background-color:"+bg_color+";'></div>");
-    html_arr.push("<div class='ai_header'>"+names[t]+"</div>");
+    html_arr.push("<div class='ai_header'>"+names[team]+"</div>");
 
     html_arr.push("<div class='clearfix'>");
     html_arr.push("<div>");
     for (a in unit_actions) {
       action = unit_actions[a];
       html_arr.push("<span class='ai_info_cell'>");
-      html_arr.push(action + ":" + team[JSLOOKUP[action]]);
+      html_arr.push(action + ":" + team_data[ai_lookup[action]]);
       html_arr.push("</span>");
     }
     html_arr.push("</div>");
@@ -245,7 +250,7 @@ function draw_ai_scores(ai_data, colors, names) {
     for (c in ai_counts) {
       count = ai_counts[c];
       html_arr.push("<span class='ai_info_cell'>");
-      html_arr.push(count + ":" + team[JSLOOKUP[count]]);
+      html_arr.push(count + ":" + team_data[ai_lookup[count]]);
       html_arr.push("</span>");
     }
     html_arr.push("</div>");
@@ -267,13 +272,15 @@ function draw_world(world_data, turn_data) {
   context.fillStyle = "#fff";
   context.fillRect(0, 0, side, side);
 
-  for (u in turn_data[JSLOOKUP.units]) {
+  for (u in turn_data[TD_LOOKUP.units]) {
     context.lineWidth = 0;
-    var unit_data = turn_data[JSLOOKUP.units][u],
-        unit_static_data = world_data[JSLOOKUP.units][unit_data[JSLOOKUP.id]],
-        pos = unit_data[JSLOOKUP.position],
+    unit_data = turn_data[TD_LOOKUP.units][u]
+
+    var unit_static_data = world_data[JSLOOKUP.units][unit_data[TD_LOOKUP_SUPPL.units.id]],
+        pos = unit_data[TD_LOOKUP_SUPPL.units.position],
         x = pos[0],
         y = pos[1];
+
 
     var color = world_data.colors[unit_static_data[JSLOOKUP.team]],
         color_str = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+")",
@@ -284,10 +291,11 @@ function draw_world(world_data, turn_data) {
     context.fillStyle = color_str;
     context.fillRect(deltax*x, deltay*y, deltax, deltay);
 
-    if (unit_data[JSLOOKUP.unitpath]) {
+    // Draw movement
+    if (unit_data[TD_LOOKUP_SUPPL.units.unitpath]) {
 
-      start = unit_data[JSLOOKUP.unitpath][0];
-      end = unit_data[JSLOOKUP.unitpath][1];
+      start = unit_data[TD_LOOKUP_SUPPL.units.unitpath][0];
+      end = unit_data[TD_LOOKUP_SUPPL.units.unitpath][1];
       if (start && end) {
         context.beginPath();
         context.strokeStyle = path_color_str;
@@ -297,54 +305,49 @@ function draw_world(world_data, turn_data) {
         context.lineWidth = deltax;
         context.stroke();
       }
-    }
+    } // end movement
 
 
-    if (unit_data[JSLOOKUP.bulletpath]) {
-        for (p in unit_data[JSLOOKUP.bulletpath]) {
-          var path = unit_data[JSLOOKUP.bulletpath][p];
+    // Bullet paths
+    if (unit_data[TD_LOOKUP_SUPPL.units.bulletpath]) {
+        for (p in unit_data[TD_LOOKUP_SUPPL.units.bulletpath]) {
+          var path = unit_data[TD_LOOKUP_SUPPL.units.bulletpath][p];
           var start = path[0],
               end   = path[1];
 
-          context.beginPath();
-          context.strokeStyle = path_color_str;
-          context.moveTo(start[0]*deltax+midx, start[1]*deltay+midy);
-          context.lineTo(end[0]*deltax+midx, end[1]*deltay+midy);
-          context.closePath();
-          context.lineWidth = midx;
-          context.stroke();
-        }
-    }
-    context.lineWidth = 0;
+          if (start && end) {
 
+            context.beginPath();
+            context.strokeStyle = path_color_str;
+            context.moveTo(start[0]*deltax+midx, start[1]*deltay+midy);
+            context.lineTo(end[0]*deltax+midx, end[1]*deltay+midy);
+            context.closePath();
+            context.lineWidth = midx;
+            context.stroke();
+          }
+        }
+    } // End bullet path
+
+
+    // Circle of sight
+    context.lineWidth = 0;
     context.beginPath();
     context.fillStyle = alpha_color_str;
     context.arc(deltax*x, deltay*y, unit_static_data[JSLOOKUP.stats][JSLOOKUP.sight]*deltax, 0, Math.PI * 2, false);
     context.closePath();
     context.fill();
-
-  }
-
-  for (b in turn_data[JSLOOKUP.bullets]) {
-    var bullet_data = turn_data[JSLOOKUP.bullets][b],
-        pos = bullet_data[JSLOOKUP.position],
-        x = pos[0],
-        y = pos[1];
+  } // end unit
 
 
-    context.fillStyle = "#000";
-    context.fillRect(x*deltax, y*deltay, deltax, deltay);
-
-  }
-
-  for (b in turn_data[JSLOOKUP.buildings]) {
-    var building_data = turn_data[JSLOOKUP.buildings][b],
-        building_static_data = world_data[JSLOOKUP.buildings][building_data[JSLOOKUP.id]],
+  // Draw buildings
+  for (b in turn_data[TD_LOOKUP.buildings]) {
+    var building_data = turn_data[TD_LOOKUP.buildings][b],
+        building_static_data = world_data[JSLOOKUP.buildings][building_data[TD_LOOKUP_SUPPL.buildings.id]],
         pos = building_static_data[JSLOOKUP.position],
         x = pos[0],
         y = pos[1];
 
-      var color = world_data.colors[building_data[JSLOOKUP.team]];
+      var color = world_data.colors[building_data[TD_LOOKUP_SUPPL.buildings.team]];
       if (color) {
           var color_str = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+")";
       } else {
@@ -357,25 +360,26 @@ function draw_world(world_data, turn_data) {
     context.fillStyle = color_str;
     context.fillRect(deltax*x, deltay*y, deltax, deltay);
 
-  }
+  } // End building drawing
 
-  for (c in turn_data[JSLOOKUP.collisions]) {
-    var collision_data = turn_data[JSLOOKUP.collisions][c],
-        pos = collision_data[JSLOOKUP.position],
-        x = pos[0],
+  // Draw collisions
+  for (c in turn_data[TD_LOOKUP.collisions]) {
+    var collision_data = turn_data[TD_LOOKUP.collisions][c];
+
+    var pos = collision_data[TD_LOOKUP_SUPPL.collisions.position];
+    var x = pos[0],
         y = pos[1];
-        count = collision_data[JSLOOKUP.count];
-        survivor = collision_data[JSLOOKUP.survivor];
-        if (survivor) {
-          var color = world_data.colors[survivor];
-        } else {
-          var color = (0.25, 0.25, 0.25);
+        count = collision_data[TD_LOOKUP_SUPPL.collisions.count];
+        survivor = collision_data[TD_LOOKUP_SUPPL.collisions.survivor];
+        var color = [0, 0, 0];
+        if (survivor != null) {
+          color = world_data.colors[survivor];
         }
 
         color_str = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+")";
         context.fillStyle = color_str;
         context.fillRect(deltax*x-(count/2*deltax), deltay*y-(count/2*deltay), count*deltax, count*deltay);
-  };
+  }; // End collision drawing
 }
 
 DIRECTION=1;
@@ -394,15 +398,14 @@ var startWorld = function() {
   }
   var world_spinner_id = setInterval(function() {
     if (current_turn < 0) { current_turn = 0; }
-    if (current_turn >= total_turns) { 
+    if (current_turn >= total_turns) {
       setWorldSpeed(1000);
       current_turn = total_turns - 1;
     }
 
-    var data = WORLD_TURNS[current_turn];
-    if (data) {
-      turn_data = data[0],
-      ai_data    = data[1];
+    var turn_data = WORLD_TURNS[current_turn],
+        ai_data   = AI_TURNS[current_turn];
+    if (turn_data) {
       draw_world(WORLD_DATA, turn_data);
       draw_ai_scores(ai_data, WORLD_DATA.colors, WORLD_DATA.names);
       draw_turn_count();
@@ -463,19 +466,135 @@ def translate_dict(d, translation_key, drop_zeroes=False):
     if isinstance(v, (dict)):
       translate_dict(v, translation_key, drop_zeroes)
 
+def key_merge(lookup, other_lookup):
+  sub_keys = set(lookup.keys() + other_lookup.keys())
+  sorted_keys = sorted(list(sub_keys))
+  for k in xrange(len(sorted_keys)):
+    lookup[sorted_keys[k]] = k
+
+
+# To turn a dict into a table, we have to determine table
+# properties - this recurses through arrays and dicts,
+# figuring out the table columns.
+def determine_keys(arr_data):
+  keys = set()
+  types_seen = set()
+  max_count = 0
+  for d in arr_data:
+    types_seen.add(type(d))
+    t = type(d)
+    if t not in (dict, list, tuple):
+      return None, None
+    if len(types_seen) >= 2:
+      return None, None
+
+    if type(d) == dict:
+      keys.update(set(d.keys()))
+    else:
+      max_count = max(len(d), max_count)
+
+  key_lookups = defaultdict(dict)
+  if not keys:
+    sorted_keys = range(0, max_count)
+  else:
+    sorted_keys = list(keys)
+    sorted_keys.sort()
+
+  for d in arr_data:
+    for k in sorted_keys:
+      try:
+        val = d[k]
+      except Exception, e:
+        val = None
+
+      if isinstance(val, (dict)):
+        val = [val]
+
+      if isinstance(val, (list, tuple)):
+        sub_key_lookup, sub_key_lookups = determine_keys(val)
+
+        # Have to do key merges:
+        if sub_key_lookup:
+          key_merge(sub_key_lookup, key_lookups[k])
+          key_lookups[k].update(sub_key_lookup)
+
+        if sub_key_lookups:
+          for kk in sub_key_lookups:
+            key_merge(sub_key_lookups[kk], key_lookups[kk])
+          key_lookups.update(sub_key_lookups)
+
+  this_lookup = {}
+  for i in xrange(len(sorted_keys)):
+    this_lookup[sorted_keys[i]] = i
+
+  return this_lookup, key_lookups
+
+
+# Horizontal pack the world turns and ai_data from an array of dicts into a table format. This is done using keys returned from determine_keys
+def horizontal_pack(arr_data, this_lookup, sub_key_lookup):
+  # Collect the keys, first:
+  new_arr_data = []
+
+
+  for d in arr_data:
+    if not isinstance(d, (list, tuple, dict)):
+      row = d
+
+    else:
+      row = [None]*len(this_lookup)
+      for k in this_lookup:
+        val = None
+
+        try:
+          val = d[k]
+        except Exception, e:
+          pass
+
+        boxed = False
+        if isinstance(val, (dict)):
+          val = [val]
+          boxed = True
+
+        if isinstance(val, (list, tuple)):
+          val = horizontal_pack(val, sub_key_lookup[k], sub_key_lookup)
+
+        if boxed:
+          val = val.pop()
+
+        row[this_lookup[k]] = val
+
+    new_arr_data.append(row)
+
+  return new_arr_data
+
 # It needs to translate the world data into smaller format
 # words using minification or something.
 def save_to_js_file(world_data, world_turns):
   log.info("Saving %s turns to %s", len(world_turns), settings.JS_REPLAY_FILE)
   f = open(settings.JS_REPLAY_FILE, "w")
   f.write(HTML_SKELETON)
+
   world_data = copy.deepcopy(world_data)
   world_turns = copy.deepcopy(world_turns)
-  translate_array(world_turns, JSLOOKUP, drop_zeroes=True)
+
   translate_dict(world_data, JSLOOKUP)
   f.write("JSLOOKUP = %s;\n" % strip_whitespace((json.dumps(JSLOOKUP))))
   f.write("WORLD_DATA = %s;\n" % (strip_whitespace(json.dumps(world_data))))
-  f.write("WORLD_TURNS = %s;" %( strip_whitespace(json.dumps(world_turns))))
+
+
+  world_turns, ai_turns = zip(*world_turns)
+  world_lookup, world_key_lookups = determine_keys(world_turns)
+  h_arr = horizontal_pack(world_turns, world_lookup, world_key_lookups)
+  f.write("TD_LOOKUP=%s;\n"%(strip_whitespace(json.dumps(world_lookup))));
+  f.write("TD_LOOKUP_SUPPL=%s;\n"%(strip_whitespace(json.dumps(world_key_lookups))));
+  f.write("WORLD_TURNS = %s;\n" %( strip_whitespace(json.dumps(h_arr))))
+
+
+  ai_lookup, ai_key_lookups = determine_keys(ai_turns)
+  h_arr = horizontal_pack(ai_turns, ai_lookup, ai_key_lookups)
+  f.write("AI_LOOKUP = %s;\n" % (strip_whitespace(json.dumps(ai_lookup))))
+  f.write("AI_LOOKUP_SUPPL = %s;\n" % (strip_whitespace(json.dumps(ai_key_lookups))))
+  f.write("AI_TURNS = %s;\n" %( strip_whitespace(json.dumps(h_arr))))
 
   f.write(JS_PLAYER)
   f.write(HTML_SKELETON_END)
