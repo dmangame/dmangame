@@ -54,10 +54,11 @@ HTML_SKELETON = """
 }
 
 #turn_counter {
-  width: 75px;
+  width: 25px;
   text-align: right;
   background: none;
   border: 0px;
+  overflow: visible;
 }
 
 .ai_color_cell {
@@ -88,6 +89,12 @@ HTML_SKELETON = """
 
 }
 
+#rewind {
+  cursor: pointer;
+  display: inline-block;
+  margin: 0 5px;
+  margin-left: 5px;
+}
 #play_direction {
   cursor: pointer;
   display: inline-block;
@@ -100,20 +107,24 @@ HTML_SKELETON = """
 
 </style>
 <div>
+"""
+
+PLAYER_CONTROLS="""
   <div>
     <canvas id="map" style="width: auto; float: left;">
     </canvas>
 
     <div id="map_interactive">
 
+      <span id="rewind"> &lt;&lt; </span>
       <input type="text" id="turn_counter"></input> / <span id="total_turns"></span>
       <span id="play_direction"> &gt; </span>
 
       <select id="playback_speed">
-        <option value="%s">2x</option>
-        <option value="%s" selected="True">1x</option>
-        <option value="%s">1/2 x</option>
-        <option value="%s">1/4 x</option>
+        <option value="{double_speed}">2x</option>
+        <option value="{normal_speed}" selected="True">1x</option>
+        <option value="{half_speed}">1/2 x</option>
+        <option value="{quarter_speed}">1/4 x</option>
       </select>
     </div>
 
@@ -123,7 +134,7 @@ HTML_SKELETON = """
 
 </div>
 <script>
-""" % tuple([ x * 1000 / settings.FPS for x in (0.5,1,2,4)])
+"""
 
 HTML_SKELETON_END= """
 </script>
@@ -161,41 +172,30 @@ mapControlEl.onmouseover = function() {
 }
 
 var playDirectionEl = document.getElementById("play_direction");
+var rewindEl = document.getElementById("rewind");
 
+REWIND=false;
 playDirectionEl.onmouseover = function() {
-    DIRECTION = -1;
-    if (!STOPPED) {
-      playDirectionEl.innerHTML = '&lt;';
-    } else {
-      playDirectionEl.innerHTML = '=';
-    }
-
+    REWIND = true;
 }
 
 playDirectionEl.onmouseout = function() {
-    DIRECTION = 1;
-    playDirectionEl.innerHTML = '&gt;';
-    if (STOPPED) {
-      playDirectionEl.innerHTML = '=';
-    }
+    REWIND = false;
+}
+
+rewindEl.onclick = function() {
+  current_turn = 0;
+  STOPPED=false;
+  startWorld();
 }
 
 STOPPED=false;
 playDirectionEl.onclick = function() {
   if (!STOPPED) {
-    if (TIMER_ID) {
-      clearTimeout(TIMER_ID);
-    }
-    playDirectionEl.innerHTML = '=';
-    STOPPED=true
+    STOPPED=true;
   } else {
+    STOPPED=false;
     startWorld();
-    if (DIRECTION == -1) {
-      playDirectionEl.innerHTML = '&lt;';
-    } else {
-      playDirectionEl.innerHTML = '&gt;';
-    }
-    STOPPED=false
   }
 }
 
@@ -389,38 +389,50 @@ total_turns = WORLD_TURNS.length;
 totalEl.innerHTML = total_turns;
 
 
-TIMER = %s;
+TIMER = ###INTERVAL###;
 
+var spinWorld = function() {
+  if (STOPPED) {
+    playDirectionEl.innerHTML = '=';
+    return;
+  }
+
+  var direction = 1;
+  if (REWIND) {
+    direction = -1;
+    playDirectionEl.innerHTML = '&lt';
+  } else {
+    playDirectionEl.innerHTML = '&gt';
+    direction = 1;
+  }
+
+  if (current_turn < 0) {
+    current_turn = 0;
+  } else if (current_turn >= total_turns) {
+    current_turn = total_turns - 1;
+    STOPPED=true;
+  }
+
+  var turn_data = WORLD_TURNS[current_turn],
+      ai_data   = AI_TURNS[current_turn];
+  if (turn_data) {
+    draw_world(WORLD_DATA, turn_data);
+    draw_ai_scores(ai_data, WORLD_DATA.colors, WORLD_DATA.names);
+    draw_turn_count();
+  } else {
+    if (direction == -1) {
+      return;
+    }
+  }
+  current_turn += direction;
+
+}
 var startWorld = function() {
   if (TIMER_ID) {
     clearTimeout(TIMER_ID);
     TIMER_ID = null;
   }
-  var world_spinner_id = setInterval(function() {
-    if (current_turn < 0) { current_turn = 0; }
-    if (current_turn >= total_turns) {
-      setWorldSpeed(1000);
-      current_turn = total_turns - 1;
-    }
-
-    var turn_data = WORLD_TURNS[current_turn],
-        ai_data   = AI_TURNS[current_turn];
-    if (turn_data) {
-      draw_world(WORLD_DATA, turn_data);
-      draw_ai_scores(ai_data, WORLD_DATA.colors, WORLD_DATA.names);
-      draw_turn_count();
-    } else {
-      if (DIRECTION == -1) {
-        return;
-      }
-
-      if (TIMER_ID) {
-        clearTimeout(TIMER_ID);
-        TIMER_ID=null;
-      }
-    }
-    current_turn += DIRECTION;
-  }, TIMER);
+  var world_spinner_id = setInterval(spinWorld , TIMER);
 
   TIMER_ID =  world_spinner_id;
 }
@@ -436,7 +448,7 @@ var setWorldPosition = function(pos) {
 
 startWorld();
 
-""" % (1000 / settings.FPS)
+"""
 
 def strip_whitespace(st):
   return re.sub('\s', '', st)
@@ -572,7 +584,17 @@ def horizontal_pack(arr_data, this_lookup, sub_key_lookup):
 def save_to_js_file(world_data, world_turns):
   log.info("Saving %s turns to %s", len(world_turns), settings.JS_REPLAY_FILE)
   f = open(settings.JS_REPLAY_FILE, "w")
+
+  speeds = {
+   "half_speed"     : 2 * 1000 / settings.FPS,
+   "quarter_speed"  : 4 * 1000 / settings.FPS,
+   "normal_speed"   : 1 * 1000 / settings.FPS,
+   "double_speed"   : 0.5 * 1000 / settings.FPS,
+  }
+
+
   f.write(HTML_SKELETON)
+  f.write(PLAYER_CONTROLS.format(**speeds))
 
   world_data = copy.deepcopy(world_data)
   world_turns = copy.deepcopy(world_turns)
@@ -581,7 +603,6 @@ def save_to_js_file(world_data, world_turns):
   f.write("JSLOOKUP = %s;\n" % strip_whitespace((json.dumps(JSLOOKUP))))
   f.write("WORLD_DATA = %s;\n" % (strip_whitespace(json.dumps(world_data))))
 
-
   world_turns, ai_turns = zip(*world_turns)
   world_lookup, world_key_lookups = determine_keys(world_turns)
   h_arr = horizontal_pack(world_turns, world_lookup, world_key_lookups)
@@ -589,14 +610,14 @@ def save_to_js_file(world_data, world_turns):
   f.write("TD_LOOKUP_SUPPL=%s;\n"%(strip_whitespace(json.dumps(world_key_lookups))));
   f.write("WORLD_TURNS = %s;\n" %( strip_whitespace(json.dumps(h_arr))))
 
-
   ai_lookup, ai_key_lookups = determine_keys(ai_turns)
   h_arr = horizontal_pack(ai_turns, ai_lookup, ai_key_lookups)
   f.write("AI_LOOKUP = %s;\n" % (strip_whitespace(json.dumps(ai_lookup))))
   f.write("AI_LOOKUP_SUPPL = %s;\n" % (strip_whitespace(json.dumps(ai_key_lookups))))
   f.write("AI_TURNS = %s;\n" %( strip_whitespace(json.dumps(h_arr))))
 
-  f.write(JS_PLAYER)
+  f.write(JS_PLAYER.replace("###INTERVAL###",
+                            str(speeds["normal_speed"])))
   f.write(HTML_SKELETON_END)
   f.close()
 
