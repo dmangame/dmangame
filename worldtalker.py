@@ -78,6 +78,7 @@ class WorldTalker:
     def inRange(self, unit):
         # Find all visible enemy units in range of this unit's firing
         # capabilities.
+        self.checkOwner(unit)
         units = []
         om = self.__world.map.objectMap
         unit_square = om[unit]
