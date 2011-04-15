@@ -623,6 +623,11 @@ def save_to_js_file(world_data, world_turns):
   f.write("TD_LOOKUP_SUPPL=%s;\n"%(strip_whitespace(json.dumps(world_key_lookups))));
   f.write("WORLD_TURNS = %s;\n" %( strip_whitespace(json.dumps(h_arr))))
 
+  # Scrub excess timer info from AIs.
+  for ai_turn in ai_turns:
+    for ai in  ai_turn:
+      del ai['time']
+
   ai_lookup, ai_key_lookups = determine_keys(ai_turns)
   h_arr = horizontal_pack(ai_turns, ai_lookup, ai_key_lookups)
   f.write("AI_LOOKUP = %s;\n" % (strip_whitespace(json.dumps(ai_lookup))))

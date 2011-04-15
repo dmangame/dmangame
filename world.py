@@ -21,6 +21,8 @@ import json
 
 from worldmap import calcDistance
 
+import time
+
 log = logging.getLogger("WORLD")
 
 AI_CYCLE_SECONDS=1.0
@@ -143,6 +145,8 @@ class World:
         self.ai_lost_buildings = defaultdict(set)
         self.ai_new_buildings = defaultdict(set)
 
+        self.execution_times = defaultdict(lambda: defaultdict(int))
+
         self.buildings = {}
         log.info('Adding %s buildings to map', settings.ADDITIONAL_BUILDINGS)
         for i in xrange(settings.ADDITIONAL_BUILDINGS):
@@ -216,11 +220,10 @@ class World:
           # Redistribute all buildings?
           break
 
-        if attempts >= 5:
+        if attempts >= 5 and best_square:
           log.info("Couldn't place building far enough away after five tries, taking last guess")
           rand_square = best_square
           break
-
 
       self.map.placeObject(b, rand_square)
       return b
@@ -282,12 +285,16 @@ class World:
 
     def spinAI(self):
       for ai in self.AI:
+        if not self.ai_units[ai.ai_id]:
+          continue
+
+        start_time = time.time()
         if settings.PROFILE:
-          # The AI only turns when it has units.
-          if self.ai_units[ai.ai_id]:
-            ai.turn()
+          ai.turn()
         else:
           self.threadedSpin(ai)
+        end_time = time.time()
+        self.execution_times[self.currentTurn][ai] = end_time - start_time
 
     # Private Functions
     def __handleShootEvent(self, event, garbage, to_queue):
@@ -849,7 +856,18 @@ class World:
       for ai in self.AI:
         team = ai.team
         score = scores[team]
-        ai_datum = { "team" : team, "units" : score["units"], "shooting" : 0, "capturing" : 0, "moving" : 0, "kills" : score["kills"], "idle" : 0, "buildings" : score["buildings"], "deaths" : score["deaths"] }
+        ai_datum = { 
+                     "team"         : team,
+                     "units"        : score["units"],
+                     "shooting"     : 0,
+                     "capturing"    : 0,
+                     "moving"       : 0,
+                     "kills"        : score["kills"],
+                     "idle"         : 0,
+                     "buildings"    : score["buildings"],
+                     "deaths"       : score["deaths"],
+                     "time"         : self.execution_times[self.currentTurn-1][ai],
+                   }
         for unit in self.units:
           status = self.unitstatus[unit]
           if self.units[unit].ai != ai:

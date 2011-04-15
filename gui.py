@@ -122,9 +122,17 @@ class MapGUI:
           labels[stat] = gtk.Label("%s: 0" % (stat))
           hbox.pack_start(labels[stat])
 
+        ai_misc_box = gtk.HBox()
+
         kill_label = gtk.Label("kills: 0")
-        vbox.pack_start(kill_label, False)
+        ai_misc_box.pack_start(kill_label, True)
         labels['kills'] = kill_label
+
+        time_label = gtk.Label("time: 0")
+        ai_misc_box.pack_start(time_label, True)
+        labels['time'] = time_label
+
+        vbox.pack_start(ai_misc_box, False)
 
         b_chart = pygtk_chart.bar_chart.BarChart()
         vbox.pack_start(b_chart)
@@ -198,6 +206,10 @@ class MapGUI:
         self.update_ai_stats(ai_data, world_data["colors"])
 
     def update_ai_stats(self, ai_data, colors):
+        total_exec_time = 0
+        for a in ai_data:
+          total_exec_time += a['time']
+
         for ai_datum in ai_data:
           team = ai_datum["team"]
           labels, b_chart = self.ai_drawables[team]
@@ -213,6 +225,9 @@ class MapGUI:
             labels[k].set_text("%s: %s" % (k[0], v))
           v = ai_datum[k]
           labels['kills'].set_text("kills: %s" % (ai_datum['kills']))
+
+          cpu_time = ai_datum['time'] / total_exec_time * 100
+          labels['time'].set_text("CPU %%: %2i" % (cpu_time))
 
         self.key_area.show_all()
 

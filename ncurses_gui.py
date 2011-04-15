@@ -37,16 +37,16 @@ class NcursesGui:
 
     self.turn_win = curses.newwin(1, total_width, 0, 0)
 
-    self.score_wins = {}
+    self.score_wins = []
 
     max_columns = total_width / min_width
     max_rows = total_height / min_height
 
     w_d = l
     h_d = l
-    if max_columns > l:
+    if max_columns >= l:
       h_d = 1
-    elif max_rows > l:
+    elif max_rows >= l:
       w_d = 1
     else:
       w_d = max_rows
@@ -58,10 +58,9 @@ class NcursesGui:
     cur_x = 0
     cur_y = 2
     for x in xrange(l):
-      print cur_y, cur_x
       ai = w.AI[x]
       score_win = curses.newwin(height, width, cur_y, cur_x)
-      self.score_wins[ai.team] = score_win
+      self.score_wins.append(score_win)
 
       cur_x += width
 
@@ -72,7 +71,7 @@ class NcursesGui:
 
   def update(self, t, s):
     self.draw(t,s)
-    map(lambda s: s.noutrefresh(), self.score_wins.values())
+    map(lambda s: s.noutrefresh(), self.score_wins)
     self.turn_win.noutrefresh()
     curses.doupdate()
 
@@ -80,10 +79,13 @@ class NcursesGui:
   # approximate it as well as possible. Right?
   # For now, just draw the turn counter and update ai scores
   def draw(self, turns, scores):
-    self.draw_turns(turns)
-    self.draw_scores(scores)
+    total_exec_time = 0
+    for ai_team in scores:
+      total_exec_time += ai_team["time"]
+    self.draw_turns(turns, total_exec_time)
+    self.draw_scores(scores, total_exec_time)
 
-  def draw_turns(self, turns):
+  def draw_turns(self, turns, exec_time):
     # need to histogram the number of turns calculated in the
     # last second.
     cur_second = int(time.time())
@@ -100,14 +102,17 @@ class NcursesGui:
     turn = str(turns["currentturn"])
     try:
       self.turn_win.erase()
-      self.turn_win.addstr("%s (%s/sec)" % (turn, avg_secs))
+      self.turn_win.addstr("%s (%s/sec) (AI used: %.03f sec)" % (turn, avg_secs, exec_time))
     except:
       pass
 
-  def draw_scores(self, scores):
+  def draw_scores(self, scores, total_exec_time):
+    scores.sort(key=lambda a: a["units"], reverse=True)
+    scores.sort(key=lambda a: a["buildings"], reverse=True)
+    score_win_iter = iter(self.score_wins)
     for ai_team in scores:
       team = ai_team["team"]
-      win = self.score_wins[team]
+      win = next(score_win_iter)
 
       ai_class = self.w.team_map[team].__class__.__name__
       s_str = "%s %s\n"%(team, ai_class)
@@ -116,6 +121,12 @@ class NcursesGui:
 
       for k in ['units', 'kills', 'deaths', 'buildings' ]:
         s_str += "\n  %s:%s" % (k, ai_team[k])
+
+      e_time = ai_team["time"]
+      if total_exec_time:
+        s_str += "\nTime: %i%%\n" % (e_time / total_exec_time * 100)
+
+#      self.times[ai].append(ai_team["time"])
 
       try:
         win.erase()
