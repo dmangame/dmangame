@@ -33,6 +33,9 @@ class BareAI(object):
 
     @property
     def team(self):
+        """
+        The team of this AI instance
+        """
         return self.__team
 
     @property
@@ -41,18 +44,30 @@ class BareAI(object):
 
     @property
     def new_units(self):
+        """
+        Returns all units that were spawned this turn for this AI instance
+        """
         return self.wt.getNewUnits()
 
     @property
     def dead_units(self):
+        """
+        Returns all units that died the past turn for this AI instance.
+        """
         return self.wt.getDeadUnits()
 
     @property
     def new_buildings(self):
+        """
+        Returns all buildings that were captured the past turn by this AI instance.
+        """
         return self.wt.getNewBuildings()
 
     @property
     def lost_buildings(self):
+        """
+        Returns all buildings that were lost this past turn by this AI instance.
+        """
         return self.wt.getLostBuildings()
 
 
