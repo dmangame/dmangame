@@ -302,8 +302,14 @@ def end_game():
     from lib import jsplayer
     jsplayer.save_to_js_file(m.world_data, m.world_turns)
 
-  for ai in m.world.AI:
-    log.info("%s:%s", ai.__class__.__name__, ai.score)
+  last_ai_data = m.world_turns[-1][1]
+  log.info("END GAME SCORES")
+  for t in last_ai_data:
+    team = t["team"]
+    ai_class = m.world.team_map[team].__class__
+    log.info("%s\t%s", team, ai_class.__name__)
+    for k in t:
+      log.info("  %s:\t%s", k, t[k])
 
 def end_threads(*args, **kwargs):
   for proc in m.processes:
