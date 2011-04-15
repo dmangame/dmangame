@@ -58,11 +58,12 @@ def parseOptions():
                       help="ignore AI exceptions")
     parser.add_option("-n", "--ncurses",
                       action="store_true", dest="ncurses",
+                      help="use curses output module, use with -c",
                       default=False)
     parser.add_option("-p", "--profile",
                       action="store_true", dest="profile",
+                      help="enable profiling with cProfile",
                       default=False)
-
     parser.add_option("-o", "--output",
                       dest="replay_file",
                       help="create HTML replay file")
