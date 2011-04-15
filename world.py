@@ -22,7 +22,6 @@ import json
 from worldmap import calcDistance
 
 log = logging.getLogger("WORLD")
-logging.basicConfig(level=logging.INFO)
 
 AI_CYCLE_SECONDS=1.0
 # There are three types of events that can exist:

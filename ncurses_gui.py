@@ -6,10 +6,9 @@ import logging
 # Check that both stdout and stderr are redirected if using NCURSES
 
 def redirect_outputs():
-  f = open('game.log', 'w')
-  print("Redirecting game output to game.log")
+  f = open('game.out', 'w')
+  print("Redirecting game output to game.out")
 
-  logging.disable(logging.INFO)
   # Redirect stdout
   if sys.stdout.isatty(): sys.stdout = f
   # Redirect stderr

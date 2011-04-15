@@ -117,6 +117,7 @@ def loadMap(filename):
 
 def run_game():
   options, args = parseOptions()
+  logger_stream = None
   ais = loadAI(args)
   loadMap(options.map)
   settings.IGNORE_EXCEPTIONS = not options.whiny
@@ -131,6 +132,10 @@ def run_game():
 
   if options.ncurses:
     settings.NCURSES = True
+    print "Logging game to game.log"
+    logger_stream = open("game.log", "w")
+
+  logging.basicConfig(level=logging.INFO, stream=logger_stream)
 
   ui = cli if options.cli or IMPORT_GUI_FAILURE else gui
 
@@ -146,6 +151,7 @@ def run_game():
 
 
 def main():
+
   options, args = parseOptions()
   log.info(options)
   if options.profile:
