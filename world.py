@@ -635,8 +635,12 @@ class World:
         self.ai_new_buildings
 
     def __calcVisibility(self):
-        self.visibleunits.clear()
-        self.visiblebuildings.clear()
+        old_visibleunits = self.visibleunits
+        old_visiblebuildings = self.visiblebuildings
+
+        self.visibleunits = defaultdict(set)
+        self.visiblebuildings = defaultdict(set)
+
         om = self.map.objectMap
         ai_ids = self.ai_units.keys()
         ai_id_l = len(ai_ids)
