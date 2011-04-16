@@ -652,34 +652,55 @@ class World:
         ai_ids = self.ai_units.keys()
         ai_id_l = len(ai_ids)
 
+        for unit in self.units:
+          unit_square = om[unit]
+          stats = self.units[unit]
+          sight = stats.sight
+          # Then just loop through buildings
+          # It seems like this happens more than necessary?
+          for building in self.buildings:
+            try:
+              if calcDistance(unit_square, om[building]) <= sight:
+                  self.visiblebuildings[unit].add(building)
+                  self.visiblebuildings[stats.ai.ai_id].add(building)
+            except KeyError:
+              pass
+
+
         for i in xrange(ai_id_l):
           ai_id = ai_ids[i]
           ai_units = self.ai_units[ai_id]
           ai_vis_obj = self.visibleunits[ai_id]
           ai_vis_bldg = self.visiblebuildings[ai_id]
-          for unit in ai_units:
-            if not unit in self.units:
-              continue
 
-            stats = self.units[unit]
-            unit_square = om[unit]
-            unit_vis_obj = self.visibleunits[unit]
-            unit_vis_bldg = self.visiblebuildings[unit]
-            sight = stats.sight
+          # Do a all pairs add of unit visibility
+          for j in xrange(i+1, ai_id_l):
+            other_ai_id = ai_ids[j]
+            other_units = self.ai_units[other_ai_id]
+            other_ai_vis_obj = self.visibleunits[other_ai_id]
 
-            # Do a all pairs add of unit visibility
-            for j in xrange(i+1, ai_id_l):
-              other_ai_id = ai_ids[j]
+            for unit in ai_units:
+              stats = self.units[unit]
+              sight = stats.sight
+              unit_square = om[unit]
 
-              other_units = self.ai_units[other_ai_id]
-              other_ai_vis_obj = self.visibleunits[other_ai_id]
+              unit_vis_obj = self.visibleunits[unit]
+              unit_vis_bldg = self.visiblebuildings[unit]
+
 
               for other_unit in other_units:
                 other_unit_vis_obj = self.visibleunits[other_unit]
                 enemy_sight = self.units[other_unit].sight
                 obj_square = om[other_unit]
 
-                dist = calcDistance(unit_square, obj_square)
+                # This should be more optimized, right?
+                x_block_dist = abs(unit_square[0] - obj_square[0])
+                y_block_dist = abs(unit_square[1] - obj_square[1])
+
+                if x_block_dist + y_block_dist >= sight:
+                  continue
+
+                dist = math.sqrt(x_block_dist**2 + y_block_dist**2)
 
                 if dist <= sight:
                   unit_vis_obj.add(other_unit)
@@ -688,15 +709,6 @@ class World:
                 if dist <= enemy_sight:
                   other_unit_vis_obj.add(unit)
                   other_ai_vis_obj.add(unit)
-
-            # Then just loop through buildings
-            for building in self.buildings:
-              try:
-                if calcDistance(unit_square, om[building]) <= sight:
-                    unit_vis_bldg.add(building)
-                    ai_vis_bldg.add(building)
-              except KeyError:
-                pass
 
     # The game is over when there all buildings and units are
     # owned by one AI.
@@ -856,7 +868,7 @@ class World:
       for ai in self.AI:
         team = ai.team
         score = scores[team]
-        ai_datum = { 
+        ai_datum = {
                      "team"         : team,
                      "units"        : score["units"],
                      "shooting"     : 0,
