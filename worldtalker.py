@@ -312,7 +312,7 @@ class WorldTalker:
                     continue
                 f_locals = frame.f_locals
                 try:
-                    if issubclass(f_locals['self'].__class__, ai.AI):
+                    if issubclass(f_locals['self'].__class__, ai.BareAI):
                         ai_id = f_locals['self'].ai_id
                         return ai_id
                 except KeyError:

@@ -1,5 +1,6 @@
 import base
 
+BareAI = base.BareAI
 AI = base.AI
 AI_COLORS = {}
 
