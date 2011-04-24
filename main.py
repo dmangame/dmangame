@@ -52,6 +52,9 @@ def parseOptions():
     parser.add_option("-q", "--quiet",
                       action="store_false", dest="verbose", default=True,
                       help="don't print status messages to stdout")
+    parser.add_option("--hl", "--highlight",
+                      action="store_true", dest="highlight",
+                      help="Show debugging highlights")
     parser.add_option("-i", "--ignore",
                       action="store_false", dest="whiny",
                       default=True,
@@ -135,6 +138,9 @@ def run_game():
     settings.NCURSES = True
     print "Logging game to game.log"
     logger_stream = open("game.log", "w")
+
+  if options.highlight:
+    settings.SHOW_HIGHLIGHTS = True
 
   logging.basicConfig(level=logging.INFO, stream=logger_stream)
 

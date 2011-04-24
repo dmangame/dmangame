@@ -362,4 +362,13 @@ class WorldTalker:
         if ai_id == self.getID():
             return self.__scores_cached[team]
 
+    def highlightLine(self, ai, start, end):
+        self.__world.highlightLine(ai, start, end)
+
+    def highlightRegion(self, ai, start, end):
+        self.__world.highlightRegion(ai, start, end)
+
+    def clearHighlights(self, ai):
+        self.__world.clearHighlights(ai)
+
 # vim: set expandtab shiftwidth=4 softtabstop=4 textwidth=79:

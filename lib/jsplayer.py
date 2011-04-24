@@ -29,6 +29,9 @@ JSLOOKUP = {
   "speed"        : "s",
   "position"     : "t",
   "id"           : "u",
+  "region"       : "v",
+  "highlights"   : "w",
+  "line"         : "y",
 }
 
 HTML_SKELETON = """
@@ -394,6 +397,34 @@ function draw_world(world_data, turn_data) {
         context.fillStyle = color_str;
         context.fillRect(deltax*x-(count/2*deltax), deltay*y-(count/2*deltay), count*deltax, count*deltay);
   }; // End collision drawing
+
+  // Draw highlights
+  for (h in turn_data[TD_LOOKUP.highlights]) {
+    var highlight_data = turn_data[TD_LOOKUP.highlights][h];
+    var start = highlight_data[TD_LOOKUP_SUPPL.highlights.start],
+        end = highlight_data[TD_LOOKUP_SUPPL.highlights.end],
+        team = highlight_data[TD_LOOKUP_SUPPL.highlights.team],
+        color = world_data.colors[team],
+        alpha_color = (color[0], color[1], color[2], 0.25),
+        shape = highlight_data[TD_LOOKUP_SUPPL.highlights.shape];
+        color_str = "rgba("+color[0]*255+","+color[1]*255+","+color[2]*255+", 0.1)";
+
+    context.fillStyle = color_str;
+    context.strokeStyle = color_str;
+    if (shape == "region") {
+      context.fillRect(deltax*start[0], deltay*start[1], deltax*end[0], deltax*end[1]);
+    }
+    if (shape == "line") {
+      context.lineWidth = deltax / 2;
+      context.beginPath();
+      context.moveTo(deltax*start[0], deltay*start[1]);
+      context.lineTo(deltax*end[0], deltay*end[1]);
+      context.closePath();
+      context.stroke();
+    }
+
+  };
+
 }
 
 DIRECTION=1;

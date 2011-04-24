@@ -119,6 +119,25 @@ def draw_map(cairo_context, width, height, world_data, turn_data):
       cairo_context.rectangle(deltax*x-(count/2*deltax), deltay*y-(count/2*deltay), count*deltax, count*deltay)
       cairo_context.fill()
 
+  for highlight in turn_data["highlights"]:
+      start = highlight["start"]
+      end   = highlight["end"]
+      team = highlight["team"]
+      color = world_data["colors"][team]
+      alpha_color = (color[0], color[1], color[2], .25)
+      shape = highlight["shape"]
+
+      cairo_context.set_source_rgba(*alpha_color)
+      cairo_context.set_dash([deltax/2], 2)
+
+      if "region" == shape:
+        cairo_context.rectangle(start[0]*deltax, start[1]*deltay, end[0]*deltax, end[1]*deltay)
+        cairo_context.stroke()
+      elif "line" == shape:
+        cairo_context.move_to(start[0]*deltax+midx, start[1]*deltay+midy)
+        cairo_context.line_to(end[0]*deltax+midx, end[1]*deltay+midy)
+        cairo_context.stroke()
+
 
   if settings.SAVE_IMAGES:
     surface.write_to_png("_output_%02i.png"%world_data["currentturn"])

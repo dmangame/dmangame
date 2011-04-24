@@ -144,6 +144,8 @@ class World:
         self.ai_dead_units = defaultdict(set)
         self.ai_lost_buildings = defaultdict(set)
         self.ai_new_buildings = defaultdict(set)
+        self.ai_highlighted_regions = defaultdict(set)
+        self.ai_highlighted_lines = defaultdict(set)
 
         self.execution_times = defaultdict(lambda: defaultdict(int))
 
@@ -638,8 +640,8 @@ class World:
 
         # This contains information from this turn that's
         # passed to AIs
-        self.ai_lost_buildings
-        self.ai_new_buildings
+        self.ai_lost_buildings.clear()
+        self.ai_new_buildings.clear()
 
     def __calcVisibility(self):
         old_visibleunits = self.visibleunits
@@ -798,6 +800,25 @@ class World:
         else:
             raise ai_exceptions.IllegalCaptureEvent("The unit is not in the building.")
 
+    def highlightLine(self, ai, start, end):
+      self.ai_highlighted_lines[ai].add((start, end))
+
+    def highlightRegion(self, ai, start, end=None):
+      if not end:
+        width = 1
+        height = 1
+      else:
+        width = end[0] - start[0]
+        height = end[1] - start[1]
+
+      self.ai_highlighted_regions[ai].add((start, (width, height)))
+
+    def clearHighlights(self, ai):
+      if ai in self.ai_highlighted_regions:
+        del self.ai_highlighted_regions[ai]
+      if ai in self.ai_highlighted_lines:
+        del self.ai_highlighted_lines[ai]
+
     # GETTERS
     def getPendingEvents(self):
         return self.events
@@ -941,12 +962,12 @@ class World:
 
 
     def dumpTurnToDict(self, shorten=False):
-      turn_data = {  "units" : [],
-                     "buildings" : [],
-                     "bullets" : [],
-                     "currentturn" : self.currentTurn,
-                     "collisions"  : [] }
-
+      turn_data = {  "buildings"      : [],
+                     "bullets"        : [],
+                     "collisions"     : [],
+                     "currentturn"    : self.currentTurn,
+                     "highlights"       : [],
+                     "units"          : [] }
 
       for unit in self.units:
         unit_data = {"position" : self.map.getPosition(unit),
@@ -991,6 +1012,25 @@ class World:
                            "count" : count,
                            "survivor" : survivor }
         turn_data["collisions"].append(collision_data)
+
+      if settings.SHOW_HIGHLIGHTS:
+        for ai in self.ai_highlighted_regions:
+          for region in self.ai_highlighted_regions[ai]:
+            highlight_data = { "start" : region[0],
+                               "end"   : region[1],
+                               "team"  : ai.team,
+                               "shape" : "region" }
+
+            turn_data["highlights"].append(highlight_data)
+
+        for ai in self.ai_highlighted_lines:
+          for line in self.ai_highlighted_lines[ai]:
+            highlight_data = { "start" : line[0],
+                               "end"   : line[1],
+                               "team"  : ai.team,
+                               "shape" : "line" }
+
+            turn_data["highlights"].append(highlight_data)
 
       return turn_data
 

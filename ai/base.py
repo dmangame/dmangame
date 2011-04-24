@@ -120,6 +120,14 @@ class BareAI(object):
         return self.wt.getCurrentTurn()
     current_turn = property(currentTurn)
 
+    def highlightLine(self, start, end):
+        self.wt.highlightLine(self, start, end)
+
+    def highlightRegion(self, start, end=None):
+        self.wt.highlightRegion(self, start, end)
+
+    def clearHighlights(self):
+        self.wt.clearHighlights(self)
 
     # Overrode definitions
     def init(self):
