@@ -660,7 +660,16 @@ class World:
           # It seems like this happens more than necessary?
           for building in self.buildings:
             try:
-              if calcDistance(unit_square, om[building]) <= sight:
+              obj_square = om[building]
+
+              # This should be more optimized, right?
+              x_block_dist = abs(unit_square[0] - obj_square[0])
+              y_block_dist = abs(unit_square[1] - obj_square[1])
+              if x_block_dist + y_block_dist >= sight*2:
+                continue
+
+              dist = math.sqrt(x_block_dist**2 + y_block_dist**2)
+              if dist <= sight:
                   self.visiblebuildings[unit].add(building)
                   self.visiblebuildings[stats.ai.ai_id].add(building)
             except KeyError:
@@ -680,8 +689,7 @@ class World:
             other_ai_vis_obj = self.visibleunits[other_ai_id]
 
             for unit in ai_units:
-              stats = self.units[unit]
-              sight = stats.sight
+              sight = self.units[unit].sight
               unit_square = om[unit]
 
               unit_vis_obj = self.visibleunits[unit]
@@ -689,15 +697,14 @@ class World:
 
 
               for other_unit in other_units:
-                other_unit_vis_obj = self.visibleunits[other_unit]
-                enemy_sight = self.units[other_unit].sight
                 obj_square = om[other_unit]
 
                 # This should be more optimized, right?
                 x_block_dist = abs(unit_square[0] - obj_square[0])
                 y_block_dist = abs(unit_square[1] - obj_square[1])
 
-                if x_block_dist + y_block_dist >= sight:
+                enemy_sight = self.units[other_unit].sight
+                if x_block_dist + y_block_dist >= max(sight, enemy_sight)*2:
                   continue
 
                 dist = math.sqrt(x_block_dist**2 + y_block_dist**2)
@@ -706,6 +713,7 @@ class World:
                   unit_vis_obj.add(other_unit)
                   ai_vis_obj.add(other_unit)
 
+                other_unit_vis_obj = self.visibleunits[other_unit]
                 if dist <= enemy_sight:
                   other_unit_vis_obj.add(unit)
                   other_ai_vis_obj.add(unit)
