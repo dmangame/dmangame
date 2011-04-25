@@ -15,8 +15,6 @@ import logging
 from lib import jsplayer
 log = logging.getLogger("CLI")
 
-LIFESPAN = 10000
-
 import sys
 import os
 
@@ -49,7 +47,7 @@ def main(ai_classes=[]):
   turns_left = settings.END_GAME_TURNS
   if settings.NCURSES:
     ncurses.init(w)
-  for i in xrange(LIFESPAN):
+  for i in xrange(settings.GAME_LENGTH):
       w.spinAI()
       if w.Turn():
         if turns_left > 0:

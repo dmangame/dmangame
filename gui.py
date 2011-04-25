@@ -256,6 +256,10 @@ class MapGUI:
         try:
             while not self.stopped:
 
+              if self.world.currentTurn >= settings.GAME_LENGTH:
+                self.frame_queue.put((None, None))
+                break
+
               while self.frame_queue.full():
                 if self.stopped:
                   sys.exit(0)

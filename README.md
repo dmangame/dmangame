@@ -110,8 +110,8 @@ finish a capture event or attack.
 
 ### End game ###
 
-The game ends when only one AI owns all units and buildings or LIFESPAN turns
-have passed.  If the game ends when LIFESPAN turns have passed, it is
+The game ends when only one AI owns all units and buildings or GAME\_LENGTH turns
+have passed.  If the game ends when GAME\_LENGTH turns have passed, it is
 considered a draw.
 
 ##Writing an AI##
