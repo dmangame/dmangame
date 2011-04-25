@@ -42,7 +42,7 @@ If not, then just python.
     # Play on a specific map
     python main.py ai/capture.ai ai/killncapture.py -m maps/micro.py
 
-    # You run the world with any number of AIs
+    # You can run the world with any number of AIs
     python main.py ai/capture.ai ai/killncapture.py ai/sharkai.py ai/basepatroller.py
 
     # ignore any errors that an AI has. Any actions taken before the AI errored
@@ -131,7 +131,7 @@ should interact with its units and issue commands. Whenever a
 unit is spawned by a building, its AI is notified via the
 \_unit\_spawned(unit) call. Whenever a unit dies, the AI is notified via a \_unit\_died(unit) call.
 
-NOTE: During unit_spawned and unit_died, the unit will not have proper
+NOTE: During unit\_spawned and unit\_died, the unit will not have proper
 visibility and should not really interact with the game world - just with the
 AI internal bookkeeping.
 
@@ -222,7 +222,7 @@ The [dmanai][d_src] repository contains AIs for dmangame.
 [d_src]:http://github.com/okayzed/dmanai
 
 
-## AI API ##
+## API ##
 
 See ai/base.py for the available AI functions, and look in ai/ for more example AIs.
 
@@ -240,9 +240,25 @@ to do your own book keeping), you can subclass from ai.BareAI
     def turn(self)
     def init(self)
 
-##Unit API##
+## Security ##
 
-The most up to date API information is in unit.py
+There are two parts to the security in this game. First, an AI is only allowed
+to control its own units. Meaning, a unit can only be given orders by the AI
+that owns it. The other half of the security is releasing information to each
+AI only as the AI becomes aware of it.  Specifically, an AI should only be able
+to examine objects that are currently visible to its units. Using introspection
+and frame crawling, the code does a basic verification on each AI.
+
+However, the game is implemented in python and all the AIs run in the same
+process, so it is possible for an AI to work around the security measures in
+the game to gain access to more information than it should have or control
+another AIs unit.
+
+I've briefly looked at a few ideas, but it comes down to this: a process in
+memory can not adequately protect itself from its own code. For there to be any
+semblance of security, the world and each AI would have to run in its own
+process. That would add complexity and performance overhead that I am not
+interested in dealing with at the moment.
 
 See Also:
 ---------
