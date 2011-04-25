@@ -20,6 +20,8 @@ SAVE_IMAGES=False
 IGNORE_EXCEPTIONS=False
 PROFILE=False
 NCURSES=False
+
+# Set of AI classes to show map debugging information for.
 SHOW_HIGHLIGHTS=set()
 
 BUILDING_SPAWN_DISTANCE=5
