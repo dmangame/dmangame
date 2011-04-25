@@ -53,8 +53,8 @@ def parseOptions():
                       action="store_false", dest="verbose", default=True,
                       help="don't print status messages to stdout")
     parser.add_option("--hl", "--highlight",
-                      action="store_true", dest="highlight",
-                      help="Show debugging highlights")
+                      action="append", dest="highlight",
+                      default=None, help="Show debugging highlights")
     parser.add_option("-i", "--ignore",
                       action="store_false", dest="whiny",
                       default=True,
@@ -74,7 +74,7 @@ def parseOptions():
     return options,args
 
 
-def loadAI(ais):
+def loadAI(ais, highlight=False):
     if not ais:
       return
 
@@ -122,7 +122,13 @@ def loadMap(filename):
 def run_game():
   options, args = parseOptions()
   logger_stream = None
-  ais = loadAI(args)
+
+  ais = loadAI(args, highlight=True) or []
+  highlighted_ais = loadAI(options.highlight, highlight=True)
+  if highlighted_ais:
+    ais.extend(highlighted_ais)
+    settings.SHOW_HIGHLIGHTS = set(highlighted_ais)
+
   loadMap(options.map)
   settings.IGNORE_EXCEPTIONS = not options.whiny
   if options.save_images:
@@ -138,9 +144,6 @@ def run_game():
     settings.NCURSES = True
     print "Logging game to game.log"
     logger_stream = open("game.log", "w")
-
-  if options.highlight:
-    settings.SHOW_HIGHLIGHTS = True
 
   logging.basicConfig(level=logging.INFO, stream=logger_stream)
 

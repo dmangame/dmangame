@@ -1013,24 +1013,28 @@ class World:
                            "survivor" : survivor }
         turn_data["collisions"].append(collision_data)
 
-      if settings.SHOW_HIGHLIGHTS:
-        for ai in self.ai_highlighted_regions:
-          for region in self.ai_highlighted_regions[ai]:
-            highlight_data = { "start" : region[0],
-                               "end"   : region[1],
-                               "team"  : ai.team,
-                               "shape" : "region" }
+      for ai in self.ai_highlighted_regions:
+        if not ai.__class__ in settings.SHOW_HIGHLIGHTS:
+          continue
 
-            turn_data["highlights"].append(highlight_data)
+        for region in self.ai_highlighted_regions[ai]:
+          highlight_data = { "start" : region[0],
+                             "end"   : region[1],
+                             "team"  : ai.team,
+                             "shape" : "region" }
 
-        for ai in self.ai_highlighted_lines:
-          for line in self.ai_highlighted_lines[ai]:
-            highlight_data = { "start" : line[0],
-                               "end"   : line[1],
-                               "team"  : ai.team,
-                               "shape" : "line" }
+          turn_data["highlights"].append(highlight_data)
 
-            turn_data["highlights"].append(highlight_data)
+      for ai in self.ai_highlighted_lines:
+        if not ai in settings.SHOW_HIGHLIGHTS:
+          continue
+        for line in self.ai_highlighted_lines[ai]:
+          highlight_data = { "start" : line[0],
+                             "end"   : line[1],
+                             "team"  : ai.team,
+                             "shape" : "line" }
+
+          turn_data["highlights"].append(highlight_data)
 
       return turn_data
 

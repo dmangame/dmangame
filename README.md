@@ -27,8 +27,11 @@ If not, then just python.
     # Play with graphics (you probably want this)
     python main.py ai/captureai.py ai/killncapture.py
 
-    # Play without graphics
+    # Play without graphics. 
     python main.py ai/capture.ai ai/killncapture.py -c
+
+    # Use NCURSES GUI
+    python main.py ai/capture.ai ai/killncapture.py -cn
 
     # Generate a web replay
     # NOTE: This file is a massive JSON crusty file. If you want to copy it
@@ -36,17 +39,18 @@ If not, then just python.
     # it.
     python main.py ai/capture.ai ai/killncapture.py -c -o replay.html
 
-
-
     # Play on a specific map
     python main.py ai/capture.ai ai/killncapture.py -m maps/micro.py
 
-    # Run with any number of AIs
+    # You run the world with any number of AIs
     python main.py ai/capture.ai ai/killncapture.py ai/sharkai.py ai/basepatroller.py
 
     # ignore any errors that an AI has. Any actions taken before the AI errored
     # are still carried out.
     python main.py -i ai/capture.ai ai/killncapture.py
+
+    # Show AI debug highlighting for AIs. Only simpleAI gets highlighting.
+    python main.py --hl ai/simpleai.py ai/basepatroller.py
 
     # Help
     python main.py --help
