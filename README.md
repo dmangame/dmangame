@@ -16,6 +16,20 @@ objective is to crush its enemies and hear the lamentation of their pixels.
 
 Your objective is to code this AI.
 
+## What it looks like ##
+
+Here's [an example game][replay] (saved using the -o option).
+
+[replay]:http://okayzed.github.com/dmangame/circleblaster_vs_expand.html
+
+The little moving dots inside transparent circles are units. The circle is the
+unit's field of vision.  The line behind the unit is its path from their
+location on the previous turn. Sometimes they shoot bullets (the slightly
+thinner line) towards other units.
+
+The stationary black outlined dots are buildings. Notice how buildings spawn
+units at the same time.
+
 ## Dependencies ##
 
 If using graphics, pygtk (which should include cairo).
@@ -30,7 +44,7 @@ If not, then just python.
     # Play without graphics and a web replay. Open output.html to view the game replay.
     # NOTE: This file is a massive JSON crusty file. If you want to copy it
     # somewhere, make sure to compress it (scp -C) or gzip it first.
-    python main.py ai/capture.ai ai/killncapture.py -c -o output.html 
+    python main.py ai/capture.ai ai/killncapture.py -c -o output.html
 
     # Use NCURSES GUI (Game output gets saved to game.log and game.out)
     python main.py ai/capture.ai ai/killncapture.py -cn
@@ -39,7 +53,7 @@ If not, then just python.
     python main.py ai/capture.ai ai/killncapture.py -m maps/micro.py
 
     # Show AI debug highlighting for AIs.
-    # Note: Each AI must have --hl before it to enable highlighting. 
+    # Note: Each AI must have --hl before it to enable highlighting.
     # In this instance, only simpleAI gets highlighting.
     python main.py --hl ai/simpleai.py ai/basepatroller.py
 
