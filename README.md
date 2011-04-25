@@ -24,43 +24,34 @@ If not, then just python.
 
 ## Playing ##
 
-    # Play with graphics (you probably want this)
+    # Play with graphics
     python main.py ai/captureai.py ai/killncapture.py
 
-    # Play without graphics. 
-    python main.py ai/capture.ai ai/killncapture.py -c
-
-    # Use NCURSES GUI
-    python main.py ai/capture.ai ai/killncapture.py -cn
-
-    # Generate a web replay
+    # Play without graphics and a web replay. Open output.html to view the game replay.
     # NOTE: This file is a massive JSON crusty file. If you want to copy it
-    # somewhere, make sure to compress it (scp -C) or use gzip before sending
-    # it.
-    python main.py ai/capture.ai ai/killncapture.py -c -o replay.html
+    # somewhere, make sure to compress it (scp -C) or gzip it first.
+    python main.py ai/capture.ai ai/killncapture.py -c -o output.html 
+
+    # Use NCURSES GUI (Game output gets saved to game.log and game.out)
+    python main.py ai/capture.ai ai/killncapture.py -cn
 
     # Play on a specific map
     python main.py ai/capture.ai ai/killncapture.py -m maps/micro.py
 
-    # You can run the world with any number of AIs
-    python main.py ai/capture.ai ai/killncapture.py ai/sharkai.py ai/basepatroller.py
-
-    # ignore any errors that an AI has. Any actions taken before the AI errored
-    # are still carried out.
-    python main.py -i ai/capture.ai ai/killncapture.py
-
-    # Show AI debug highlighting for AIs. Only simpleAI gets highlighting.
+    # Show AI debug highlighting for AIs.
+    # Note: Each AI must have --hl before it to enable highlighting. 
+    # In this instance, only simpleAI gets highlighting.
     python main.py --hl ai/simpleai.py ai/basepatroller.py
 
     # Help
     python main.py --help
 
-##Game Play##
-
 ## Game Mechanics ##
 
+Note: upper case words are variables defined in settings.py or a map with the -m option.
+
 ### World ###
-The world is a 2dimensional square that is MAP_SIZExMAP_SIZE. There are 3 main
+The world is a 2dimensional square that is MAP\_SIZExMAP\_SIZE. There are 3 main
 objects that exist in the game world: units, buildings and bullets.
 
 ### Units ###
@@ -74,15 +65,15 @@ buildings.
 
 ### Buildings ###
 
-Buildings are stationary objects that spawn a new Unit every UNIT_SPAWN_MOD
+Buildings are stationary objects that spawn a new Unit every UNIT\_SPAWN\_MOD
 turns for the AI that owns the Building. A building can be captured by another
 AI through its units. To capture a building, a unit must step inside it and
-begin capturing. If the unit can stay there for CAPTURE_LENGTH turns without
+begin capturing. If the unit can stay there for CAPTURE\_LENGTH turns without
 shooting or moving, the base will change ownership to that unit's AI.
 
 ### Moving ###
 An AI may tell a unit to move to any square on the map. The unit will move
-forward SPEED_MODIFIER*LOG(MAPSIZE) squares along the shortest possible route
+forward SPEED\_MODIFIER*LOG(MAP\_SIZE) squares along the shortest possible route
 to the square until it arrives or another directive is issued.
 
 If the square is invalid, an exception will be raised.
@@ -96,14 +87,14 @@ greatest number of units on the square.
 
 ### Attacking ###
 When a unit attacks, they shoot towards a square that they want to hit.  The
-bullet travels at about MAPSIZE/BULLET_SPEED_MODIFIER units a turn, while their
-full range is MAPSIZE/BULLET_RANGE_MODIFIER units. Any unit who falls within
+bullet travels at about MAP\_SIZE/BULLET\_SPEED\_MODIFIER units a turn, while their
+full range is MAP\_SIZE/BULLET\_RANGE\_MODIFIER units. Any unit who falls within
 the path of a bullet will take damage (including allies).
 
 ### Damage ###
 
 When a bullet goes through the same square that a unit is moving through on a
-turn, the unit's energy is depleted by ATTACK*LOG(MAPSIZE) - ARMOR amount. If a
+turn, the unit's energy is depleted by ATTACK*LOG(MAP\_SIZE) - ARMOR amount. If a
 unit's energy falls below 0, it is considered dead and is taken off the map.
 Any moves that the unit made during the round are still carried out - so it can
 finish a capture event or attack.
@@ -120,10 +111,10 @@ You write an AI that is responsible for controlling a team of
 units. Your AI should subclass ai.AI and can implement four
 functions:
 
-    def _init(self):
-    def _unit_spawned(self, unit):
-    def _unit_died(self, unit):
-    def _spin(self):
+    def \_init(self):
+    def \_unit\_spawned(self, unit):
+    def \_unit\_died(self, unit):
+    def \_spin(self):
 
 \_init() is called when the AI is first created. Every turn of
 the game world, \_spin() is called. During this time, the AI
@@ -144,15 +135,15 @@ units move to the top left of the world with:
 
 or list which squares you can see, your visible enemies or which buildings are currently in view.
 
-    print self.visible_enemies
-    print self.visible_squares
-    print self.visible_buildings
+    print self.visible\_enemies
+    print self.visible\_squares
+    print self.visible\_buildings
 
 
 
 The game starts out with one building per AI. Each AI is then initialized with
 a call to \_init(), and the game world starts running. On the first turn of the
-game, each building spawns a unit. Every UNIT_SPAWN_MOD (as defined in the map)
+game, each building spawns a unit. Every UNIT\_SPAWN\_MOD (as defined in the map)
 turns, the buildings spawn a unit of whichever AI happens to be controlling
 them.
 
@@ -222,6 +213,14 @@ The [dmanai][d_src] repository contains AIs for dmangame.
 [d_src]:http://github.com/okayzed/dmanai
 
 
+#### Playing with AIs from dmanai ####
+
+    cd dmangame/
+    git clone git://github.com/okayzed/dmanai.git
+    python main.py dmanai/okay/rushai.py dmanai/bob/expand-then-search.py dmanai/okay/gooseai.py
+
+
+
 ## API ##
 
 See ai/base.py for the available AI functions, and look in ai/ for more example AIs.
@@ -232,7 +231,7 @@ The easiest way to see the documentation is to run `pydoc -p
 [ai docs]:http://localhost:8000/ai.base.html
 [unit docs]:http://localhost:8000/unit.html
 
-If you don't care for _unit_died and _unit_spawned (or want
+If you don't care for \_unit\_died and \_unit\_spawned (or want
 to do your own book keeping), you can subclass from ai.BareAI
 - in which case you need to implement the following two
   functions:
