@@ -53,7 +53,8 @@ If not, then just python.
     python main.py ai/capture.ai ai/killncapture.py -m maps/micro.py
 
     # Show AI debug highlighting for AIs.
-    # Note: Each AI must have --hl before it to enable highlighting. See the Debugging section for more information.
+    # Note: Each AI must have --hl before it to enable highlighting. See the
+    # Debugging section for more information.
     # In this instance, only simpleAI gets highlighting.
     python main.py --hl ai/simpleai.py ai/basepatroller.py
 
@@ -125,10 +126,10 @@ You write an AI that is responsible for controlling a team of
 units. Your AI should subclass ai.AI and can implement four
 functions:
 
-    def \_init(self):
-    def \_unit\_spawned(self, unit):
-    def \_unit\_died(self, unit):
-    def \_spin(self):
+    def _init(self):
+    def _unit_spawned(self, unit):
+    def _unit_died(self, unit):
+    def _spin(self):
 
 \_init() is called when the AI is first created. Every turn of
 the game world, \_spin() is called. During this time, the AI
