@@ -53,7 +53,7 @@ If not, then just python.
     python main.py ai/capture.ai ai/killncapture.py -m maps/micro.py
 
     # Show AI debug highlighting for AIs.
-    # Note: Each AI must have --hl before it to enable highlighting.
+    # Note: Each AI must have --hl before it to enable highlighting. See the Debugging section for more information.
     # In this instance, only simpleAI gets highlighting.
     python main.py --hl ai/simpleai.py ai/basepatroller.py
 
@@ -149,9 +149,9 @@ units move to the top left of the world with:
 
 or list which squares you can see, your visible enemies or which buildings are currently in view.
 
-    print self.visible\_enemies
-    print self.visible\_squares
-    print self.visible\_buildings
+    print self.visible_enemies
+    print self.visible_squares
+    print self.visible_buildings
 
 
 
@@ -252,6 +252,44 @@ to do your own book keeping), you can subclass from ai.BareAI
 
     def turn(self)
     def init(self)
+
+## Debugging ##
+
+### Exceptions ###
+
+When writing an AI, you probably want to find out whenever your AI throws an
+exception. When running the game normally, each AI runs in its own thread of
+execution. When an AI throws an exception, its in that thread, so the game will
+continue to run after an AI throws an exception. The exception and its
+traceback will be printed to screen. You can log the game output with:
+
+    python main.py ai/simpleai.py > game.log 2>&1
+
+Alternatively, if the game is run with the -p option (profiling), gameplay will
+stop when an AI throws an exception. This is because profiling requires that
+the execution stays single threaded in order to profile each AI more
+accurately.
+
+### Highlighting the map ###
+
+There are three functions in ai.AI for printing debug information on the map.
+
+    def highlightLine(self, start, end)
+    def highlightRegion(self, start, end=None)
+    def clearHighlights(self)
+
+The AI can paint a line, a square or a region onto the map using these. The
+objects will stay persistent from turn to turn until the AI calls
+clearHighlights(), so an AI can accumulate more and more information on the
+map.
+
+In order to see the highlights from a given AI, use the --hl option before the AI's name when loading it:
+
+    python main.py --hl ai/simpleai.py
+
+This tells the game that you want to see what this AI is printing on the
+screen. The debug information will be visible in the GUI and in the web replay.
+
 
 ## Security ##
 
