@@ -1026,7 +1026,7 @@ class World:
           turn_data["highlights"].append(highlight_data)
 
       for ai in self.ai_highlighted_lines:
-        if not ai in settings.SHOW_HIGHLIGHTS:
+        if not ai.__class__ in settings.SHOW_HIGHLIGHTS:
           continue
         for line in self.ai_highlighted_lines[ai]:
           highlight_data = { "start" : line[0],
