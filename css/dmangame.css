@@ -81,6 +81,7 @@ ul {
 
 #links {
   position: fixed;
+  float: right;
   padding-top: 30px;
   font-size: 25px;
   height: 100%;
