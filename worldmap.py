@@ -124,7 +124,7 @@ def draw_map(cairo_context, width, height, world_data, turn_data):
       end   = highlight["end"]
       team = highlight["team"]
       color = world_data["colors"][team]
-      alpha_color = (color[0], color[1], color[2], .25)
+      alpha_color = (color[0]/2, color[1]/2, color[2]/2, .75)
       shape = highlight["shape"]
 
       cairo_context.set_source_rgba(*alpha_color)
