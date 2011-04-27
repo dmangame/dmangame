@@ -18,11 +18,11 @@ should subclass ai.AI and can implement four functions:
 
 {% endhighlight %}
 
-_init() is called when the AI is first created. Every turn of the game world,
-_spin() is called. During this time, the AI should interact with its units and
+\_init() is called when the AI is first created. Every turn of the game world,
+\_spin() is called. During this time, the AI should interact with its units and
 issue commands. Whenever a unit is spawned by a building, its AI is notified
-via the _unit_spawned(unit) call. Whenever a unit dies, the AI is notified via
-a _unit_died(unit) call.
+via the \_unit\_spawned(unit) call. Whenever a unit dies, the AI is notified via
+a \_unit\_died(unit) call.
 
 You can interact with your units via the properties defined in ai.AI
 (ai/base.py). For example, you can have all your units move to the top left of
@@ -49,8 +49,8 @@ currently in view.
 
 
 The game starts out with one building per AI. Each AI is then initialized with
-a call to _init(), and the game world starts running. On the first turn of the
-game, each building spawns a unit. Every UNIT_SPAWN_MOD (as defined in the
+a call to \_init(), and the game world starts running. On the first turn of the
+game, each building spawns a unit. Every UNIT\_SPAWN\_MOD (as defined in the
 map) turns, the buildings spawn a unit of whichever AI happens to be
 controlling them.
 
