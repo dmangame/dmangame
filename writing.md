@@ -67,18 +67,18 @@ capturing a building (If they are on the same square as a building).
     import ai
     AIClass="SimpleAI"
     class SimpleAI(ai.AI):
-    def _init(self):
-      print self.currentTurn
+      def _init(self):
+        print self.currentTurn
 
-    def _spin(self):
-      print self.my_units
-      print self.visible_enemies
+      def _spin(self):
+        print self.my_units
+        print self.visible_enemies
 
-    def _unit_died(self, died):
-      print "Lost a unit: %s" % unit
+      def _unit_died(self, died):
+        print "Lost a unit: %s" % unit
 
-    def _unit_spawned(self, unit):
-      print "Received a new unit: %s" % unit
+      def _unit_spawned(self, unit):
+        print "Received a new unit: %s" % unit
 
 
 {% endhighlight %}
@@ -102,18 +102,18 @@ To run it, try:
     import random
     AIClass="TowerAI"
     class TowerAI(ai.AI):
-    def _init(self):
-    self.moved_once = set()
+      def _init(self):
+        self.moved_once = set()
 
-    def _spin(self):
-    for unit in self.my_units:
-      if unit.visible_enemies:
-        unit.shoot(unit.visible_enemies[0].position)
-      else:
-        if not unit in self.moved_once:
-          unit.move((random.randint(0, self.mapsize),
-                     random.randint(0, self.mapsize)))
-          self.moved_once.add(unit)
+      def _spin(self):
+        for unit in self.my_units:
+          if unit.visible_enemies:
+            unit.shoot(unit.visible_enemies[0].position)
+          else:
+            if not unit in self.moved_once:
+              unit.move((random.randint(0, self.mapsize),
+                         random.randint(0, self.mapsize)))
+              self.moved_once.add(unit)
 
 {% endhighlight %}
 
