@@ -94,6 +94,8 @@ ul {
 
 #content {
   padding-bottom: 25px;
+  text-align: justify;
+  margin-right: 25px;
 }
 
 #header {
