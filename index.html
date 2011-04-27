@@ -5,6 +5,7 @@
 
 <title>okayzed/dmangame @ GitHub</title>
 
+<link rel=stylesheet href="css/no-reset.css" type="text/css" />
 <link rel=stylesheet href="css/960.css" type="text/css" />
 <link rel=stylesheet href="css/dmangame.css" type="text/css" />
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"> </script>
@@ -118,7 +119,7 @@ python main.py --help
     <div id="game_mechanics" style="display: none;">
       <h2>game mechanics</h2>
 
-      <div>note: upper case words are variables defined in settings.py or a map with the -m option.</div>
+      <div style="margin-bottom:15px;">note: upper case words are variables defined in settings.py or a map with the -m option.</div>
 
       <h3>world</h3>
 
@@ -197,10 +198,6 @@ def _spin(self):
       should interact with its units and issue commands. Whenever a
       unit is spawned by a building, its AI is notified via the
       _unit_spawned(unit) call. Whenever a unit dies, the AI is notified via a _unit_died(unit) call.</p>
-
-      <p>NOTE: During unit_spawned and unit_died, the unit will not have proper
-      visibility and should not really interact with the game world - just with the
-      AI internal bookkeeping.</p>
 
       <p>You can interact with your units via the properties defined
       in ai.AI (ai/base.py). For example, you can have all your

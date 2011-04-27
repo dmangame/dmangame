@@ -1,0 +1,177 @@
+
+/*
+   No Reset: A Base Stylesheet For Your Projects
+   Makes browser default styles more consistent, and provides a canvas that
+   you SHOULD modify to fit your needs.
+   http://covertprestige.info/css/base-stylesheet/
+*/
+
+
+/* --- BASIC STYLES --- */
+
+/* Page */
+html {
+  font-size: 100%; /* Avoids IE 5-7 bug with EM fonts */
+}
+body {
+  margin: 0;
+  padding: 0; /* set to zero if needed! */
+  /* font-family examples:
+  font-family: Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
+  font-family: Verdana, "DejaVu Sans", "Bitstream Vera Sans", Geneva, sans-serif;
+  font-family: Georgia, "DejaVu Serif", Norasi, serif; */
+  font-size: 1em; /* Adapt for your chosen type! Usual range: .625 to 1 */
+  line-height: 1.4; /* Adapt for your design and chosen type! 1.1-1.2 is good
+    for title text or narrow column text but you will want to increase that
+    to something in the 1.2-1.8 range for main content text. */
+  color: black;
+  background: white;
+}
+
+/* Titles */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0; /* Titles should be close to the text they describe */
+  line-height: 1.2; /* Bigger text is often nicer with smaller line space */
+  font-weight: bold; /* Browser default. Use "normal" for less bulky titles */
+  font-style: normal;
+}
+h1 {
+  font-size: 1.75em;
+}
+h2 {
+  font-size: 1.5em;
+}
+h3 {
+  font-size: 1.25em;
+}
+h4 {
+  font-size: 1em;
+}
+
+/* Lists */
+ul, ol {
+  margin: .75em 0 .75em 32px;
+  padding: 0;
+}
+
+/* Paragraphs */
+p {
+  margin: .75em 0; /* Most browser defaults are "1em 0". */
+}
+address {
+  margin: .75em 0; /* You may want display:inline;margin:0; in HTML 5 */
+  font-style: normal; /* The annoying browser default is "italic". */
+}
+
+/* Links */
+a {
+  text-decoration: underline;
+}
+a:link {
+  color: #11C;
+}
+a:visited {
+  color: #339;
+}
+a:hover, a:focus, a:active {
+  color: #00F;
+}
+/* No dotted outline or halo around links when clicking them */
+a:active {
+  outline: none;
+}
+/* No border around images in links */
+a img {
+  border: none;
+}
+
+/* Misc inline elements */
+/* These are default styles in virtually any browser, but you may want to
+   change them for a specific project. */
+em {
+  font-style: italic;
+}
+strong {
+  font-weight: bold;
+}
+/* Stopping superscript and subscript from augmenting the line's leading */
+sup, sub {
+  line-height: 0;
+}
+
+/* Forms */
+form, fieldset {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+input, button, select {
+  vertical-align: middle; /* Not perfect,
+  but best compromise for most browsers */
+}
+
+
+/* --- ADDITIONAL BASIC STYLES --- */
+
+/* Make abbreviations more clearly visible */
+abbr[title] {
+  border-bottom: 1px dotted;
+  cursor: help;
+}
+
+/* Make quotations more clearly visible */
+blockquote {
+  margin: .75em 0 .75em 20px;
+  padding: 0 0 0 10px;
+  border-left: solid 2px #ddd;
+}
+q, cite {
+  font-style: italic;
+}
+q cite, q q {
+  font-style: normal
+}
+
+/* Suppression des guillemets automatiques pour citations courtes */
+q {
+  quotes: none;
+}
+q:before, q:after {
+  content: ""; /* Needed for Safari/Chrome */
+}
+
+/* Bring paragraphs inside lists or quotations closer */
+blockquote p, li p {
+  margin: .5em 0;
+}
+
+/* Basic styles for definition lists */
+dl {
+  margin: .75em 0;
+}
+dt {
+  margin: .75em 0 0 0;
+  font-weight: bold;
+}
+dd {
+  margin: .25em 0 .25em 32px;
+}
+
+/* Simple styles for tables */
+table {
+  margin: 0;
+  border: none; /* Set to "none" to suppress the table border */
+  border-collapse: collapse; /* Default is "seperate" */
+  border-spacing: 0; /*! No IE 6-7 support */
+}
+table td, table th {
+  padding: 4px; /* Set to "0" for no white space around cell contents */
+  border: none; /* Set to "none" to suppress cell borders */
+  vertical-align: top; /* Default is "middle" */
+}
+
+/* HTML 5 semantic wrapper elements */
+article, aside, dialog, figure, footer, header,
+hgroup, menu, nav, section, menu {
+  display: block;
+}

@@ -34,8 +34,12 @@ h3 {
   border-bottom: 2px solid #aaa;
 }
 
-a {
+a,
+a:visited {
   color: #ff004c;
+}
+a:hover {
+  color: #000;
 }
 
 .description {
@@ -64,9 +68,21 @@ ul {
 #links a {
   display: block;
   margin: 5px 0;
+  text-decoration: none;
+  font-style: bold;
+  padding-left: 25px;
+  color: #fff;
 }
+
+#links a:hover {
+  color: #ff004c;
+}
+
 
 #links {
   position: fixed;
-  margin-top: 30px;
+  padding-top: 30px;
+  font-size: 25px;
+  height: 100%;
+  background-color: #000;
 }
