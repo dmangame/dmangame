@@ -5,9 +5,11 @@
 
 <title>okayzed/dmangame @ GitHub</title>
 
+<link rel=stylesheet href="css/prettify.css" type="text/css" />
 <link rel=stylesheet href="css/no-reset.css" type="text/css" />
 <link rel=stylesheet href="css/960.css" type="text/css" />
 <link rel=stylesheet href="css/dmangame.css" type="text/css" />
+<script src="js/prettify.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"> </script>
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js"> </script>
 
@@ -26,6 +28,8 @@ $(function() {
     e.preventDefault();
     $(this).blur();
   });
+
+  prettyPrint();
 
 });
 </script>
@@ -88,7 +92,7 @@ $(function() {
 
       <h2>running it</h2>
 
-      <pre><code>
+      <pre><code class="prettyprint">
 # Play with graphics
 python main.py ai/captureai.py ai/killncapture.py
 
@@ -186,7 +190,7 @@ python main.py --help
       units. Your AI should subclass ai.AI and can implement four
       functions:</p>
 
-      <pre><code>
+      <pre><code class="prettyprint">
 def _init(self):
 def _unit_spawned(self, unit):
 def _unit_died(self, unit):
@@ -203,14 +207,14 @@ def _spin(self):
       in ai.AI (ai/base.py). For example, you can have all your
       units move to the top left of the world with:</p>
 
-      <pre><code>
+      <pre><code class="prettyprint">
 for unit in self.units:
     unit.move((0,0))
       </code></pre>
 
       <p>or list which squares you can see, your visible enemies or which buildings are currently in view.</p>
 
-      <pre><code>
+      <pre><code class="prettyprint">
 print self.visible_enemies
 print self.visible_squares
 print self.visible_buildings
@@ -228,7 +232,7 @@ print self.visible_buildings
 
       <h3>A simple example AI</h3>
 
-      <pre><code>
+      <pre><code class="prettyprint">
 import ai
 AIClass="SimpleAI"
 class SimpleAI(ai.AI):
@@ -251,13 +255,13 @@ class SimpleAI(ai.AI):
 
       <p>To run it, try:</p>
 
-      <pre><code>
+      <pre><code class="prettyprint">
 python main.py ai/simpleai.py ai/captureai.py
       </code></pre>
 
       <h3>Building a more defensive AI:</h3>
 
-      <pre><code>
+      <pre><code class="prettyprint">
 import ai
 import random
 AIClass="TowerAI"
@@ -284,7 +288,7 @@ class TowerAI(ai.AI):
       attack stops the unit's movement, and the unit will sit at that location. (and
       not continue to its final destination).</p>
 
-      <pre><code>
+      <pre><code class="prettyprint">
 python main.py ai/towerai.py ai/captureai.py
       </code></pre>
 
@@ -296,7 +300,7 @@ python main.py ai/towerai.py ai/captureai.py
 
       <h4>Playing with AIs from dmanai</h4>
 
-      <pre><code>
+      <pre><code class="prettyprint">
 cd dmangame/
 git clone git://github.com/okayzed/dmanai.git
 python main.py dmanai/okay/rushai.py dmanai/bob/expand-then-search.py dmanai/okay/gooseai.py
@@ -308,7 +312,7 @@ python main.py dmanai/okay/rushai.py dmanai/bob/expand-then-search.py dmanai/oka
 
       <p>See ai/base.py for the available AI functions, and look in ai/ for more example AIs.</p>
 
-      <p>The easiest way to see the documentation is to run <code>pydoc -p
+      <p>The easiest way to see the documentation is to run <code class="prettyprint">pydoc -p
       8000</code> and browse to the <a href="http://localhost:8000/ai.base.html">ai docs</a> or <a href="http://localhost:8000/unit.html">unit docs</a>.</p>
 
       <p>If you don't care for _unit_died and _unit_spawned (or want
@@ -316,7 +320,7 @@ python main.py dmanai/okay/rushai.py dmanai/bob/expand-then-search.py dmanai/oka
       - in which case you need to implement the following two
         functions:</p>
 
-      <pre><code>
+      <pre><code class="prettyprint">
 def turn(self)
 def init(self)
       </code></pre>
@@ -335,7 +339,7 @@ def init(self)
       continue to run after an AI throws an exception. The exception will be printed
       to screen. You can log the game output with:</p>
 
-      <pre><code>python main.py ai/simpleai.py &gt; game.log 2&gt;&amp;1
+      <pre><code class="prettyprint">python main.py ai/simpleai.py &gt; game.log 2&gt;&amp;1
       </code></pre>
 
       <p>Alternatively, if the game is run with the -p option (profiling), gameplay will
@@ -347,7 +351,7 @@ def init(self)
 
       <p>There are three functions in ai.AI for printing debug information on the map.</p>
 
-      <pre><code>
+      <pre><code class="prettyprint">
 def highlightLine(self, start, end)
 def highlightRegion(self, start, end=None)
 def clearHighlights(self)
@@ -360,7 +364,7 @@ def clearHighlights(self)
 
       <p>In order to see the highlights from a given AI, use the --hl option before the AI's name when loading it:</p>
 
-      <pre><code>
+      <pre><code class="prettyprint">
 python main.py --hl ai/simpleai.py
       </code></pre>
 
