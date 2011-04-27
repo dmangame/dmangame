@@ -31,7 +31,7 @@ shooting or moving, the base will change ownership to that unit's AI.
 ## moving
 
 An AI may tell a unit to move to any square on the map. The unit will move
-forward SPEED_MODIFIER*LOG(MAP_SIZE) squares along the shortest possible route
+forward SPEED_MODIFIERxLOG(MAP_SIZE) squares along the shortest possible route
 to the square until it arrives or another directive is issued.
 
 If the square is invalid, an exception will be raised.
@@ -52,7 +52,7 @@ within the path of a bullet will take damage (including allies).
 ## damage
 
 When a bullet goes through the same square that a unit is moving through on a
-turn, the unit's energy is depleted by ATTACK*LOG(MAP_SIZE) - ARMOR amount. If
+turn, the unit's energy is depleted by ATTACKxLOG(MAP_SIZE) - ARMOR amount. If
 a unit's energy falls below 0, it is considered dead and is taken off the map.
 Any moves that the unit made during the round are still carried out - so it
 can finish a capture event or attack.
