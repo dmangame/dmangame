@@ -20,7 +20,7 @@ body {
   font-family: Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
   font-family: Verdana, "DejaVu Sans", "Bitstream Vera Sans", Geneva, sans-serif;
   font-family: Georgia, "DejaVu Serif", Norasi, serif; */
-  font-size: 1em; /* Adapt for your chosen type! Usual range: .625 to 1 */
+  font-size: 1.2em; /* Adapt for your chosen type! Usual range: .625 to 1 */
   line-height: 1.4; /* Adapt for your design and chosen type! 1.1-1.2 is good
     for title text or narrow column text but you will want to increase that
     to something in the 1.2-1.8 range for main content text. */
