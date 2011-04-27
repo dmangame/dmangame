@@ -26,7 +26,9 @@ units at the same time.
 
 ## gimme
 
-You can find the latest version of the source code on [github][2]
+You can find the latest version of the source code on [github][2].
+
+    git clone git://github.com/okayzed/dmangame.git
 
 ## dependencies
 
