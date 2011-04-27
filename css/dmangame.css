@@ -80,18 +80,28 @@ ul {
 
 
 #links {
-  position: fixed;
-  float: right;
   padding-top: 30px;
   font-size: 25px;
-  height: 100%;
   background-color: #000;
+  padding-bottom: 25px;
+  position: fixed;
+  height: 100%;
+  left: 0;
 }
 
 #content {
   padding-bottom: 25px;
+  margin-left: 200px;
 }
 
 #header {
   padding-top: 25px;
+  margin-left: 200px;
+}
+
+#irc {
+  padding-top: 25px;
+  color: #fff;
+  font-size: 20px;
+  text-align: center;
 }
