@@ -5,79 +5,398 @@
 
 <title>okayzed/dmangame @ GitHub</title>
 
-<style type="text/css">
-body {
-  margin-top: 1.0em;
-  background-color: #efefef;
-  font-family: Helvetica, Arial, FreeSans, san-serif;
-color: #000000;
-}
-#container {
-margin: 0 auto;
-width: 700px;
-}
-h1 { font-size: 3.8em; color: #ff004c; margin-bottom: 3px; }
-h1 .small { font-size: 0.4em; }
-h1 a { text-decoration: none }
-h2 { font-size: 1.5em; color: #ff004c; }
-h3 { text-align: center; color: #ff004c; }
-a { color: #ff004c; }
-.description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-.download { float: right; }
-pre { background: #000; color: #fff; padding: 15px;}
-hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-.footer { text-align:center; padding-top:30px; font-style: italic; }
-</style>
+<link rel=stylesheet href="css/960.css" type="text/css" />
+<link rel=stylesheet href="css/dmangame.css" type="text/css" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"> </script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js"> </script>
+
 </head>
 
 <body>
-<a href="http://github.com/okayzed/dmangame"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
 
-<div id="container">
+<script>
+$(function() {
 
-<div class="download">
-<a href="http://github.com/okayzed/dmangame/zipball/master">
-<img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-<a href="http://github.com/okayzed/dmangame/tarball/master">
-<img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
-</div>
+  $("#links a").click(function(e, data) {
+    var divId = $(this).attr("href");
+    $("#content > *").hide();
+    $(divId).fadeIn();
 
-<h1><a href="http://github.com/okayzed/dmangame">dmangame</a>
-<span class="small">by <a href="http://github.com/okayzed">okayzed</a></span></h1>
+    e.preventDefault();
+    $(this).blur();
+  });
 
-<div class="description">
-an ai game. maybe.
-</div>
+});
+</script>
 
-<h2>Dependencies</h2>
-<ul>
-<li>
-python
-</li>
-  <li>
-pygtk (optional) 
-  </li>
-  </ul>
-  <h2>Authors</h2>
-  <p>okay (okay.zed@gmail.com)</p>
+<div class="container_12">
 
-  <h2>Download</h2>
-  <p>
-  You can download this project in either
-  <a href="http://github.com/okayzed/dmangame/zipball/master">zip</a> or
-  <a href="http://github.com/okayzed/dmangame/tarball/master">tar</a> formats.
-  </p>
-  <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
-  by running:
-  <pre>$ git clone git://github.com/okayzed/dmangame</pre>
-  </p>
+  <div id="header" class="grid_8">
+    <h1><a href="http://github.com/okayzed/dmangame">dmangame</a></h1>
 
-  <div class="footer">
-  get the source code on GitHub : <a href="http://github.com/okayzed/dmangame">okayzed/dmangame</a>
-  </div>
+
+    <div class="description">
+    an ai game. maybe.
+    </div>
 
   </div>
 
+  <div class="grid_4" id="links">
+    <a href="#introduction">introduction</a>
+    <a href="#game_mechanics">game mechanics</a>
+    <a href="#writing_an_ai">writing an ai</a>
+    <a href="#debugging">debugging</a>
+    <a href="#more_ais">more ai</a>
+    <a href="#api">ai api</a>
+    <a href="#security">security</a>
+  </div>
 
-  </body>
-  </html>
+
+  <div class="grid_8" id="content">
+    <div id="introduction">
+      <h2>about</h2>
+
+      <p>dmangame is about writing an AI to play a simplified Realtime Strategy
+      Game.  There is no 'playing' done by humans, the game is played by various AI.
+      Each AI controls a team of units that it is able to communicate with.  The AI's
+      objective is to crush its enemies and hear the lamentation of their pixels.</p>
+
+      <p>Your objective is to code this AI.</p>
+
+      <h2>pics or stfu</h2>
+
+      <p>Here's <a href="http://okayzed.github.com/dmangame/circleblaster_vs_expand.html">an example game</a> (saved using the -o option).</p>
+
+      <p>The little moving dots inside transparent circles are units. The circle is the
+      unit's field of vision.  The line behind the unit is its path from their
+      location on the previous turn. Sometimes they shoot bullets (the slightly
+      thinner line) towards other units.</p>
+
+      <p>The stationary black outlined dots are buildings. Notice how buildings spawn
+      units at the same time.</p>
+
+      <h2>gimme</h2>
+
+      <p>You can find the latest version of the source code on <a href="http://github.com/okayzed/dmangame">github</a></p>
+
+      <h2>dependencies</h2>
+
+      <p>If using graphics, pygtk (which should include cairo).</p>
+
+      <p>If not, then just python.</p>
+
+      <h2>running it</h2>
+
+      <pre><code>
+# Play with graphics
+python main.py ai/captureai.py ai/killncapture.py
+
+# Play without graphics and a web replay. Open output.html to view the game replay.
+# NOTE: This file is a massive JSON crusty file. If you want to copy it
+# somewhere, make sure to compress it (scp -C) or gzip it first.
+python main.py ai/capture.ai ai/killncapture.py -c -o output.html
+
+# Use NCURSES GUI (Game output gets saved to game.log and game.out)
+python main.py ai/capture.ai ai/killncapture.py -cn
+
+# Play on a specific map
+python main.py ai/capture.ai ai/killncapture.py -m maps/micro.py
+
+# Show AI debug highlighting for AIs.
+# Note: Each AI must have --hl before it to enable highlighting.
+# See the Debugging section for more information.
+# In this instance, only simpleAI gets highlighting.
+python main.py --hl ai/simpleai.py ai/basepatroller.py
+
+# Help
+python main.py --help
+      </code></pre>
+
+      <h2>game it end?</h2>
+    </div>
+
+    <div id="game_mechanics" style="display: none;">
+      <h2>game mechanics</h2>
+
+      <div>note: upper case words are variables defined in settings.py or a map with the -m option.</div>
+
+      <h3>world</h3>
+
+      <p>The world is a 2-dimensional square that is MAP_SIZExMAP_SIZE. There are 3 main
+      objects that exist in the game world: units, buildings and bullets.</p>
+
+      <h3>units</h3>
+
+      <p>The only object that the AIs can command are units. Each unit has an AI that it
+      belongs to and it will only accept commands from that AI. These units have 3
+      abilities: moving, shooting and capturing.  Additionally, every unit is able to
+      see its surroundings and report them back to its AI. The units have energy and
+      when that falls to zero, they die. The only way to acquire more units is through
+      buildings.</p>
+
+      <h3>buildings</h3>
+
+      <p>Buildings are stationary objects that spawn a new Unit every UNIT_SPAWN_MOD
+      turns for the AI that owns the Building. A building can be captured by another
+      AI through its units. To capture a building, a unit must step inside it and
+      begin capturing. If the unit can stay there for CAPTURE_LENGTH turns without
+      shooting or moving, the base will change ownership to that unit's AI.</p>
+
+      <h3>moving</h3>
+
+      <p>An AI may tell a unit to move to any square on the map. The unit will move
+      forward SPEED_MODIFIER*LOG(MAP_SIZE) squares along the shortest possible route
+      to the square until it arrives or another directive is issued.</p>
+
+      <p>If the square is invalid, an exception will be raised.</p>
+
+      <h3>collisions</h3>
+
+      <p>If two or more AI teams have units that occupy the same square during a turn,
+      the units collide with each other. All teams then lose the amount of the second
+      greatest number of units on the square.</p>
+
+      <h3>attacking</h3>
+
+      <p>When a unit attacks, they shoot towards a square that they want to hit.  The
+      bullet travels at about MAP_SIZE/BULLET_SPEED_MODIFIER units a turn, while their
+      full range is MAP_SIZE/BULLET_RANGE_MODIFIER units. Any unit who falls within
+      the path of a bullet will take damage (including allies).</p>
+
+      <h3>damage</h3>
+
+      <p>When a bullet goes through the same square that a unit is moving through on a
+      turn, the unit's energy is depleted by ATTACK*LOG(MAP_SIZE) - ARMOR amount. If a
+      unit's energy falls below 0, it is considered dead and is taken off the map.
+      Any moves that the unit made during the round are still carried out - so it can
+      finish a capture event or attack.</p>
+
+      <h3>end game</h3>
+
+      <p>The game ends when only one AI owns all units and buildings or GAME_LENGTH turns
+      have passed.  If the game ends when GAME_LENGTH turns have passed, it is
+      considered a draw.</p>
+    </div>
+
+    <div id="writing_an_ai" style="display: none;">
+      <h2>Writing an AI</h2>
+
+      <p>You write an AI that is responsible for controlling a team of
+      units. Your AI should subclass ai.AI and can implement four
+      functions:</p>
+
+      <pre><code>
+def _init(self):
+def _unit_spawned(self, unit):
+def _unit_died(self, unit):
+def _spin(self):
+      </code></pre>
+
+      <p>_init() is called when the AI is first created. Every turn of
+      the game world, _spin() is called. During this time, the AI
+      should interact with its units and issue commands. Whenever a
+      unit is spawned by a building, its AI is notified via the
+      _unit_spawned(unit) call. Whenever a unit dies, the AI is notified via a _unit_died(unit) call.</p>
+
+      <p>NOTE: During unit_spawned and unit_died, the unit will not have proper
+      visibility and should not really interact with the game world - just with the
+      AI internal bookkeeping.</p>
+
+      <p>You can interact with your units via the properties defined
+      in ai.AI (ai/base.py). For example, you can have all your
+      units move to the top left of the world with:</p>
+
+      <pre><code>
+for unit in self.units:
+    unit.move((0,0))
+      </code></pre>
+
+      <p>or list which squares you can see, your visible enemies or which buildings are currently in view.</p>
+
+      <pre><code>
+print self.visible_enemies
+print self.visible_squares
+print self.visible_buildings
+      </code></pre>
+
+      <p>The game starts out with one building per AI. Each AI is then initialized with
+      a call to _init(), and the game world starts running. On the first turn of the
+      game, each building spawns a unit. Every UNIT_SPAWN_MOD (as defined in the map)
+      turns, the buildings spawn a unit of whichever AI happens to be controlling
+      them.</p>
+
+      <p>The end objective is to capture all enemy buildings and kill all enemy units.
+      Every unit is capable of shooting towards a square, moving towards a square or
+      capturing a building (If they are on the same square as a building).</p>
+
+      <h3>A simple example AI</h3>
+
+      <pre><code>
+import ai
+AIClass="SimpleAI"
+class SimpleAI(ai.AI):
+    def _init(self):
+      print self.currentTurn
+
+    def _spin(self):
+      print self.my_units
+      print self.visible_enemies
+
+    def _unit_died(self, died):
+      print "Lost a unit: %s" % unit
+
+    def _unit_spawned(self, unit):
+      print "Received a new unit: %s" % unit
+      </code></pre>
+
+      <p>This AI just prints world information as it turns. You'll notice that it dies
+      very quickly, since it just stands there.</p>
+
+      <p>To run it, try:</p>
+
+      <pre><code>
+python main.py ai/simpleai.py ai/captureai.py
+      </code></pre>
+
+      <h3>Building a more defensive AI:</h3>
+
+      <pre><code>
+import ai
+import random
+AIClass="TowerAI"
+class TowerAI(ai.AI):
+  def _init(self):
+    self.moved_once = set()
+
+  def _spin(self):
+    for unit in self.my_units:
+      if unit.visible_enemies:
+        unit.shoot(unit.visible_enemies[0].position)
+      else:
+        if not unit in self.moved_once:
+          unit.move((random.randint(0, self.mapsize),
+                     random.randint(0, self.mapsize)))
+          self.moved_once.add(unit)
+      </code></pre>
+
+      <p>This AI is slightly smarter - for each unit, it picks a spot on the map and
+      moves the unit there. If it arrives there without issue, it will stop moving
+      and attack anything that comes near it.</p>
+
+      <p>If the unit notices an enemy unit on the way there, it'll start attacking. The
+      attack stops the unit's movement, and the unit will sit at that location. (and
+      not continue to its final destination).</p>
+
+      <pre><code>
+python main.py ai/towerai.py ai/captureai.py
+      </code></pre>
+
+    </div>
+    <div id="more_ais" style="display:none">
+      <h3>More AIs</h3>
+
+      <p>The <a href="http://github.com/okayzed/dmanai">dmanai</a> repository contains AIs for dmangame.</p>
+
+      <h4>Playing with AIs from dmanai</h4>
+
+      <pre><code>
+cd dmangame/
+git clone git://github.com/okayzed/dmanai.git
+python main.py dmanai/okay/rushai.py dmanai/bob/expand-then-search.py dmanai/okay/gooseai.py
+      </code></pre>
+    </div>
+
+    <div id="api" style="display:none">
+      <h2>API</h2>
+
+      <p>See ai/base.py for the available AI functions, and look in ai/ for more example AIs.</p>
+
+      <p>The easiest way to see the documentation is to run <code>pydoc -p
+      8000</code> and browse to the <a href="http://localhost:8000/ai.base.html">ai docs</a> or <a href="http://localhost:8000/unit.html">unit docs</a>.</p>
+
+      <p>If you don't care for _unit_died and _unit_spawned (or want
+      to do your own book keeping), you can subclass from ai.BareAI
+      - in which case you need to implement the following two
+        functions:</p>
+
+      <pre><code>def turn(self)
+      def init(self)
+      </code></pre>
+    </div>
+
+    <div id="debugging" style="display:none">
+      <h2>Debugging</h2>
+
+      <p>Writing an AI is easy enough, but debugging an incorrectly functioning AI can be a pain.</p>
+
+      <h3>Exceptions</h3>
+
+      <p>When writing an AI, you probably want to find out whenever your AI throws an
+      exception. When running the game normally, each AI runs in its own thread of
+      execution. When an AI throws an exception, its in that thread, so the game will
+      continue to run after an AI throws an exception. The exception will be printed
+      to screen. You can log the game output with:</p>
+
+      <pre><code>python main.py ai/simpleai.py &gt; game.log 2&gt;&amp;1
+      </code></pre>
+
+      <p>Alternatively, if the game is run with the -p option (profiling), gameplay will
+      stop when an AI throws an exception. This is because profiling requires that
+      the execution stays single threaded in order to profile each AI more
+      accurately.</p>
+
+      <h3>Highlighting the map</h3>
+
+      <p>There are three functions in ai.AI for printing debug information on the map.</p>
+
+      <pre><code>
+def highlightLine(self, start, end)
+def highlightRegion(self, start, end=None)
+def clearHighlights(self)
+      </code></pre>
+
+      <p>The AI can paint a line, a square or a region onto the map using these. The
+      objects will stay persistent from turn to turn until the AI calls
+      clearHighlights(), so an AI can accumulate more and more information on the
+      map.</p>
+
+      <p>In order to see the highlights from a given AI, use the --hl option before the AI's name when loading it:</p>
+
+      <pre><code>
+python main.py --hl ai/simpleai.py
+      </code></pre>
+
+      <p>This tells the game that you want to see what this AI is printing on the
+      screen. The debug information will be visible in the GUI and in the web replay.</p>
+
+    </div>
+  
+    <div id="security" style="display:none">
+      <h2>Security</h2>
+
+      <p>There are two parts to the security in this game. First, an AI is only allowed
+      to control its own units. Meaning, a unit can only be given orders by the AI
+      that owns it. The other half of the security is releasing information to each
+      AI only as the AI becomes aware of it.  Specifically, an AI should only be able
+      to examine objects that are currently visible to its units. Using introspection
+      and frame crawling, the code does a basic verification on each AI.</p>
+
+      <p>However, the game is implemented in python and all the AIs run in the same
+      process, so it is possible for an AI to work around the security measures in
+      the game to gain access to more information than it should have or control
+      another AIs unit.</p>
+
+      <p>I've briefly looked at a few ideas, but it comes down to this: a process in
+      memory can not adequately protect itself from its own code. For there to be any
+      semblance of security, the world and each AI would have to run in its own
+      process. That would add complexity and performance overhead that I am not
+      interested in dealing with at the moment.</p>
+    </div>
+  </div>
+
+</div>
+
+<link href='http://fonts.googleapis.com/css?family=Anonymous+Pro' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+</body>
+</html>
