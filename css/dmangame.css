@@ -3,7 +3,6 @@ h1, h2, h3, h4 {
 }
 
 body {
-  margin-top: 1.0em;
   background-color: #efefef;
   color: #000000;
   font-family: monospace;
@@ -46,6 +45,7 @@ a:hover {
   margin-bottom: 30px;
   margin-top: 30px;
   font-style: italic;
+  font-size: 150%;
 }
 
 pre {
@@ -85,4 +85,12 @@ ul {
   font-size: 25px;
   height: 100%;
   background-color: #000;
+}
+
+#content {
+  padding-bottom: 25px;
+}
+
+#header {
+  padding-top: 25px;
 }

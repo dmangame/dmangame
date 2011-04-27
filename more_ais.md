@@ -3,13 +3,14 @@ title: More AIs
 layout: default
 ---
 
-### More AIs
+## more ais
 
 The [dmanai][1] repository contains AIs for dmangame.
 
-#### Playing with AIs from dmanai
+### playing with AIs from dmanai
 
 
+{% highlight bash %}
 
     cd dmangame/
     git clone git://github.com/okayzed/dmanai.git
@@ -17,6 +18,7 @@ The [dmanai][1] repository contains AIs for dmangame.
                dmanai/bob/expand-then-search.py \
                dmanai/okay/goose.py
 
+{% endhighlight %}
 
    [1]: http://github.com/okayzed/dmanai
 

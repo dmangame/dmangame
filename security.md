@@ -3,7 +3,7 @@ title: security
 layout: default
 ---
 
-## Security
+## security
 
 There are two parts to the security in this game. First, an AI is only allowed
 to control its own units. Meaning, a unit can only be given orders by the AI

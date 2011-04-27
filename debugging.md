@@ -3,12 +3,12 @@ title: Debugging
 layout: default
 ---
 
-## Debugging
+## debugging
 
 Writing an AI is easy enough, but debugging an incorrectly functioning AI can
 be a pain.
 
-### Exceptions
+### exceptions
 
 When writing an AI, you probably want to find out whenever your AI throws an
 exception. When running the game normally, each AI runs in its own thread of
@@ -25,15 +25,17 @@ will stop when an AI throws an exception. This is because profiling requires
 that the execution stays single threaded in order to profile each AI more
 accurately.
 
-### Highlighting the map
+### highlighting the map
 
 There are three functions in ai.AI for printing debug information on the map.
 
 
 
+{% highlight python %}
     def highlightLine(self, start, end)
     def highlightRegion(self, start, end=None)
     def clearHighlights(self)
+{% endhighlight %}
 
 
 The AI can paint a line, a square or a region onto the map using these. The

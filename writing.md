@@ -3,18 +3,20 @@ title: Writing an AI
 layout: default
 ---
 
-## Writing an AI
+## writing an AI
 
 You write an AI that is responsible for controlling a team of units. Your AI
 should subclass ai.AI and can implement four functions:
 
 
+{% highlight python %}
 
     def _init(self):
     def _unit_spawned(self, unit):
     def _unit_died(self, unit):
     def _spin(self):
 
+{% endhighlight %}
 
 _init() is called when the AI is first created. Every turn of the game world,
 _spin() is called. During this time, the AI should interact with its units and
@@ -28,8 +30,10 @@ the world with:
 
 
 
+{% highlight python %}
     for unit in self.units:
-    unit.move((0,0))
+      unit.move((0,0))
+{% endhighlight %}
 
 
 or list which squares you can see, your visible enemies or which buildings are
@@ -37,9 +41,11 @@ currently in view.
 
 
 
+{% highlight python %}
     print self.visible_enemies
     print self.visible_squares
     print self.visible_buildings
+{% endhighlight %}
 
 
 The game starts out with one building per AI. Each AI is then initialized with
@@ -52,9 +58,11 @@ The end objective is to capture all enemy buildings and kill all enemy units.
 Every unit is capable of shooting towards a square, moving towards a square or
 capturing a building (If they are on the same square as a building).
 
-### A simple example AI
+### a simple example AI
 
 
+
+{% highlight python %}
 
     import ai
     AIClass="SimpleAI"
@@ -73,6 +81,8 @@ capturing a building (If they are on the same square as a building).
       print "Received a new unit: %s" % unit
 
 
+{% endhighlight %}
+
 This AI just prints world information as it turns. You'll notice that it dies
 very quickly, since it just stands there.
 
@@ -83,10 +93,11 @@ To run it, try:
     python main.py ai/simpleai.py ai/captureai.py
 
 
-### Building a more defensive AI:
+### building a more defensive AI:
 
 
 
+{% highlight python %}
     import ai
     import random
     AIClass="TowerAI"
@@ -104,6 +115,7 @@ To run it, try:
                      random.randint(0, self.mapsize)))
           self.moved_once.add(unit)
 
+{% endhighlight %}
 
 This AI is slightly smarter - for each unit, it picks a spot on the map and
 moves the unit there. If it arrives there without issue, it will stop moving

@@ -15,11 +15,11 @@ If you don't care for _unit_died and _unit_spawned (or want to do your own
 book keeping), you can subclass from ai.BareAI - in which case you need to
 implement the following two functions:
 
-    
-    
-    def turn(self)
-    def init(self)
-      
+
+{% highlight python %}
+    def turn(self):
+    def init(self):
+{% endhighlight %}
 
    [1]: http://localhost:8000/ai.base.html
    [2]: http://localhost:8000/unit.html
