@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from __future__ import with_statement
 import settings
 
 import logging
@@ -79,18 +80,27 @@ def loadAI(ais, highlight=False):
       return
 
     ai_modules = []
+    # for each filename, add dir to the path and then try to
+    # import the actual file. if dir was not on the path
+    # beforehand, make sure to pop it off again
     for filename in ais:
         try:
             log.info("Loading %s..." % (filename),)
-            file = open(filename)
             split_ext = os.path.splitext(filename)
-            module_name = os.path.basename(split_ext[0])
-            module_type = filter(lambda x: x[0] == split_ext[1],
-                                 imp.get_suffixes())[0]
 
-            m = imp.load_module(module_name, file, filename, module_type)
-            ai_modules.append(m)
+            module_name = os.path.basename(split_ext[0])
+
+            if module_name in sys.modules:
+              mod = sys.modules[name]
+            else:
+              mod = imp.new_module(str(module_name))
+              sys.modules[module_name] = mod
+
+            mod.__file__ = filename
+            execfile(filename, mod.__dict__, mod.__dict__)
+            ai_modules.append(mod)
             log.info("Done")
+
         except Exception, e:
             raise
 
@@ -119,6 +129,40 @@ def loadMap(filename):
   except Exception, e:
       log.info("Error loading %s, %s", filename, e)
 
+
+def appengine_run_game(ai_classes, appengine_file_name=None):
+  from google.appengine.api import files
+
+  ais = loadAI(ai_classes, highlight=True) or []
+
+  logging.basicConfig(level=logging.INFO)
+  settings.SINGLE_THREAD = True
+
+  try:
+    cli.main(ais)
+  except KeyboardInterrupt, e:
+    raise
+  except Exception, e:
+    traceback.print_exc()
+  finally:
+    if not appengine_file_name:
+      appengine_file_name = files.blobstore.create(mime_type='text/html')
+
+    settings.JS_REPLAY_FILENAME = appengine_file_name
+
+    with files.open(appengine_file_name, 'a') as f:
+      settings.JS_REPLAY_FILE = f
+      cli.end_threads()
+      cli.end_game()
+
+    files.finalize(appengine_file_name)
+    blob_key = files.blobstore.get_blob_key(appengine_file_name)
+    log.info("Saved to: %s", blob_key)
+    log.info("Saved as: %s", appengine_file_name)
+    log.info("http://localhost:8080/replays/%s", blob_key)
+
+
+
 def run_game():
   options, args = parseOptions()
   logger_stream = None
@@ -135,7 +179,7 @@ def run_game():
     settings.SAVE_IMAGES = True
 
   if options.replay_file:
-    settings.JS_REPLAY_FILE = options.replay_file
+    settings.JS_REPLAY_FILENAME = options.replay_file
 
   if options.fps:
     settings.FPS = int(options.fps)
@@ -166,6 +210,7 @@ def main():
   log.info(options)
   if options.profile:
     settings.PROFILE = True
+    settings.SINGLE_THREAD = True
     import cProfile
 
   if settings.PROFILE:

@@ -626,8 +626,11 @@ def horizontal_pack(arr_data, this_lookup, sub_key_lookup):
 # It needs to translate the world data into smaller format
 # words using minification or something.
 def save_to_js_file(world_data, world_turns):
-  log.info("Saving %s turns to %s", len(world_turns), settings.JS_REPLAY_FILE)
-  f = open(settings.JS_REPLAY_FILE, "w")
+  log.info("Saving %s turns to %s", len(world_turns), settings.JS_REPLAY_FILENAME)
+
+  f = settings.JS_REPLAY_FILE
+  if not f:
+    f = open(settings.JS_REPLAY_FILENAME, "w")
 
   speeds = {
    "half_speed"     : 2 * 1000 / settings.FPS,
@@ -635,7 +638,6 @@ def save_to_js_file(world_data, world_turns):
    "normal_speed"   : 1 * 1000 / settings.FPS,
    "double_speed"   : 0.5 * 1000 / settings.FPS,
   }
-
 
   f.write(HTML_SKELETON)
   f.write(PLAYER_CONTROLS.format(**speeds))
@@ -668,5 +670,7 @@ def save_to_js_file(world_data, world_turns):
   f.write(JS_PLAYER.replace("###INTERVAL###",
                             str(speeds["normal_speed"])))
   f.write(HTML_SKELETON_END)
-  f.close()
+
+  if not settings.JS_REPLAY_FILE:
+    f.close()
 

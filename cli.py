@@ -65,9 +65,6 @@ def main(ai_classes=[]):
         ncurses.update(t, s)
   log.info("Finished simulating the world")
 
-  sys.exit(0)
-
-
 def end_threads():
   pass
 

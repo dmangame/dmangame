@@ -14,7 +14,6 @@ import logging
 import random
 import traceback
 import threading
-from lib import thread2
 from collections import defaultdict
 
 import json
@@ -266,6 +265,7 @@ class World:
 #          log.info("AI raised exception %s, skipping this turn for it", e)
 #
     def threadedSpin(self, ai):
+      from lib import thread2
       exc_thread = thread2.Thread(target=ai.turn)
       try:
          exc_thread.start()
@@ -291,7 +291,7 @@ class World:
           continue
 
         start_time = time.time()
-        if settings.PROFILE:
+        if settings.SINGLE_THREAD:
           ai.turn()
         else:
           self.threadedSpin(ai)
