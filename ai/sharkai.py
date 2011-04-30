@@ -30,7 +30,7 @@ class SharkAI(ai.AI):
 
     def patrol(self, unit):
         if not unit in self.unit_corners:
-            self.unit_corners[unit] = next(self.corner_cycler)
+            self.unit_corners[unit] = self.corner_cycler.next()
 
         if not unit in self.squares:
             x = random.randint(0, self.mapsize)
