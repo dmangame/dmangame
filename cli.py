@@ -77,7 +77,7 @@ def end_game():
     ncurses.end()
 
   # Save the world information to an output file.
-  if settings.JS_REPLAY_FILE:
+  if settings.JS_REPLAY_FILE or settings.JS_REPLAY_FILENAME:
     jsplayer.save_to_js_file(CliWorld.dumpWorldToDict(), CliWorld.world_turns)
 
 if __name__ == "__main__":

@@ -16,7 +16,10 @@ import traceback
 import threading
 from collections import defaultdict
 
-import json
+try:
+  import json
+except ImportError:
+  from django.utils import simplejson as json
 
 from worldmap import calcDistance
 
@@ -239,7 +242,7 @@ class World:
         self.team_map[ai_player.team] = ai_player
         ai_player.init()
         b = self.placeRandomBuilding()
-        self.buildings[b] = next(self.ai_cycler)
+        self.buildings[b] = self.ai_cycler.next()
 
         log.info("Adding %s new buildings for %s AI to map", settings.ADDITIONAL_BUILDINGS_PER_AI, ai_player)
         for n in xrange(settings.ADDITIONAL_BUILDINGS_PER_AI):
@@ -449,7 +452,8 @@ class World:
             owner = self.buildings[b]
             square = self.map.getPosition(b)
             if owner and square:
-              self.__spawnUnit(b.getStats(), owner, square)
+              statsdict = dict(b.getStats().iteritems())
+              self.__spawnUnit(statsdict, owner, square)
 
               log.info("SPAWN: %s gained a unit", (self.teams[owner.ai_id]))
           log.info("SCORES:")

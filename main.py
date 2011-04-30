@@ -91,7 +91,7 @@ def loadAI(ais, highlight=False):
             module_name = os.path.basename(split_ext[0])
 
             if module_name in sys.modules:
-              mod = sys.modules[name]
+              mod = sys.modules[module_name]
             else:
               mod = imp.new_module(str(module_name))
               sys.modules[module_name] = mod

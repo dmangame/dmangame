@@ -25,7 +25,7 @@ class Building(MapObject):
                         "energy"  : 1,
                         "speed"   : 1
                        })
-        self.__building_id = next(ID_GENERATOR)
+        self.__building_id = ID_GENERATOR.next()
 
     def getBuildingID(self):
       return self.__building_id

@@ -13,7 +13,12 @@ import glib
 import glob
 import gobject
 import gtk
-import json
+
+try:
+  import json
+except ImportError:
+  from django.utils import simplejson as json
+
 import traceback
 import sys
 import time
@@ -317,7 +322,7 @@ def main(ais=[]):
     gtk.main()
 
 def end_game():
-  if settings.JS_REPLAY_FILE:
+  if settings.JS_REPLAY_FILE or settings.JS_REPLAY_FILENAME:
     from lib import jsplayer
     jsplayer.save_to_js_file(m.world_data, m.world_turns)
 

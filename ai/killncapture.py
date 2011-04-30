@@ -71,5 +71,5 @@ class KillNCapture(ai.AI):
             self.patrol(unit)
 
     def _unit_spawned(self, unit):
-        self.unit_corners[unit] = next(self.corner_cycler)
+        self.unit_corners[unit] = self.corner_cycler.next()
 

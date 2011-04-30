@@ -1,5 +1,8 @@
 import settings
-import json
+try:
+  import json
+except ImportError:
+  from django.utils import simplejson as json
 import logging
 import copy
 import re
@@ -133,10 +136,10 @@ PLAYER_CONTROLS="""
       <span id="play_direction"> &gt; </span>
 
       <select id="playback_speed">
-        <option value="{double_speed}">2x</option>
-        <option value="{normal_speed}" selected="True">1x</option>
-        <option value="{half_speed}">1/2 x</option>
-        <option value="{quarter_speed}">1/4 x</option>
+        <option value="%(double_speed)s">2x</option>
+        <option value="%(normal_speed)s" selected="True">1x</option>
+        <option value="%(half_speed)s">1/2 x</option>
+        <option value="%(quarter_speed)s">1/4 x</option>
       </select>
     </div>
 
@@ -640,7 +643,7 @@ def save_to_js_file(world_data, world_turns):
   }
 
   f.write(HTML_SKELETON)
-  f.write(PLAYER_CONTROLS.format(**speeds))
+  f.write(PLAYER_CONTROLS % speeds)
 
   world_data = copy.deepcopy(world_data)
   world_turns = copy.deepcopy(world_turns)

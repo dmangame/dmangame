@@ -19,7 +19,7 @@ class Unit(mapobject.MapObject):
         self.__wt = worldtalker
         self.__stats = stats
         self.killer = set()
-        self.__unit_id = next(Unit.ID_GENERATOR)
+        self.__unit_id = Unit.ID_GENERATOR.next()
 
     def getUnitID(self):
       return self.__unit_id

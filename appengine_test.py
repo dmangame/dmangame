@@ -1,8 +1,9 @@
 import urllib2
 
 def main():
-  url_to = "http://localhost:8080/run"
-  data = "ai=ai/basepatroller.py&ai=ai/killncapture.py"
+#  url_to = "http://localhost:8080/run"
+  url_to = "http://dmangame-app.appspot.com/run"
+  data = "ai=ai/basepatroller.py"
 
   r = urllib2.urlopen(url_to, data)
   print r.read()

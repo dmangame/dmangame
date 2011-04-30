@@ -24,8 +24,8 @@ class BareAI(object):
         self.wt = worldtalker
         self.mapsize = self.wt.getMapSize() - 1
 
-        self.__ai_id = str(next(ID_GENERATOR))
-        self.__team = str(next(TEAM_GENERATOR))
+        self.__ai_id = str(ID_GENERATOR.next())
+        self.__team = str(TEAM_GENERATOR.next())
         self.teamName = "Default AI"
 
 
