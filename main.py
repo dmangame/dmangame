@@ -133,7 +133,7 @@ def loadMap(filename):
 def appengine_run_game(ai_classes, appengine_file_name=None):
   from google.appengine.api import files
 
-  ais = loadAI(ai_classes, highlight=True) or []
+  ais = loadAI(ai_classes) or []
 
   logging.basicConfig(level=logging.INFO)
   settings.SINGLE_THREAD = True
@@ -167,7 +167,7 @@ def run_game():
   options, args = parseOptions()
   logger_stream = None
 
-  ais = loadAI(args, highlight=True) or []
+  ais = loadAI(args) or []
   highlighted_ais = loadAI(options.highlight, highlight=True)
   if highlighted_ais:
     ais.extend(highlighted_ais)
@@ -205,7 +205,6 @@ def run_game():
 
 
 def main():
-
   options, args = parseOptions()
   log.info(options)
   if options.profile:
