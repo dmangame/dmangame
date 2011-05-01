@@ -110,33 +110,40 @@ def loadAI(ais, highlight=False):
     return ai_classes
 
 def loadMap(filename):
-  if not filename:
-    return
 
   try:
       log.info("Loading Map %s..." % (filename),)
-      file = open(filename)
       split_ext = os.path.splitext(filename)
-      module_name = os.path.basename(split_ext[0])
-      module_type = filter(lambda x: x[0] == split_ext[1],
-                           imp.get_suffixes())[0]
 
-      m = imp.load_module(module_name, file, filename, module_type)
-      for attr in dir(m):
+      module_name = os.path.basename(split_ext[0])
+
+      if module_name in sys.modules:
+        mod = sys.modules[module_name]
+      else:
+        mod = imp.new_module(str(module_name))
+        sys.modules[module_name] = mod
+
+      mod.__file__ = filename
+      execfile(filename, mod.__dict__, mod.__dict__)
+
+      for attr in dir(mod):
         if not attr.startswith("__"):
-          log.info("Setting: %s to %s", attr, getattr(m, attr))
-          setattr(settings, attr, getattr(m,attr))
+          log.info("Setting: %s to %s", attr, getattr(mod, attr))
+          setattr(settings, attr, getattr(mod,attr))
+
   except Exception, e:
       log.info("Error loading %s, %s", filename, e)
 
 
-def appengine_run_game(argv, appengine_file_name=None):
+def appengine_run_game(argv_str, appengine_file_name=None):
   from google.appengine.api import files
 
+  argv = argv_str.split()
   options, args = parseOptions(argv)
   log.info(options)
-  if options.fps:
-    settings.FPS = options.fps
+
+  if options.fps: settings.FPS = int(options.fps)
+  loadMap(options.map)
 
   ais = loadAI(args) or []
   highlighted_ais = loadAI(options.highlight, highlight=True)

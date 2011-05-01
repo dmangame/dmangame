@@ -21,13 +21,12 @@ class AiRun(webapp.RequestHandler):
         # Need to iterate through all the parameters of the
         # request, parse their values and use it for
         # parseOptions, apparently.
-        argv_str = self.request.get("argv")
-        argv = urllib.unquote(argv_str).split()
+        argv_str = urllib.unquote(self.request.get("argv"))
 
         self.response.headers['Content-Type'] = 'text/plain'
         fn = files.blobstore.create(mime_type='text/html')
-        self.response.out.write('Running game with %s' % str(argv))
-        deferred.defer(dmangame.appengine_run_game, argv, fn)
+        self.response.out.write('Running game with %s' % argv_str)
+        deferred.defer(dmangame.appengine_run_game, argv_str, fn)
 
 class ReplayHandler(webapp.RequestHandler):
     def get(self, resource):

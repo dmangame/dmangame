@@ -628,6 +628,10 @@ def horizontal_pack(arr_data, this_lookup, sub_key_lookup):
 
 # It needs to translate the world data into smaller format
 # words using minification or something.
+
+# Need to group the world turns into a smaller size, so that
+# the JSONification doesn't take forever.
+
 def save_to_js_file(world_data, world_turns):
   log.info("Saving %s turns to %s", len(world_turns), settings.JS_REPLAY_FILENAME)
 
