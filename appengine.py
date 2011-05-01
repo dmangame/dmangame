@@ -8,6 +8,9 @@ import urllib
 
 import main as dmangame
 
+import logging
+log = logging.getLogger("APPENGINE")
+
 class MainPage(webapp.RequestHandler):
     def get(self):
         self.response.headers['Content-Type'] = 'text/plain'
@@ -15,11 +18,16 @@ class MainPage(webapp.RequestHandler):
 
 class AiRun(webapp.RequestHandler):
     def post(self):
-        ais = self.request.get_all("ai")
+        # Need to iterate through all the parameters of the
+        # request, parse their values and use it for
+        # parseOptions, apparently.
+        argv_str = self.request.get("argv")
+        argv = urllib.unquote(argv_str).split()
+
         self.response.headers['Content-Type'] = 'text/plain'
         fn = files.blobstore.create(mime_type='text/html')
-        deferred.defer(dmangame.appengine_run_game, ais, fn)
-        self.response.out.write('Running game with %s' % str(ais))
+        self.response.out.write('Running game with %s' % str(argv))
+        deferred.defer(dmangame.appengine_run_game, argv, fn)
 
 class ReplayHandler(webapp.RequestHandler):
     def get(self, resource):

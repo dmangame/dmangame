@@ -1,5 +1,7 @@
 import urllib2
 import main as dmangame
+import urllib
+import sys
 
 
 # Should make some sort of marshalling to make it feel like
@@ -9,12 +11,14 @@ import main as dmangame
 # for deparsing with the main loadOptions function
 
 def main():
-  options, args = dmangame.parseOptions()
 #  url_to = "http://dmangame-app.appspot.com/run"
   url_to = "http://localhost:8080/run"
-  data = '&'.join(map(lambda x: "ai=%s"%x, args))
+  data = " ".join(sys.argv[1:])
+  data_str = urllib.urlencode({"argv" : data})
 
-  r = urllib2.urlopen(url_to, data)
+  print "Posting with:"
+  print data_str
+  r = urllib2.urlopen(url_to, data_str)
   print r.read()
 
 

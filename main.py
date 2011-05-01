@@ -37,7 +37,7 @@ except Exception, e:
 
 import world
 
-def parseOptions():
+def parseOptions(opts=None):
     parser = OptionParser()
     parser.add_option("-m", "--map", dest="map",
                       help="Use map settings from MAP", default=None)
@@ -71,7 +71,7 @@ def parseOptions():
     parser.add_option("-o", "--output",
                       dest="replay_file",
                       help="create HTML replay file")
-    (options, args) = parser.parse_args()
+    (options, args) = parser.parse_args(opts)
     return options,args
 
 
@@ -130,10 +130,19 @@ def loadMap(filename):
       log.info("Error loading %s, %s", filename, e)
 
 
-def appengine_run_game(ai_classes, appengine_file_name=None):
+def appengine_run_game(argv, appengine_file_name=None):
   from google.appengine.api import files
 
-  ais = loadAI(ai_classes) or []
+  options, args = parseOptions(argv)
+  log.info(options)
+  if options.fps:
+    settings.FPS = options.fps
+
+  ais = loadAI(args) or []
+  highlighted_ais = loadAI(options.highlight, highlight=True)
+  if highlighted_ais:
+    ais.extend(highlighted_ais)
+    settings.SHOW_HIGHLIGHTS = set(highlighted_ais)
 
   logging.basicConfig(level=logging.INFO)
   settings.SINGLE_THREAD = True
