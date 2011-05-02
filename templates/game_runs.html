@@ -48,7 +48,7 @@ body {
 }
 .game_run .winner {
   background-color: #eeffee;
-  font-size: 24px;
+  font-size: 20px;
   height: 30px;
   position: absolute;
   top: 0px;
@@ -66,6 +66,12 @@ body {
   font-weight: normal;
 }
 
+.game_run .ai_class_name {
+  float: left;
+  width: 200px;
+  overflow: hidden;
+}
+
 
 
 
@@ -78,7 +84,7 @@ body {
 
 .game_run .kills,
 .game_run .deaths {
-  width: 15%;
+  width: 30px;
   float: right;
   text-align: right;
 }
@@ -106,10 +112,10 @@ body {
     <div class="ai_participants">
       {% for ai in gr.aiparticipant_set %}
       <div class="ai_participant {% if ai.win %}winner{%else%}loser{%endif%}">
-         <span class="ai_class_name"
+         <div class="ai_class_name"
                title="{{ ai.file_name }}:{{ ai.version }}">
-            {{ ai.class_name }}<span>
-         </span>
+            {{ ai.class_name }}
+         </div>
 
         <div class="deaths"> {{ ai.deaths }} </div>
         <div class="kills"> {{ ai.kills }} </div>
