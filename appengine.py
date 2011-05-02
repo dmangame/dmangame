@@ -74,8 +74,15 @@ class MainPage(webapp.RequestHandler):
     def get(self):
         games = GameRun.all().order("-created_at").fetch(PAGESIZE)
 
-        map_set = set(map(lambda g: g.map_name, games))
-        game_maps = sorted(list(map_set))
+
+        file_set = set()
+        map_set = set()
+        for game in games:
+          ais = game.aiparticipant_set
+          for ai in ais:
+            file_set.add(ai.file_name)
+          map_set.add(game.map_name)
+
         has_next_page = False
         if len(games) == PAGESIZE + 1:
           has_next_page = games[-1].created_at
@@ -83,9 +90,12 @@ class MainPage(webapp.RequestHandler):
 
 
 
+        game_maps = sorted(list(map_set))
+        game_ais = sorted(list(file_set))
         template_values = { "game_runs" : games,
                             "next_page" : has_next_page,
-                            "maps"      : game_maps }
+                            "maps"      : game_maps,
+                            "ai_files"  : game_ais }
 
         path = os.path.join(TEMPLATE_DIR, "game_runs.html")
         self.response.headers['Content-Type'] = 'text/html'

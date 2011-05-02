@@ -3,11 +3,19 @@
 {% block content %}
 <style>
 
+.toggled {
+  background-color: #dedede;
+}
+
+.ai_selection,
 .map_selection {
-  float: left;
   padding: 5px;
   margin-right: 5px;
   cursor: pointer;
+}
+
+.map_selection {
+  float: left;
 }
 
 #controls {
@@ -128,12 +136,10 @@
     {% endfor %}
   </div>
 
-  <div id="ai_controls" class="hidden">
-    <div style="float: left;">AI: </div>
-    <div class="ai_selection" ai_name="">
-      all
-    </div>
-    {% for a in ais %}
+  <div id="ai_controls" class="clearfix">
+    <div style="float: left;">Files: </div>
+    <br />
+    {% for a in ai_files %}
     <div class="ai_selection" ai_name="{{a}}">
       {{ a }}
     </div>
@@ -155,7 +161,7 @@
 
     <div class="ai_participants">
       {% for ai in gr.aiparticipant_set %}
-      <div class="ai_participant {% if ai.win %}winner{%else%}loser{%endif%}">
+      <div class="ai_participant {% if ai.win %}winner{%else%}loser{%endif%}" file_name="{{ai.file_name}}">
          <div class="ai_class_name"
                title="{{ ai.file_name }}:{{ ai.version }}">
             {{ ai.class_name|truncate:14 }}
@@ -190,19 +196,71 @@
   $(function() {
     $("#game_run_collection").quicksand($("#game_runs .game_run"));
 
-    $(".ai_selection").click(function() {
-  });
+    // Keep track of filtering AIs
+    var filterFiles = [];
+    var map = null;
+
+    var filterGames = function(games) {
+      visible_games = games.filter(function() { 
+        if (map && $(this).attr("map_name")!=map) {
+          return false;
+        }
+
+        if (filterFiles) {
+          // Must contain all AIs that are clicked on
+          var gameAIs = $(this).find(".ai_participant");
+          var ai_files = $.map(gameAIs, function(el) { 
+            return $(el).attr("file_name")
+          });
+          console.log(filterFiles);
+          console.log(ai_files);
+
+          var containsAllAI = true;
+          $.each(filterFiles, function() {
+            var file = String(this);
+            console.log(file);
+            console.log($.inArray(file, ai_files));
+            if ( $.inArray(file, ai_files) == -1) { // For the jquery inArray
+              containsAllAI = false;
+              console.log("Filtering");
+            }
+          });
+
+          if (!containsAllAI) { return false; }
+        }
+
+        return true;
+      });
+
+      $("#game_run_collection").quicksand(visible_games);
+    }
+
+    $(".ai_selection").toggle(
+      function() {
+        var fileName = $(this).attr("ai_name");
+        filterFiles.push(fileName);
+        var games = $("#game_runs .game_run");
+        $(this).addClass("toggled");
+        filterGames(games);
+      },
+      function() {
+        var fileName = $(this).attr("ai_name");
+        var games = $("#game_runs .game_run");
+        filterFiles = $.grep(filterFiles, function(el, index) { return el != fileName; });
+
+        $(this).removeClass("toggled");
+        filterGames(games);
+
+      }
+    );
 
     $(".map_selection").click(function() {
-      var map = $(this).attr("map_name");
+      map = $(this).attr("map_name");
       games = $("#game_runs .game_run");
-      if (map) {
-        games = games.filter(function() {
-          return map == $(this).attr("map_name");
-        });
-      };
+      $(".map_selection").removeClass("toggled");
+      $(this).addClass("toggled");
 
-      $("#game_run_collection").quicksand(games);
+      filterGames(games);
     });
   });
 

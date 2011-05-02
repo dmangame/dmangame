@@ -42,6 +42,6 @@ GAME_LENGTH=10000
 # python /path/to/google_appengine/dev_appserver.py aigame/
 # and then set the below to True, which will cause appengine
 # calls to go to localhost:8080
-APPENGINE_LOCAL = True
+APPENGINE_LOCAL=True
 
 LOADED_AI_MODULES=set()
