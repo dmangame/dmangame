@@ -27,6 +27,19 @@
   width: 100%;
 }
 
+.game_run .overlay {
+  font-size: 80px;
+  padding-top: 100px;
+  text-align: center;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 300px;
+}
+
+.game_run:hover .overlay {
+  text-decoration: underline;
+}
 .game_run {
   cursor: pointer;
   position: relative;
@@ -153,6 +166,7 @@
 <div id="game_runs" class="hidden">
 {% for gr in game_runs %}
   <div class="game_run" data-id="{{gr.key}}" map_name={{gr.map_name}}>
+    <div class="overlay">&gt;</div>
     <h2 class="map">
     <a class="replay" href="/replays/{{ gr.replay.key }}">
       {{gr.map_name}}
