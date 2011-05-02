@@ -28,6 +28,7 @@
 }
 
 .game_run {
+  cursor: pointer;
   position: relative;
   display: inline-block;
   margin-right: 25px;
@@ -256,6 +257,11 @@
       $(this).addClass("toggled");
 
       filterGames(games);
+    });
+
+    $(".game_run").live('click', function() {
+      var href = $(this).find("a.replay").attr("href");
+      window.location = href;
     });
   });
 
