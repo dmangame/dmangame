@@ -212,17 +212,12 @@
           var ai_files = $.map(gameAIs, function(el) { 
             return $(el).attr("file_name")
           });
-          console.log(filterFiles);
-          console.log(ai_files);
 
           var containsAllAI = true;
           $.each(filterFiles, function() {
             var file = String(this);
-            console.log(file);
-            console.log($.inArray(file, ai_files));
             if ( $.inArray(file, ai_files) == -1) { // For the jquery inArray
               containsAllAI = false;
-              console.log("Filtering");
             }
           });
 
