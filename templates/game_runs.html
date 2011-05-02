@@ -1,0 +1,44 @@
+<style>
+
+table {
+  padding: 15px;
+  background-color: #dedede;
+  width: 80%;
+}
+
+table td {
+  width: auto;
+}
+
+
+</style>
+
+<html>
+<head>
+</head>
+<body>
+<div>
+{% for gr in game_runs %}
+    <div>
+      <a href="/replays/{{ gr.replay.key }}">
+        {{gr.created_at|date}} {{ gr.created_at|time }}
+      </a>
+    </div>
+    <table>
+    {% for ai in gr.aiparticipant_set %}
+    <tr>
+      <td> {{ ai.version }} </td>
+      <td> {{ ai.file_name }} </td>
+      <td> {{ ai.class_name }} </td>
+
+      <td> {{ ai.kills }} </td>
+      <td> {{ ai.deaths }} </td>
+      <td> {{ ai.win }} </td>
+    </tr>
+    {% endfor %}
+    </table>
+{% endfor %}
+
+</div>
+</body>
+</html>
