@@ -15,6 +15,10 @@ table td {
   width: auto;
 }
 
+.kills,
+.deaths {
+  width: 10%;
+}
 
 </style>
 
@@ -28,17 +32,21 @@ table td {
       <a href="/replays/{{ gr.replay.key }}">
         {{gr.created_at|date}} {{ gr.created_at|time }}
       </a>
+    <span>{{gr.map}}</span>
     <span>{{gr.run_time|floatformat:2}} seconds</span>
     </div>
     <table>
     {% for ai in gr.aiparticipant_set %}
     <tr class="{% if ai.win %}winner{%else%}loser{%endif%}">
-      <td> {{ ai.version }} </td>
-      <td> {{ ai.file_name }} </td>
-      <td> {{ ai.class_name }} </td>
+      <td>
+       <span class="ai_class_name"
+             title="{{ ai.file_name }}:{{ ai.version }}">
+          {{ ai.class_name }}<span>
+       </span>
+      </td>
 
-      <td> {{ ai.kills }} </td>
-      <td> {{ ai.deaths }} </td>
+      <td class="kills"> {{ ai.kills }} </td>
+      <td class="deaths"> {{ ai.deaths }} </td>
     </tr>
     {% endfor %}
     </table>

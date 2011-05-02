@@ -111,7 +111,7 @@ def loadAI(ais, highlight=False):
     return ai_classes
 
 def loadMap(filename):
-
+  settings.MAP_NAME=filename
   try:
       log.info("Loading Map %s..." % (filename),)
       split_ext = os.path.splitext(filename)

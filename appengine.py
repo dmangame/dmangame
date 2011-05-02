@@ -12,6 +12,8 @@ import hashlib
 import os
 import sys
 
+import settings
+
 TEMPLATE_DIR=os.path.join(os.path.dirname(__file__), 'templates')
 
 
@@ -21,11 +23,12 @@ import logging
 log = logging.getLogger("APPENGINE")
 
 class GameRun(db.Model):
-    created_at = db.DateTimeProperty(auto_now_add=True)
-    updated_at = db.DateTimeProperty(auto_now=True)
-    run_time = db.FloatProperty()
-    replay = blobstore.BlobReferenceProperty()
-    turns = db.IntegerProperty()
+    created_at    = db.DateTimeProperty(auto_now_add=True)
+    map           = db.StringProperty()
+    run_time      = db.FloatProperty()
+    replay        = blobstore.BlobReferenceProperty()
+    updated_at    = db.DateTimeProperty(auto_now=True)
+    turns         = db.IntegerProperty()
 
 class AIParticipant(db.Model):
     created_at = db.DateTimeProperty(auto_now_add=True)
@@ -92,7 +95,8 @@ application = webapp.WSGIApplication(
 def record_game_to_db(world,replay_blob_key,run_time):
   gr = GameRun(replay=replay_blob_key,
                turns=world.currentTurn-1,
-               run_time=run_time)
+               run_time=run_time,
+               map=settings.MAP_NAME)
   gr.put()
 
   for ai_datum in world.dumpScores():
