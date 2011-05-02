@@ -661,7 +661,15 @@ def save_to_js_file(world_data, world_turns):
   h_arr = horizontal_pack(world_turns, world_lookup, world_key_lookups)
   f.write("TD_LOOKUP=%s;\n"%(strip_whitespace(json.dumps(world_lookup))));
   f.write("TD_LOOKUP_SUPPL=%s;\n"%(strip_whitespace(json.dumps(world_key_lookups))));
-  f.write("WORLD_TURNS = %s;\n" %( strip_whitespace(json.dumps(h_arr))))
+
+
+  # Use the array extension method in JS so we can write less lines at a time.
+  LINES=50
+  f.write("WORLD_TURNS = []\n");
+
+  for i in xrange(len(h_arr) / LINES):
+    lines = h_arr[i*LINES:(i+1)*LINES]
+    f.write("WORLD_TURNS.push.apply(WORLD_TURNS, %s);\n" % strip_whitespace(json.dumps(lines)))
 
   # Scrub excess timer info from AIs.
   for ai_turn in ai_turns:
@@ -672,7 +680,11 @@ def save_to_js_file(world_data, world_turns):
   h_arr = horizontal_pack(ai_turns, ai_lookup, ai_key_lookups)
   f.write("AI_LOOKUP = %s;\n" % (strip_whitespace(json.dumps(ai_lookup))))
   f.write("AI_LOOKUP_SUPPL = %s;\n" % (strip_whitespace(json.dumps(ai_key_lookups))))
-  f.write("AI_TURNS = %s;\n" %( strip_whitespace(json.dumps(h_arr))))
+  f.write("AI_TURNS = []\n");
+
+  for i in xrange(len(h_arr) / LINES):
+    lines = h_arr[i*LINES:(i+1)*LINES]
+    f.write("AI_TURNS.push.apply(AI_TURNS, %s);\n" % strip_whitespace(json.dumps(lines)))
 
   f.write(JS_PLAYER.replace("###INTERVAL###",
                             str(speeds["normal_speed"])))
