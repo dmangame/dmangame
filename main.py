@@ -143,6 +143,7 @@ def appengine_run_game(argv_str, appengine_file_name=None):
   log.info(options)
 
   if options.fps: settings.FPS = int(options.fps)
+  reload(settings)
   loadMap(options.map)
 
   ais = loadAI(args) or []

@@ -252,7 +252,11 @@ function draw_ai_scores(ai_data, colors, names) {
         color = colors[team];
 
     html_arr.push("<div id='ai_" + team + "'>");
-    var bg_color = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+");";
+    var bg_color = "rgb("+
+                      parseInt(color[0]*255)+","+
+                      parseInt(color[1]*255)+","+
+                      parseInt(color[2]*255)+");";
+
     html_arr.push("<div class='ai_color_cell' style='background-color:"+bg_color+";'></div>");
     html_arr.push("<div class='ai_header'>"+names[team]+"</div>");
 
@@ -303,10 +307,18 @@ function draw_world(world_data, turn_data) {
 
 
     var color = world_data.colors[unit_static_data[JSLOOKUP.team]],
-        color_str = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+")",
-        alpha_color_str = "rgba("+color[0]*255+","+color[1]*255+","+color[2]*255+", 0.15)";
-        path_color_str = "rgba("+color[0]*128+","+color[1]*128+","+color[2]*128+", 0.5)";
-        ;
+        color_str = "rgb("+
+                      parseInt(color[0]*255)+","+
+                      parseInt(color[1]*255)+","+
+                      parseInt(color[2]*255)+");",
+        alpha_color_str = "rgba("+
+                      parseInt(color[0]*255)+","+
+                      parseInt(color[1]*255)+","+
+                      parseInt(color[2]*255)+", 0.15);",
+        path_color_str = "rgba("+
+                      parseInt(color[0]*255)+","+
+                      parseInt(color[1]*255)+","+
+                      parseInt(color[2]*255)+", 0.5);";
 
     context.fillStyle = color_str;
     context.fillRect(deltax*x, deltay*y, deltax, deltay);
@@ -369,7 +381,10 @@ function draw_world(world_data, turn_data) {
 
       var color = world_data.colors[building_data[TD_LOOKUP_SUPPL.buildings.team]];
       if (color) {
-          var color_str = "rgb("+color[0]*255+","+color[1]*255+","+color[2]*255+")";
+          var color_str = "rgb("+
+                parseInt(color[0]*255)+","+
+                parseInt(color[1]*255)+","+
+                parseInt(color[2]*255)+");";
       } else {
           var color_str = "rgb(0,0,0)";
       }
@@ -410,7 +425,10 @@ function draw_world(world_data, turn_data) {
         color = world_data.colors[team],
         alpha_color = (color[0], color[1], color[2], 0.25),
         shape = highlight_data[TD_LOOKUP_SUPPL.highlights.shape];
-        color_str = "rgba("+color[0]*255+","+color[1]*255+","+color[2]*255+", 0.1)";
+        color_str = "rgba("+
+                      parseInt(color[0]*255)+","+
+                      parseInt(color[1]*255)+","+
+                      parseInt(color[2]*255)+", 0.1);",
 
     context.fillStyle = color_str;
     context.strokeStyle = color_str;

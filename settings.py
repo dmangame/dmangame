@@ -1,3 +1,7 @@
+# IMPORTANT: all SETTINGS that eventually end up in this file
+# through code must also be defined here from the beginning,
+# because this is a 'reset' file, as well.
+
 # MAP MODIFIERS
 MAP_SIZE=100
 MAP_NAME="default"
