@@ -295,7 +295,13 @@ class World:
 
         start_time = time.time()
         if settings.SINGLE_THREAD:
-          ai.turn()
+          try:
+            ai.turn()
+          except Exception, e:
+              traceback.print_exc()
+              if not settings.IGNORE_EXCEPTIONS:
+                raise
+              log.info("AI raised exception %s, skipping this turn for it", e)
         else:
           self.threadedSpin(ai)
         end_time = time.time()
