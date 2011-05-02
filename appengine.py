@@ -25,7 +25,7 @@ log = logging.getLogger("APPENGINE")
 
 class GameRun(db.Model):
     created_at    = db.DateTimeProperty(auto_now_add=True)
-    map           = db.StringProperty()
+    map_name      = db.StringProperty()
     run_time      = db.FloatProperty()
     replay        = blobstore.BlobReferenceProperty()
     updated_at    = db.DateTimeProperty(auto_now=True)
@@ -87,20 +87,30 @@ class ReplayHandler(webapp.RequestHandler):
         self.response.headers['Content-Type'] = 'text/html'
         self.response.out.write(blob_data)
 
+class LogHandler(webapp.RequestHandler):
+    def get(self, resource):
+        resource = str(urllib.unquote(resource))
+        blob_info = blobstore.BlobInfo.get(resource)
+        blob_reader = blob_info.open()
+        blob_data = blob_reader.read()
+        self.response.headers['Content-Type'] = 'text/plain'
+        self.response.out.write(blob_data)
+
 application = webapp.WSGIApplication(
                                      [('/', MainPage),
                                       ('/run', AiRun),
-                                      ('/replays/([^/]+)?', ReplayHandler)],
+                                      ('/replays/([^/]+)?', ReplayHandler),
+                                      ('/logs/([^/]+)?', LogHandler)],
 
                                      debug=True)
 
 
 # TODO: The game must be over for this to work.
-def record_game_to_db(world,replay_blob_key,run_time):
+def record_game_to_db(world, replay_blob_key, run_time):
   gr = GameRun(replay=replay_blob_key,
                turns=world.currentTurn-1,
                run_time=run_time,
-               map=settings.MAP_NAME,
+               map_name=settings.MAP_NAME,
                version=code_signature.digestCode())
   gr.put()
 

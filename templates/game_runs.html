@@ -1,23 +1,90 @@
 <style>
 
-table {
-  padding: 15px;
-  background-color: #dedede;
+body {
+  font-family: monospace;
+  margin: auto;
+  margin-top: 25px;
   width: 80%;
+}
+
+.game_run {
+  position: relative;
+  display: inline-block;
+  margin-right: 25px;
   margin-bottom: 25px;
+  width: 300px;
+  border: 2px dashed #000;
+  padding-bottom: 15px;
 }
 
-.winner {
+.game_run .info {
+  padding: 0 10px;
+  margin-bottom: 5px;
+}
+
+.game_run .map {
+  background-color: #000;
+  color: #fff;
+  text-align: center;
+  padding: 5px;
+  margin: 0px;
+  font-size: 24px;
+}
+
+.game_run .map a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.game_run .ai_participants {
+  height: 100px;
+  overflow: hidden;
+  position: relative;
+  padding-top: 30px;
+}
+
+.game_run .ai_participant {
+  padding: 0 10px;
+}
+.game_run .winner {
   background-color: #eeffee;
+  font-size: 24px;
+  height: 30px;
+  position: absolute;
+  top: 0px;
+  padding: 0px 5px;
+  width: 290px
 }
 
-table td {
-  width: auto;
+.game_run .loser {
+  font-size: 12px;
 }
 
-.kills,
-.deaths {
-  width: 10%;
+.game_run .runtime {
+  float: right;
+  text-decoration: none;
+  font-weight: normal;
+}
+
+
+
+
+.game_run .kills {
+  color: #000000;
+}
+.game_run .deaths {
+  color: #ff0000;
+}
+
+.game_run .kills,
+.game_run .deaths {
+  width: 15%;
+  float: right;
+  text-align: right;
+}
+
+.game_run .playtime_ago {
+  float: right;
 }
 
 </style>
@@ -28,30 +95,43 @@ table td {
 <body>
 <div>
 {% for gr in game_runs %}
-    <div>
-      <a href="/replays/{{ gr.replay.key }}">
-        {{gr.created_at|date}} {{ gr.created_at|time }}
-      </a>
-    <span>{{gr.map}}</span>
-    <span>{{gr.run_time|floatformat:2}} seconds</span>
+  <div class="game_run">
+    <h2 class="map">
+    <a class="replay" href="/replays/{{ gr.replay.key }}">
+      {{gr.map_name}}
+    </a>
+    </h2>
+
+
+    <div class="ai_participants">
+      {% for ai in gr.aiparticipant_set %}
+      <div class="ai_participant {% if ai.win %}winner{%else%}loser{%endif%}">
+         <span class="ai_class_name"
+               title="{{ ai.file_name }}:{{ ai.version }}">
+            {{ ai.class_name }}<span>
+         </span>
+
+        <div class="deaths"> {{ ai.deaths }} </div>
+        <div class="kills"> {{ ai.kills }} </div>
+      </div>
+      {% endfor %}
     </div>
-    <table>
-    {% for ai in gr.aiparticipant_set %}
-    <tr class="{% if ai.win %}winner{%else%}loser{%endif%}">
-      <td>
-       <span class="ai_class_name"
-             title="{{ ai.file_name }}:{{ ai.version }}">
-          {{ ai.class_name }}<span>
-       </span>
-      </td>
 
-      <td class="kills"> {{ ai.kills }} </td>
-      <td class="deaths"> {{ ai.deaths }} </td>
-    </tr>
-    {% endfor %}
-    </table>
+    <div class="info">
+    <h2 class="turns">
+      {{gr.turns}} Turns
+      <span class="runtime">
+        ({{gr.run_time|floatformat:2}}s)
+      </span>
+    </h2>
+    <div class="playtime_ago"
+         title="{{gr.created_at|date}} {{ gr.created_at|time }}">
+      {{gr.created_at|timesince}} ago
+    </div>
+    </div>
+  </div>
 {% endfor %}
-
 </div>
+
 </body>
 </html>

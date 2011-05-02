@@ -107,7 +107,7 @@ def loadAI(ais, highlight=False):
     return ai_classes
 
 def loadMap(filename):
-  settings.MAP_NAME=filename
+  
   try:
       log.info("Loading Map %s..." % (filename),)
       split_ext = os.path.splitext(filename)
@@ -121,6 +121,7 @@ def loadMap(filename):
         sys.modules[module_name] = mod
 
       mod.__file__ = filename
+      settings.MAP_NAME=filename
       execfile(filename, mod.__dict__, mod.__dict__)
 
       for attr in dir(mod):
@@ -150,9 +151,9 @@ def appengine_run_game(argv_str, appengine_file_name=None):
     ais.extend(highlighted_ais)
     settings.SHOW_HIGHLIGHTS = set(highlighted_ais)
 
-  logging.basicConfig(level=logging.INFO)
   settings.SINGLE_THREAD = True
   settings.IGNORE_EXCEPTIONS = True
+  logging.basicConfig(level=logging.INFO)
 
   try:
     cli.main(ais)
@@ -166,22 +167,22 @@ def appengine_run_game(argv_str, appengine_file_name=None):
 
     settings.JS_REPLAY_FILENAME = appengine_file_name
 
-    with files.open(appengine_file_name, 'a') as f:
-      settings.JS_REPLAY_FILE = f
+    with files.open(appengine_file_name, 'a') as replay_file:
+      settings.JS_REPLAY_FILE = replay_file
       cli.end_threads()
       cli.end_game()
 
     files.finalize(appengine_file_name)
-    blob_key = files.blobstore.get_blob_key(appengine_file_name)
-    log.info("Saved to: %s", blob_key)
+
+    replay_blob_key = files.blobstore.get_blob_key(appengine_file_name)
+
+    log.info("Saved to: %s", replay_blob_key)
     log.info("Saved as: %s", appengine_file_name)
-    log.info("http://localhost:8080/replays/%s", blob_key)
+    log.info("http://localhost:8080/replays/%s", replay_blob_key)
 
     end_time = time.time()
     run_time = end_time - start_time
-    record_game_to_db(cli.CliWorld, blob_key,run_time)
-
-
+    record_game_to_db(cli.CliWorld, replay_blob_key, run_time)
 
 def run_game():
   options, args = parseOptions()
