@@ -13,6 +13,11 @@ try:
 except Exception, e:
   log.info(e)
 
+import settings
+
+import yaml
+import urllib2
+import urllib
 
 import glob
 import os
@@ -65,6 +70,10 @@ def parseOptions(opts=None):
                       action="store_true", dest="profile",
                       help="enable profiling with cProfile",
                       default=False)
+    parser.add_option("-a", "--app-engine",
+                      dest="app_engine",
+                      action="store_true", default=False,
+                      help="Run on google app engine")
     parser.add_option("-o", "--output",
                       dest="replay_file",
                       help="create HTML replay file")
@@ -108,7 +117,7 @@ def loadAI(ais, highlight=False):
     return ai_classes
 
 def loadMap(filename):
-  
+
   try:
       log.info("Loading Map %s..." % (filename),)
       split_ext = os.path.splitext(filename)
@@ -186,8 +195,32 @@ def appengine_run_game(argv_str, appengine_file_name=None):
     run_time = end_time - start_time
     record_game_to_db(cli.CliWorld, replay_blob_key, run_time)
 
+def post_to_appengine():
+  yaml_data = open("app.yaml").read()
+  app_data = yaml.load(yaml_data)
+
+  if settings.APPENGINE_LOCAL:
+    url_to = "http://localhost:8080/run"
+  else:
+    url_to = "http://%s.appspot.com/run" % (app_data["application"])
+
+  data = " ".join(sys.argv[1:])
+  data_str = urllib.urlencode({"argv" : data})
+
+  print "Posting to: ", url_to
+  print "Posting with:"
+  print data_str
+  r = urllib2.urlopen(url_to, data_str)
+  print r.read()
+
+
 def run_game():
   options, args = parseOptions()
+
+  if options.app_engine:
+    post_to_appengine()
+    return
+
   logger_stream = None
 
   ais = loadAI(args) or []

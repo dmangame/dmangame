@@ -129,7 +129,6 @@ application = webapp.WSGIApplication(
 
                                      debug=True)
 
-
 # TODO: The game must be over for this to work.
 def record_game_to_db(world, replay_blob_key, run_time):
   gr = GameRun(replay=replay_blob_key,

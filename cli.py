@@ -57,6 +57,8 @@ def main(ai_classes=[]):
 
       t = w.dumpTurnToDict(shorten=True)
       s = w.dumpScores()
+
+      # At this point, make decision
       w.world_turns.append((t,s))
       if settings.SAVE_IMAGES:
         worldmap.draw_map(cairo_context, 200, 200, t)
