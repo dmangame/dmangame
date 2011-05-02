@@ -7,6 +7,7 @@ from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext.webapp import template
 
+import code_signature
 import urllib
 import hashlib
 import os
@@ -29,6 +30,7 @@ class GameRun(db.Model):
     replay        = blobstore.BlobReferenceProperty()
     updated_at    = db.DateTimeProperty(auto_now=True)
     turns         = db.IntegerProperty()
+    version       = db.StringProperty()
 
 class AIParticipant(db.Model):
     created_at = db.DateTimeProperty(auto_now_add=True)
@@ -96,7 +98,8 @@ def record_game_to_db(world,replay_blob_key,run_time):
   gr = GameRun(replay=replay_blob_key,
                turns=world.currentTurn-1,
                run_time=run_time,
-               map=settings.MAP_NAME)
+               map=settings.MAP_NAME,
+               version=code_signature.digestCode())
   gr.put()
 
   for ai_datum in world.dumpScores():
