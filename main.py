@@ -14,10 +14,6 @@ except Exception, e:
   log.info(e)
 
 
-# Disable the GC on suspicions
-import gc
-gc.disable()
-
 import glob
 import os
 import sys
