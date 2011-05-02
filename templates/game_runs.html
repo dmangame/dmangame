@@ -4,6 +4,11 @@ table {
   padding: 15px;
   background-color: #dedede;
   width: 80%;
+  margin-bottom: 25px;
+}
+
+.winner {
+  background-color: #eeffee;
 }
 
 table td {
@@ -23,17 +28,17 @@ table td {
       <a href="/replays/{{ gr.replay.key }}">
         {{gr.created_at|date}} {{ gr.created_at|time }}
       </a>
+    <span>{{gr.run_time|floatformat:2}} seconds</span>
     </div>
     <table>
     {% for ai in gr.aiparticipant_set %}
-    <tr>
+    <tr class="{% if ai.win %}winner{%else%}loser{%endif%}">
       <td> {{ ai.version }} </td>
       <td> {{ ai.file_name }} </td>
       <td> {{ ai.class_name }} </td>
 
       <td> {{ ai.kills }} </td>
       <td> {{ ai.deaths }} </td>
-      <td> {{ ai.win }} </td>
     </tr>
     {% endfor %}
     </table>

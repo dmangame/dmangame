@@ -156,6 +156,7 @@ def appengine_run_game(argv_str, appengine_file_name=None):
 
   logging.basicConfig(level=logging.INFO)
   settings.SINGLE_THREAD = True
+  settings.IGNORE_EXCEPTIONS = True
 
   try:
     cli.main(ais)
