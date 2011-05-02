@@ -1,0 +1,47 @@
+<html>
+<head>
+<style>
+
+body {
+  font-family: monospace;
+  margin: auto;
+  margin-top: 25px;
+  width: 80%;
+}
+
+.hidden {
+  display: none;
+}
+
+.clearfix:after {
+  content: ".";
+  display: block;
+  clear: both;
+  visibility: hidden;
+  line-height: 0;
+  height: 0;
+}
+ 
+.clearfix {
+  display: inline-block;
+}
+ 
+html[xmlns] .clearfix {
+  display: block;
+}
+ 
+* html .clearfix {
+  height: 1%;
+}
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js" type="text/javascript"></script>
+<script src="https://github.com/razorjack/quicksand/raw/master/jquery.quicksand.js" type="text/javascript"></script>
+</head>
+<body>
+{% block content %}
+
+{% endblock %}
+</body>
+
+</html>

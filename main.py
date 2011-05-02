@@ -88,14 +88,15 @@ def loadAI(ais, highlight=False):
             module_name = os.path.basename(split_ext[0])
 
             if module_name in sys.modules:
-              mod = sys.modules[module_name]
-            else:
-              mod = imp.new_module(str(module_name))
-              sys.modules[module_name] = mod
+              del sys.modules[module_name]
+
+            mod = imp.new_module(str(module_name))
+            sys.modules[module_name] = mod
 
             mod.__file__ = filename
             execfile(filename, mod.__dict__, mod.__dict__)
             ai_modules.append(mod)
+            settings.LOADED_AI_MODULES.add(mod)
             log.info("Done")
 
         except Exception, e:

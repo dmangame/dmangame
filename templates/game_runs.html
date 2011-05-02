@@ -1,10 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
 <style>
 
-body {
-  font-family: monospace;
-  margin: auto;
-  margin-top: 25px;
-  width: 80%;
+.map_selection {
+  float: left;
+  padding: 5px;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+#controls {
+  padding-bottom: 25px;
+}
+
+#map_controls {
+  clear: both;
+  width: 100%;
 }
 
 .game_run {
@@ -93,15 +105,47 @@ body {
   float: right;
 }
 
+.game_run .game_version {
+  display: inline-block;
+}
+
+
 </style>
 
-<html>
-<head>
-</head>
+
 <body>
-<div>
+
+<div id="controls" class="clearfix">
+  <div id="map_controls">
+    <div style="float: left;">Map:</div>
+    <div class="map_selection" map_name="">
+      all
+    </div>
+    {% for m in maps %}
+    <div class="map_selection" map_name="{{m}}">
+      {{ m }}
+    </div>
+    {% endfor %}
+  </div>
+
+  <div id="ai_controls" class="hidden">
+    <div style="float: left;">AI: </div>
+    <div class="ai_selection" ai_name="">
+      all
+    </div>
+    {% for a in ais %}
+    <div class="ai_selection" ai_name="{{a}}">
+      {{ a }}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div id="game_run_collection"></div>
+
+<div id="game_runs" class="hidden">
 {% for gr in game_runs %}
-  <div class="game_run">
+  <div class="game_run" data-id="{{gr.key}}" map_name={{gr.map_name}}>
     <h2 class="map">
     <a class="replay" href="/replays/{{ gr.replay.key }}">
       {{gr.map_name}}
@@ -114,7 +158,7 @@ body {
       <div class="ai_participant {% if ai.win %}winner{%else%}loser{%endif%}">
          <div class="ai_class_name"
                title="{{ ai.file_name }}:{{ ai.version }}">
-            {{ ai.class_name }}
+            {{ ai.class_name|truncate:14 }}
          </div>
 
         <div class="deaths"> {{ ai.deaths }} </div>
@@ -130,6 +174,9 @@ body {
         ({{gr.run_time|floatformat:2}}s)
       </span>
     </h2>
+    <div class="game_version">
+      version: {{ gr.version|truncate:6 }}
+    </div>
     <div class="playtime_ago"
          title="{{gr.created_at|date}} {{ gr.created_at|time }}">
       {{gr.created_at|timesince}} ago
@@ -139,5 +186,26 @@ body {
 {% endfor %}
 </div>
 
-</body>
-</html>
+<script type='text/javascript'>
+  $(function() {
+    $("#game_run_collection").quicksand($("#game_runs .game_run"));
+
+    $(".ai_selection").click(function() {
+  });
+
+    $(".map_selection").click(function() {
+      var map = $(this).attr("map_name");
+      games = $("#game_runs .game_run");
+      if (map) {
+        games = games.filter(function() {
+          return map == $(this).attr("map_name");
+        });
+      };
+
+      $("#game_run_collection").quicksand(games);
+    });
+  });
+
+</script>
+
+{% endblock content %}

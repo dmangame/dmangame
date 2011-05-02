@@ -1,6 +1,7 @@
 import hashlib
 import os
 import sys
+import settings
 
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
 def digestCode():
@@ -17,7 +18,9 @@ def digestCode():
       # This is a major assumption, relies on the .py files
       # always being around when there is a .pyc
       f = module.__file__.replace(".pyc", ".py")
-      md.update(open(f).read())
+
+      if not module in settings.LOADED_AI_MODULES:
+        md.update(open(f).read())
 
     child_modules.sort(key=lambda m: m.__name__)
 

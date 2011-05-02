@@ -15,6 +15,26 @@ import sys
 
 import settings
 
+register = webapp.template.create_template_register()
+template.register_template_library('appengine')
+
+@register.filter
+def truncate(value, arg):
+    """
+    Truncates a string after a given number of chars  
+    Argument: Number of chars to truncate after
+    """
+    try:
+        length = int(arg)
+    except ValueError: # invalid literal for int()
+        return value # Fail silently.
+    if not isinstance(value, basestring):
+        value = str(value)
+    if (len(value) > length):
+        return value[:length]
+    else:
+        return value
+
 TEMPLATE_DIR=os.path.join(os.path.dirname(__file__), 'templates')
 
 
@@ -49,9 +69,13 @@ class AIParticipant(db.Model):
 
 
 PAGESIZE=100
+
 class MainPage(webapp.RequestHandler):
     def get(self):
         games = GameRun.all().order("-created_at").fetch(PAGESIZE)
+
+        map_set = set(map(lambda g: g.map_name, games))
+        game_maps = sorted(list(map_set))
         has_next_page = False
         if len(games) == PAGESIZE + 1:
           has_next_page = games[-1].created_at
@@ -60,7 +84,8 @@ class MainPage(webapp.RequestHandler):
 
 
         template_values = { "game_runs" : games,
-                            "next_page" : has_next_page }
+                            "next_page" : has_next_page,
+                            "maps"      : game_maps }
 
         path = os.path.join(TEMPLATE_DIR, "game_runs.html")
         self.response.headers['Content-Type'] = 'text/html'
@@ -87,20 +112,10 @@ class ReplayHandler(webapp.RequestHandler):
         self.response.headers['Content-Type'] = 'text/html'
         self.response.out.write(blob_data)
 
-class LogHandler(webapp.RequestHandler):
-    def get(self, resource):
-        resource = str(urllib.unquote(resource))
-        blob_info = blobstore.BlobInfo.get(resource)
-        blob_reader = blob_info.open()
-        blob_data = blob_reader.read()
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.out.write(blob_data)
-
 application = webapp.WSGIApplication(
                                      [('/', MainPage),
                                       ('/run', AiRun),
-                                      ('/replays/([^/]+)?', ReplayHandler),
-                                      ('/logs/([^/]+)?', LogHandler)],
+                                      ('/replays/([^/]+)?', ReplayHandler)],
 
                                      debug=True)
 
