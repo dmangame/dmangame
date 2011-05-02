@@ -36,14 +36,16 @@ class AIParticipant(db.Model):
     created_at = db.DateTimeProperty(auto_now_add=True)
     updated_at = db.DateTimeProperty(auto_now=True)
     class_name = db.StringProperty(required=True)
-    file_name = db.StringProperty(required=True)
-    game_run = db.ReferenceProperty(GameRun)
-    version = db.StringProperty(required=True)
-    win = db.BooleanProperty(required=True)
+    file_name  = db.StringProperty(required=True)
+    game_run   = db.ReferenceProperty(GameRun)
+    version    = db.StringProperty(required=True)
+    win        = db.BooleanProperty(required=True)
 
     # Can keep score information here for queries, I guess.
-    kills = db.IntegerProperty()
-    deaths = db.IntegerProperty()
+    deaths     = db.IntegerProperty()
+    kills      = db.IntegerProperty()
+    units      = db.IntegerProperty()
+    buildings  = db.IntegerProperty()
 
 
 PAGESIZE=100
@@ -120,6 +122,8 @@ def record_game_to_db(world,replay_blob_key,run_time):
                         win=win,
                         kills=ai_datum['kills'],
                         deaths=ai_datum['deaths'],
+                        units=ai_datum['units'],
+                        buildings=ai_datum['buildings'],
                         game_run=gr)
 
     aip.put()
