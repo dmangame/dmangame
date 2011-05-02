@@ -1,20 +1,63 @@
 from google.appengine.ext import blobstore
+from google.appengine.ext import db
 from google.appengine.ext import deferred
 from google.appengine.api import files
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext.webapp.util import run_wsgi_app
+from google.appengine.ext.webapp import template
+
 import urllib
+import hashlib
+import os
+import sys
+
+TEMPLATE_DIR=os.path.join(os.path.dirname(__file__), 'templates')
+
 
 import main as dmangame
 
 import logging
 log = logging.getLogger("APPENGINE")
 
+class GameRun(db.Model):
+    created_at = db.DateTimeProperty(auto_now_add=True)
+    updated_at = db.DateTimeProperty(auto_now=True)
+    run_time = db.FloatProperty()
+    replay = blobstore.BlobReferenceProperty()
+    turns = db.IntegerProperty()
+
+class AIParticipant(db.Model):
+    created_at = db.DateTimeProperty(auto_now_add=True)
+    updated_at = db.DateTimeProperty(auto_now=True)
+    class_name = db.StringProperty(required=True)
+    file_name = db.StringProperty(required=True)
+    game_run = db.ReferenceProperty(GameRun)
+    version = db.StringProperty(required=True)
+    win = db.BooleanProperty(required=True)
+
+    # Can keep score information here for queries, I guess.
+    kills = db.IntegerProperty()
+    deaths = db.IntegerProperty()
+
+
+PAGESIZE=100
 class MainPage(webapp.RequestHandler):
     def get(self):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.out.write('Current stats for matches will go here')
+        games = GameRun.all().order("-created_at").fetch(PAGESIZE)
+        has_next_page = False
+        if len(games) == PAGESIZE + 1:
+          has_next_page = games[-1].created_at
+          games = games[:PAGESIZE]
+
+
+
+        template_values = { "game_runs" : games,
+                            "next_page" : has_next_page }
+
+        path = os.path.join(TEMPLATE_DIR, "game_runs.html")
+        self.response.headers['Content-Type'] = 'text/html'
+        self.response.out.write(template.render(path, template_values))
 
 class AiRun(webapp.RequestHandler):
     def post(self):
@@ -43,6 +86,37 @@ application = webapp.WSGIApplication(
                                       ('/replays/([^/]+)?', ReplayHandler)],
 
                                      debug=True)
+
+
+# TODO: The game must be over for this to work.
+def record_game_to_db(world,replay_blob_key,run_time):
+  gr = GameRun(replay=replay_blob_key,
+               turns=world.currentTurn-1,
+               run_time=run_time)
+  gr.put()
+
+  for ai_datum in world.dumpScores():
+    team = ai_datum['team']
+    ai = world.team_map[team]
+    mod = sys.modules[ai.__class__.__module__]
+    md = hashlib.md5()
+    md.update(open(mod.__file__).read())
+    version = md.hexdigest()
+
+    win=False
+    if ai_datum['units'] > 0:
+      win = True
+
+    aip = AIParticipant(class_name=ai.__class__.__name__,
+                        file_name=mod.__file__,
+                        version=version,
+                        win=win,
+                        kills=ai_datum['kills'],
+                        deaths=ai_datum['deaths'],
+                        game_run=gr)
+
+    aip.put()
+
 def main():
     run_wsgi_app(application)
 

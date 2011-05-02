@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 from __future__ import with_statement
 import settings
+import time
 
 import logging
 log = logging.getLogger("MAIN")
@@ -137,6 +138,8 @@ def loadMap(filename):
 
 def appengine_run_game(argv_str, appengine_file_name=None):
   from google.appengine.api import files
+  from appengine import record_game_to_db
+  start_time = time.time()
 
   argv = argv_str.split()
   options, args = parseOptions(argv)
@@ -176,6 +179,10 @@ def appengine_run_game(argv_str, appengine_file_name=None):
     log.info("Saved to: %s", blob_key)
     log.info("Saved as: %s", appengine_file_name)
     log.info("http://localhost:8080/replays/%s", blob_key)
+
+    end_time = time.time()
+    run_time = end_time - start_time
+    record_game_to_db(cli.CliWorld, blob_key,run_time)
 
 
 
