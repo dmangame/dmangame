@@ -23,6 +23,18 @@ AI = []
 
 ncurses = None
 
+LOOKUPS = None
+def save_world_turns(world_turns):
+  if not settings.JS_REPLAY_FILE and not settings.JS_REPLAY_FILENAME:
+    return
+
+  global LOOKUPS
+  if not LOOKUPS:
+    LOOKUPS = jsplayer.begin_save_to_js_file(world_turns)
+
+  # Save the world information to an output file.
+  jsplayer.save_world_turns_to_js_file(world_turns, *LOOKUPS)
+
 def main(ai_classes=[]):
   w = world.World()
   global CliWorld, ncurses
@@ -65,6 +77,11 @@ def main(ai_classes=[]):
 
       if settings.NCURSES:
         ncurses.update(t, s)
+
+      if len(w.world_turns) >= settings.BUFFER_SIZE:
+        save_world_turns(w.world_turns)
+        w.world_turns = []
+
   log.info("Finished simulating the world")
 
 def end_threads():
@@ -78,9 +95,10 @@ def end_game():
   if settings.NCURSES:
     ncurses.end()
 
+  save_world_turns(CliWorld.world_turns)
   # Save the world information to an output file.
   if settings.JS_REPLAY_FILE or settings.JS_REPLAY_FILENAME:
-    jsplayer.save_to_js_file(CliWorld.dumpWorldToDict(), CliWorld.world_turns)
+    jsplayer.end_world(CliWorld.dumpWorldToDict())
 
 if __name__ == "__main__":
   main()

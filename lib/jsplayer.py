@@ -644,14 +644,15 @@ def horizontal_pack(arr_data, this_lookup, sub_key_lookup):
 
   return new_arr_data
 
+
 # It needs to translate the world data into smaller format
 # words using minification or something.
 
 # Need to group the world turns into a smaller size, so that
 # the JSONification doesn't take forever.
 
-def save_to_js_file(world_data, world_turns):
-  log.info("Saving %s turns to %s", len(world_turns), settings.JS_REPLAY_FILENAME)
+def begin_save_to_js_file(world_turns):
+  log.info("Creating %s", settings.JS_REPLAY_FILENAME)
 
   f = settings.JS_REPLAY_FILE
   if not f:
@@ -667,27 +668,15 @@ def save_to_js_file(world_data, world_turns):
   f.write(HTML_SKELETON)
   f.write(PLAYER_CONTROLS % speeds)
 
-  world_data = copy.deepcopy(world_data)
   world_turns = copy.deepcopy(world_turns)
-
-  translate_dict(world_data, JSLOOKUP)
-  f.write("JSLOOKUP = %s;\n" % strip_whitespace((json.dumps(JSLOOKUP))))
-  f.write("WORLD_DATA = %s;\n" % (strip_whitespace(json.dumps(world_data))))
-
   world_turns, ai_turns = zip(*world_turns)
   world_lookup, world_key_lookups = determine_keys(world_turns)
   h_arr = horizontal_pack(world_turns, world_lookup, world_key_lookups)
   f.write("TD_LOOKUP=%s;\n"%(strip_whitespace(json.dumps(world_lookup))));
   f.write("TD_LOOKUP_SUPPL=%s;\n"%(strip_whitespace(json.dumps(world_key_lookups))));
 
-
   # Use the array extension method in JS so we can write less lines at a time.
-  LINES=50
   f.write("WORLD_TURNS = []\n");
-
-  for i in xrange(len(h_arr) / LINES):
-    lines = h_arr[i*LINES:(i+1)*LINES]
-    f.write("WORLD_TURNS.push.apply(WORLD_TURNS, %s);\n" % strip_whitespace(json.dumps(lines)))
 
   # Scrub excess timer info from AIs.
   for ai_turn in ai_turns:
@@ -699,15 +688,78 @@ def save_to_js_file(world_data, world_turns):
   f.write("AI_LOOKUP = %s;\n" % (strip_whitespace(json.dumps(ai_lookup))))
   f.write("AI_LOOKUP_SUPPL = %s;\n" % (strip_whitespace(json.dumps(ai_key_lookups))))
   f.write("AI_TURNS = []\n");
+  
+  if not settings.JS_REPLAY_FILE:
+    f.close()
 
-  for i in xrange(len(h_arr) / LINES):
-    lines = h_arr[i*LINES:(i+1)*LINES]
-    f.write("AI_TURNS.push.apply(AI_TURNS, %s);\n" % strip_whitespace(json.dumps(lines)))
+  return (world_lookup, world_key_lookups, ai_lookup, ai_key_lookups)
+
+
+def end_save_to_js_file(world_data):
+  f = settings.JS_REPLAY_FILE
+  if not f:
+    f = open(settings.JS_REPLAY_FILENAME, "a")
 
   f.write(JS_PLAYER.replace("###INTERVAL###",
-                            str(speeds["normal_speed"])))
+                            str(1000 / settings.FPS)))
+
+  world_data = copy.deepcopy(world_data)
+  translate_dict(world_data, JSLOOKUP)
+  f.write("JSLOOKUP = %s;\n" % strip_whitespace((json.dumps(JSLOOKUP))))
+  f.write("WORLD_DATA = %s;\n" % (strip_whitespace(json.dumps(world_data))))
+
   f.write(HTML_SKELETON_END)
 
   if not settings.JS_REPLAY_FILE:
     f.close()
+
+def save_world_turns_to_js_file(world_turns,
+                                world_lookup, world_key_lookups,
+                                ai_lookup, ai_key_lookups):
+
+  f = settings.JS_REPLAY_FILE
+  if not f:
+    f = open(settings.JS_REPLAY_FILENAME, "a")
+
+  log.info("Saving %s turns to %s", len(world_turns), settings.JS_REPLAY_FILENAME)
+  world_turns, ai_turns = zip(*world_turns)
+
+  LINES=50
+  h_arr = horizontal_pack(world_turns, world_lookup, world_key_lookups)
+  for i in xrange(len(h_arr) / LINES+1):
+    lines = h_arr[i*LINES:(i+1)*LINES]
+    f.write("WORLD_TURNS.push.apply(WORLD_TURNS, %s);\n" % strip_whitespace(json.dumps(lines)))
+
+
+
+  h_arr = horizontal_pack(ai_turns, ai_lookup, ai_key_lookups)
+  for i in xrange(len(h_arr) / LINES+1):
+    lines = h_arr[i*LINES:(i+1)*LINES]
+    f.write("AI_TURNS.push.apply(AI_TURNS, %s);\n" % strip_whitespace(json.dumps(lines)))
+
+  if not settings.JS_REPLAY_FILE:
+    f.close()
+
+def save_to_js_file(world_data, world_turns):
+  lookups = begin_save_to_js_file(world_turns)
+  save_world_turns_to_js_file(world_turns, *lookups)
+  end_save_to_js_file(world_data)
+
+
+LOOKUPS = None
+def save_world_turns(world_turns):
+  if not settings.JS_REPLAY_FILE and not settings.JS_REPLAY_FILENAME:
+    return
+
+  global LOOKUPS
+  if not LOOKUPS:
+    LOOKUPS = begin_save_to_js_file(world_turns)
+
+  # Save the world information to an output file.
+  save_world_turns_to_js_file(world_turns, *LOOKUPS)
+
+def end_world(world_data):
+  global LOOKUPS
+  LOOKUPS = None
+  end_save_to_js_file(world_data)
 

@@ -29,10 +29,10 @@ from threading import Thread, RLock
 import multiprocessing
 import Queue
 
+from lib import jsplayer
 import logging
 log = logging.getLogger("GUI")
 
-BUFFER_SIZE=1000
 
 import pango
 AI_FONT = pango.FontDescription('Sans 10')
@@ -70,7 +70,7 @@ class MapGUI:
 
         # Initialize our pixbuf queue
         self.stopped = False
-        self.frame_queue = multiprocessing.Queue(BUFFER_SIZE)
+        self.frame_queue = multiprocessing.Queue(settings.BUFFER_SIZE)
         self.lock = RLock()
 
         self.processes = []
@@ -206,6 +206,9 @@ class MapGUI:
           return
 
         self.world_turns.append((turn_data, ai_data))
+        if len(self.world_turns) >= settings.BUFFER_SIZE:
+          jsplayer.save_world_turns(self.world_turns)
+          self.world_turns = []
         self.draw_map(world_data, turn_data)
         self.world_data.update(world_data)
         self.update_ai_stats(ai_data, world_data["colors"])
@@ -323,8 +326,8 @@ def main(ais=[]):
 
 def end_game():
   if settings.JS_REPLAY_FILE or settings.JS_REPLAY_FILENAME:
-    from lib import jsplayer
-    jsplayer.save_to_js_file(m.world_data, m.world_turns)
+    jsplayer.save_world_turns(m.world_turns)
+    jsplayer.end_save_to_js_file(m.world_data)
 
   last_ai_data = m.world_turns[-1][1]
   log.info("END GAME SCORES")

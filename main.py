@@ -166,34 +166,33 @@ def appengine_run_game(argv_str, appengine_file_name=None):
   settings.IGNORE_EXCEPTIONS = True
   logging.basicConfig(level=logging.INFO)
 
-  try:
-    cli.main(ais)
-  except KeyboardInterrupt, e:
-    raise
-  except Exception, e:
-    traceback.print_exc()
-  finally:
-    if not appengine_file_name:
-      appengine_file_name = files.blobstore.create(mime_type='text/html')
+  if not appengine_file_name:
+    appengine_file_name = files.blobstore.create(mime_type='text/html')
+  settings.JS_REPLAY_FILENAME = appengine_file_name
 
-    settings.JS_REPLAY_FILENAME = appengine_file_name
-
-    with files.open(appengine_file_name, 'a') as replay_file:
-      settings.JS_REPLAY_FILE = replay_file
+  with files.open(appengine_file_name, 'a') as replay_file:
+    settings.JS_REPLAY_FILE = replay_file
+    try:
+      cli.main(ais)
+    except KeyboardInterrupt, e:
+      raise
+    except Exception, e:
+      traceback.print_exc()
+    finally:
       cli.end_threads()
       cli.end_game()
 
-    files.finalize(appengine_file_name)
 
-    replay_blob_key = files.blobstore.get_blob_key(appengine_file_name)
+  files.finalize(appengine_file_name)
+  replay_blob_key = files.blobstore.get_blob_key(appengine_file_name)
 
-    log.info("Saved to: %s", replay_blob_key)
-    log.info("Saved as: %s", appengine_file_name)
-    log.info("http://localhost:8080/replays/%s", replay_blob_key)
+  log.info("Saved to: %s", replay_blob_key)
+  log.info("Saved as: %s", appengine_file_name)
+  log.info("http://localhost:8080/replays/%s", replay_blob_key)
 
-    end_time = time.time()
-    run_time = end_time - start_time
-    record_game_to_db(cli.CliWorld, replay_blob_key, run_time)
+  end_time = time.time()
+  run_time = end_time - start_time
+  record_game_to_db(cli.CliWorld, replay_blob_key, run_time)
 
 def post_to_appengine():
   yaml_data = open("app.yaml").read()
