@@ -24,6 +24,5 @@ def digestCode():
       if not module in settings.LOADED_AI_MODULES:
         md.update(open(f).read())
 
-    child_modules.sort(key=lambda m: m.__name__)
 
     return md.hexdigest()

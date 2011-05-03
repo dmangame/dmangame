@@ -22,6 +22,34 @@
   padding-bottom: 25px;
 }
 
+#sort_reverse {
+  cursor: pointer;
+  margin-top: 5px;
+  padding: 10px;
+  border: 2px dotted black;
+}
+#sort_order {
+  float: left;
+}
+
+#sort_controls {
+  clear: both;
+  width: 100%;
+}
+
+#sort_controls ul {
+  list-style: none;
+}
+
+#sort_controls li {
+  text-decoration: none;
+  float: left;
+  margin: 0px 25px;
+  padding: 5px;
+  background-color: #dedede;
+}
+
+
 #map_controls {
   clear: both;
   width: 100%;
@@ -159,13 +187,27 @@
     </div>
     {% endfor %}
   </div>
+
+  <div id="sort_controls" class="clearfix">
+
+    <div style="float: left;">Sort By (Drag to change ordering): </div>
+    <br/>
+    <ol id="sort_order">
+    </ol>
+    <div id="sort_reverse" style="float: left;">Reverse Results</div>
+  </div>
 </div>
 
 <div id="game_run_collection"></div>
 
 <div id="game_runs" class="hidden">
 {% for gr in game_runs %}
-  <div class="game_run" data-id="{{gr.key}}" map_name={{gr.map_name}}>
+  <div class="game_run"
+       data-id="{{gr.key}}"
+       map_name="{{gr.map_name}}"
+       turns="{{gr.turns}}"
+       num_ai="{{gr.aiparticipant_set.count}}"
+       created_at="{{gr.created_at}}" >
     <div class="overlay">&gt;</div>
     <h2 class="map">
     <a class="replay" href="/replays/{{ gr.replay.key }}">
@@ -207,16 +249,26 @@
 {% endfor %}
 </div>
 
+<script src="https://github.com/jamespadolsey/jQuery-Plugins/raw/master/sortElements/jquery.sortElements.js" type="text/javascript"></script>
+
 <script type='text/javascript'>
   $(function() {
+
+    $.fn.reverse = [].reverse;
+
     $("#game_run_collection").quicksand($("#game_runs .game_run"));
 
     // Keep track of filtering AIs
+    var sortOrder = [];
+    var sortReverse = false;
     var filterFiles = [];
     var map = null;
 
     var filterGames = function(games) {
-      visible_games = games.filter(function() { 
+      if (games == null) { games = $("#game_runs .game_run"); }
+
+      // Filter games, first
+      visible_games = games.filter(function() {
         if (map && $(this).attr("map_name")!=map) {
           return false;
         }
@@ -224,7 +276,7 @@
         if (filterFiles) {
           // Must contain all AIs that are clicked on
           var gameAIs = $(this).find(".ai_participant");
-          var ai_files = $.map(gameAIs, function(el) { 
+          var ai_files = $.map(gameAIs, function(el) {
             return $(el).attr("file_name")
           });
 
@@ -242,6 +294,20 @@
         return true;
       });
 
+
+      // Now sort games
+      visible_games.sort(function(a, b) {
+        for (i in sortOrder) {
+          var func = sortComparators[sortOrder[i]],
+              r = func(a,b);
+
+          if (r != 0) { return r; }
+        };
+        return 0;
+      });
+
+      if (sortReverse) { visible_games.reverse(); }
+
       $("#game_run_collection").quicksand(visible_games);
     }
 
@@ -249,33 +315,93 @@
       function() {
         var fileName = $(this).attr("ai_name");
         filterFiles.push(fileName);
-        var games = $("#game_runs .game_run");
         $(this).addClass("toggled");
-        filterGames(games);
+        filterGames();
       },
       function() {
         var fileName = $(this).attr("ai_name");
-        var games = $("#game_runs .game_run");
         filterFiles = $.grep(filterFiles, function(el, index) { return el != fileName; });
 
         $(this).removeClass("toggled");
-        filterGames(games);
+        filterGames();
 
       }
     );
 
     $(".map_selection").click(function() {
       map = $(this).attr("map_name");
-      games = $("#game_runs .game_run");
       $(".map_selection").removeClass("toggled");
       $(this).addClass("toggled");
 
-      filterGames(games);
+      filterGames();
     });
 
     $(".game_run").live('click', function() {
       var href = $(this).find("a.replay").attr("href");
       window.location = href;
+    });
+
+    var attrCompare = function(a,b,attr) {
+      var a_attr = $(a).attr(attr);
+      var b_attr = $(b).attr(attr);
+      if (a_attr == b_attr) { return 0; }
+      if (a_attr < b_attr) { return -1; }
+      return 1;
+    }
+
+    var attrIntCompare = function(a,b,attr) {
+      var a_attr = parseInt($(a).attr(attr));
+      var b_attr = parseInt($(b).attr(attr));
+      if (a_attr == b_attr) { return 0; }
+      if (a_attr < b_attr) { return -1; }
+      return 1;
+    };
+
+    var sort_ways = [
+      ["Winner", function(a, b) {
+        return attrCompare($(a).find(".ai_participant.winner"),
+                           $(b).find(".ai_participant.winner"),
+                           "file_name");
+        }],
+      ["Map", function(a, b) {
+        return attrCompare(a,b,"map_name");
+        }],
+      ["Game Length", function(a, b) {
+        return attrIntCompare(a,b,"turns");
+        }],
+      ["Number of AI", function(a, b) {
+        return attrIntCompare(a,b,"num_ai");
+        }],
+      ["Age", function(a, b) {
+        return attrIntCompare(a,b,"created_at");
+        }]
+    ]
+
+    var sortComparators = {};
+
+    $.each(sort_ways, function() {
+      var el = this;
+      sortComparators[el[0]] = el[1];
+      $("#sort_order").append($("<li key='"+el[0]+"'>"+el[0]+"</li>"));
+      sortOrder.push(el[0]);
+    });
+
+    $("#sort_order").sortable({
+      stop: function(event, ui) {
+        var keyOrder = $(this).children().map(function() { return $(this).attr("key") });
+        sortOrder = $.makeArray(keyOrder);
+        filterGames();
+      }
+    });
+
+    $("#sort_controls #sort_reverse").toggle(function() {
+      $(this).addClass("toggled");
+      sortReverse = true;
+      filterGames();
+    }, function() {
+      $(this).removeClass("toggled");
+      sortReverse = false;
+      filterGames();
     });
   });
 
