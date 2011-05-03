@@ -9,8 +9,8 @@ dmangame has support for google app engine built in. this
 allows you to run as many games as you want in parallel and
 then browse their results through a web UI.
 
-by default, it is configured to run games on my app engine
-instance which has the latest AI from dmanai.
+by default, it is configured to run games on [my app engine
+instance][0]. it is on the latest (and possibly later) code from github and contain the latest AI from dmanai/.
 
 ### running on app engine
 
@@ -45,7 +45,7 @@ the typical flow is to work on your AI and test it locally,
 and when ready to see results in larger quantities run the
 update step.
 
-
+[0]: http://dmangame-app.appspot.com
 
 
 
