@@ -728,14 +728,16 @@ def save_world_turns_to_js_file(world_turns,
   h_arr = horizontal_pack(world_turns, world_lookup, world_key_lookups)
   for i in xrange(len(h_arr) / LINES+1):
     lines = h_arr[i*LINES:(i+1)*LINES]
-    f.write("WORLD_TURNS.push.apply(WORLD_TURNS, %s);\n" % strip_whitespace(json.dumps(lines)))
+    if lines:
+      f.write("WORLD_TURNS.push.apply(WORLD_TURNS, %s);\n" % strip_whitespace(json.dumps(lines)))
 
 
 
   h_arr = horizontal_pack(ai_turns, ai_lookup, ai_key_lookups)
   for i in xrange(len(h_arr) / LINES+1):
     lines = h_arr[i*LINES:(i+1)*LINES]
-    f.write("AI_TURNS.push.apply(AI_TURNS, %s);\n" % strip_whitespace(json.dumps(lines)))
+    if lines:
+      f.write("AI_TURNS.push.apply(AI_TURNS, %s);\n" % strip_whitespace(json.dumps(lines)))
 
   if not settings.JS_REPLAY_FILE:
     f.close()
