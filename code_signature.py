@@ -14,6 +14,8 @@ def digestCode():
         if p.startswith(CUR_DIR):
           child_modules.append(mod)
 
+    child_modules.sort(key=lambda m: m.__name__)
+
     for module in child_modules:
       # This is a major assumption, relies on the .py files
       # always being around when there is a .pyc
