@@ -44,6 +44,14 @@ If not, then just python.
     # Help
     python main.py --help
 
+    # Run game via appengine. The app engine server is specified in # app.yaml.
+    # By default, it will hit dmangame-app.appspot.com, which
+    # will have the version of the code in github + the latest dmanai/ available.
+    # Note: You should need to set APPENGINE_LOCAL to False for this to work
+
+    # The results should get posted to
+    # http://dmangame-app.appspot.com
+    python main.py dmanai/okay/rushai.py dmanai/bob/expand-then-search.py -m maps/macro.py --app-engine
 
 See Also:
 ---------
