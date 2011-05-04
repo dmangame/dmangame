@@ -15,104 +15,109 @@ class Unit(mapobject.MapObject):
     # square? I forget.
 
     ID_GENERATOR = unit_id_generator()
+
     def __init__(self, worldtalker, stats):
         self.__wt = worldtalker
         self.__stats = stats
         self.killer = set()
         self.__unit_id = Unit.ID_GENERATOR.next()
 
-    def getUnitID(self):
+    @property
+    def unit_id(self):
       return self.__unit_id
-    unit_id = property(getUnitID)
 
     # Some functions the unit has access to.  The way it will
     # use all these functions is by asking the worldtalker to
     # do all teh dirty business.
 
     # Properties
-    def getPosition(self):
-        " Returns the position of this Unit on the map"
+
+    @property
+    def position(self):
+        " the position of this Unit on the map"
         return self.__wt.getPosition(self)
-    position = property(getPosition)
 
-    def isAlive(self):
-        " Returns if this unit is alive or not in the world"
+    @property
+    def is_alive(self):
+        " if this unit is alive or not in the world"
         return self.__wt.isAlive(self)
-    is_alive = property(isAlive)
 
-    def isCapturing(self):
-        " Returns if this unit is currently capturing a building "
+    @property
+    def is_capturing(self):
+        " if this unit is currently capturing a building "
         return self.__wt.isCapturing(self)
-    is_capturing = property(isCapturing)
 
 
-    def isMoving(self):
-        " Returns if this unit is currently moving."
+    @property
+    def is_moving(self):
+        " if this unit is currently moving."
         return self.__wt.isMoving(self)
-    is_moving = property(isMoving)
 
-    def isShooting(self):
-        " Returns if this unit is shooting"
+    @property
+    def is_shooting(self):
+        " if this unit is shooting"
         return self.__wt.isShooting(self)
-    is_shooting = property(isShooting)
 
-    def isUnderAttack(self):
-        " Returns if this unit is under attack"
+    @property
+    def is_under_attack(self):
+        " if this unit is under attack"
         return self.__wt.isUnderAttack(self)
-    is_under_attack = property(isUnderAttack)
 
-    def getArmor(self):
+    @property
+    def armor(self):
         "The armor of the unit, represents the damage this unit absorbs when it gets shot by a bullet."
         return self.__wt.getArmor(self)
-    armor = property(getArmor)
 
-    def getAttack(self):
+    @property
+    def attack(self):
         "The attack of the unit, represents the damage this unit does with its bullets."
         return self.__wt.getAttack(self)
-    attack = property(getAttack)
 
-    def getEnergy(self):
+    @property
+    def energy(self):
         "The energy of the unit, represents the health of the unit"
         return self.__wt.getStats(self).energy
-    energy = property(getEnergy)
 
-    def getSight(self):
+    @property
+    def sight(self):
         "The sight of the unit, use: sight as R of unit"
         return self.__wt.getSight(self)
-    sight = property(getSight)
 
-    def getSpeed(self):
+    @property
+    def speed(self):
         "The speed of the unit - the number of units distance the unit can travel in one turn."
         return self.__wt.getSpeed(self)
-    speed = property(getSpeed)
 
-    def getTeam(self):
+    @property
+    def team(self):
         " The owner of the unit (an ai_id) "
         return self.__wt.getTeam(self)
-    team = property(getTeam)
 
-    def getVisibleSquares(self):
-        "Return all squares that are in the range of sight of this unit"
+    @property
+    def visible_squares(self):
+        "all squares that are in the range of sight of this unit"
         return self.__wt.getVisibleSquares(self)
-    visible_squares = property(getVisibleSquares)
 
-    def getVisibleBuildings(self):
-        "Return all buildings that are in the range of sight of this unit"
+    @property
+    def visible_buildings(self):
+        "all buildings that are in the range of sight of this unit"
         return self.__wt.getVisibleBuildings(self)
-    visible_buildings = property(getVisibleBuildings)
 
-    def getVisibleEnemies(self):
-        "Return all enemy units that are in the range of sight of this unit"
-        # Returns all (enemy?) units in shooting range
+    @property
+    def visible_enemies(self):
+        "all enemy units that are in the range of sight of this unit"
+        # all (enemy?) units in shooting range
         return self.__wt.getVisibleEnemies(self)
-    visible_enemies = property(getVisibleEnemies)
 
-    def getInRangeEnemies(self):
+    @property
+    def in_range_enemies(self):
         """
-        Returns all hittable enemy units to the AI
+        all enemy units that are within bullet distance of this unit.
+
+        it may return enemies not visible to this unit if they are visible to
+        another unit on the same team.
         """
         return self.__wt.inRange(self)
-    in_range_enemies = property(getInRangeEnemies)
 
     def calcBulletPath(self, target_square):
         """
@@ -130,25 +135,35 @@ class Unit(mapobject.MapObject):
         return self.__wt.calcUnitPath(self, target_square)
 
     def calcVictims(self, target_square):
-        "If the unit shot at target square, who would be hit?"
+        """
+        If the unit shot at target square, which units would be hit?
+
+        Returns all visible units that would be hit by a bullet shot toward the
+        destination (including own units and enemy units) if they were to not
+        move until the bullet arrived.
+
+        """
         return self.__wt.calcVictims(self, target_square)
 
     # Main actions
     def capture(self, b):
         """
-        this initiates a capture of the building if the unit
-        is occuping the same square as the building.  For a
-        capture to happen successfully, the Unit must stay in
-        the building for CAPTURE_LENGTH time after initiating
-        the capture.
+        initiates a capture of building if the unit is occuping the same
+        square as the building.  For a capture to happen successfully, the Unit
+        must stay in the building for CAPTURE_LENGTH time after initiating the
+        capture.
         """
         return self.__wt.capture(self, b)
 
     def move(self, (x,y)):
         """
-        this will move the unit towards (x,y) by their speed
-        amount in this round. You can continually call
-        unit.move(dest) until the unit arrives there.
+        move the unit towards (x,y) by their speed amount in this round.
+
+        if the unit doesn't receive a new order, it will continue moving to
+        that square on subsequent turns until it arrives.
+
+        it is also safe to continually call unit.move(dest) until the unit
+        arrives there.
         """
 
         return self.__wt.move(self, (int(x), int(y)))

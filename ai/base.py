@@ -20,6 +20,10 @@ ID_GENERATOR=id_generator()
 TEAM_GENERATOR=id_generator()
 
 class BareAI(object):
+    """
+    A basic AI implementation, required by all AIs as an ancestor class
+    """
+
     def __init__(self, worldtalker):
         self.wt = worldtalker
         self.mapsize = self.wt.getMapSize() - 1
@@ -32,115 +36,143 @@ class BareAI(object):
     @property
     def team(self):
         """
-        The team of this AI instance
+        the team of this AI instance
         """
         return self.__team
 
     @property
     def ai_id(self):
+        """
+        the AI's private ID, it's used by the worldtalker for identification
+        purposes.
+        """
         return self.__ai_id
 
     @property
     def new_units(self):
         """
-        Returns all units that were spawned this turn for this AI instance
+        all units that were spawned this turn for this AI instance
         """
         return self.wt.getNewUnits()
 
     @property
     def dead_units(self):
         """
-        Returns all units that died the past turn for this AI instance.
+        all units that died the past turn for this AI instance.
         """
         return self.wt.getDeadUnits()
 
     @property
     def new_buildings(self):
         """
-        Returns all buildings that were captured the past turn by this AI instance.
+        all buildings that were captured the past turn by this AI instance.
         """
         return self.wt.getNewBuildings()
 
     @property
     def lost_buildings(self):
         """
-        Returns all buildings that were lost this past turn by this AI instance.
+        all buildings that were lost this past turn by this AI instance.
         """
         return self.wt.getLostBuildings()
 
 
-    def getMyUnits(self):
+    @property
+    def my_units(self):
         """
-        Returns living units that belong to this AI instance
+        living units that belong to this AI instance
         """
         return self.wt.getUnits()
-    my_units = property(getMyUnits)
 
-    def getMyBuildings(self):
+    @property
+    def my_buildings(self):
         """
-        Returns all buildings that belong to this AI instance
+        all buildings that belong to this AI instance
         """
 
         return self.wt.getBuildings()
-    my_buildings = property(getMyBuildings)
 
-    def getVisibleBuildings(self):
+    @property
+    def visible_buildings(self):
         """
-        Returns all visible buildings
+        all visible buildings
         """
         return self.wt.getVisibleBuildings()
-    visible_buildings = property(getVisibleBuildings)
 
-    def getVisibleSquares(self):
+    @property
+    def visible_squares(self):
         """
-        Returns all visible squares to the AI (the set of all squares visible to the AI's units)
+        all visible squares to the AI (the set of all squares visible to the AI's units)
         """
         return self.wt.getVisibleSquares()
-    visible_squares = property(getVisibleSquares)
 
-    def getVisibleEnemies(self):
+    @property
+    def visible_enemies(self):
         """
-        Returns all visible enemy units to the AI
+        all visible enemy units to the AI
         """
         return self.wt.getVisibleEnemies()
-    visible_enemies = property(getVisibleEnemies)
 
-    def calcScore(self):
+    @property
+    def score(self):
         """
-        Returns the AI's current score - number of units killed + number of
-        units still alive
+        the AI's current score
         """
         return self.wt.calcScore(self.team, self.ai_id)
-    score = property(calcScore)
 
-    def currentTurn(self):
+    @property
+    def current_turn(self):
         """
-        Returns the world's current iteration
+        the world's current iteration
         """
         return self.wt.getCurrentTurn()
-    current_turn = property(currentTurn)
 
     def highlightLine(self, start, end):
+        """Adds a highlight line to the map from start to end"""
         self.wt.highlightLine(self, start, end)
 
     def highlightRegion(self, start, end=None):
+        """Adds a highlight region to the map from start to end"""
         self.wt.highlightRegion(self, start, end)
 
     def clearHighlights(self):
+        """Clear all highlighted areas by the AI on the map"""
         self.wt.clearHighlights(self)
 
     # Overrode definitions
     def init(self):
-        """Needs to be implemented"""
+        """
+        Needs to be implemented by AI
+
+        This function is called at the beginning of the game by the world.
+
+        The AI should initialize itself and can inspect world information in
+        this function.
+
+        """
 
     def turn(self):
-        """Needs to be implemented"""
+        """
+        Needs to be implemented by AI.
+
+        This function is called once per turn by the world during game execution.
+
+        The AI can inspect the world and queue events via a unit's API during
+        this function.
+
+
+        """
 
 class AI(BareAI):
     def init(self, *args, **kwargs):
         self._init()
 
     def turn(self):
+        """
+        calls into the _spin, _init, _new_unit and _unit_died methods of
+        the implemented AI.
+
+        """
         for unit in self.new_units:
             try:
                 self._unit_spawned(unit)
@@ -167,15 +199,17 @@ class AI(BareAI):
 
     # Overrode definitions
     def _init(self):
-        """Needs to be implemented"""
+        """Needs to be implemented by AI"""
 
     def _spin(self):
-        """ Needs to be implemented """
+        """ Needs to be implemented by AI"""
 
     def _unit_spawned(self, unit):
-        """ Needs to be implemented """
+        """ Needs to be implemented by AI"""
 
     def _unit_died(self, unit):
-        """ Needs to be implemented """
+        """ Needs to be implemented by AI"""
 
+# Objects to generate docstrings for
+__all__ = [ "AI" ]
 # vim: set expandtab shiftwidth=4 softtabstop=4 textwidth=79:
