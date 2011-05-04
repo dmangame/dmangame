@@ -7,6 +7,11 @@
   background-color: #dedede;
 }
 
+div.ai_selection:hover,
+div.map_selection:hover {
+  background-color: #ceceff;
+}
+
 .ai_selection,
 .map_selection {
   padding: 5px;
@@ -16,6 +21,7 @@
 
 .map_selection {
   float: left;
+  clear: left;
 }
 
 #controls {
@@ -33,6 +39,7 @@
 }
 
 #sort_controls {
+  margin-top: 25px;
   clear: both;
   width: 100%;
 }
@@ -50,6 +57,10 @@
   cursor: pointer;
 }
 
+
+#ai_controls {
+  margin-left: 25px;
+}
 
 #map_controls {
   clear: both;
@@ -166,7 +177,7 @@
 
 <div id="controls" class="clearfix">
   <div id="map_controls">
-    <div style="float: left;">Map:</div>
+    <div style="float: left;">Map: (Click to Select)</div>
     <div class="map_selection" map_name="">
       all
     </div>
@@ -178,7 +189,7 @@
   </div>
 
   <div id="ai_controls" class="clearfix">
-    <div style="float: left;">Files: </div>
+    <div style="float: left;">Files (Click to Toggle): </div>
     <br />
     {% for a in ai_files %}
     <div class="ai_selection" ai_name="{{a}}">
