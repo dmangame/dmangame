@@ -17,23 +17,12 @@ log = logging.getLogger("CLI")
 
 import sys
 import os
+import gc
 
 CliWorld = None
 AI = []
 
 ncurses = None
-
-LOOKUPS = None
-def save_world_turns(world_turns):
-  if not settings.JS_REPLAY_FILE and not settings.JS_REPLAY_FILENAME:
-    return
-
-  global LOOKUPS
-  if not LOOKUPS:
-    LOOKUPS = jsplayer.begin_save_to_js_file(world_turns)
-
-  # Save the world information to an output file.
-  jsplayer.save_world_turns_to_js_file(world_turns, *LOOKUPS)
 
 def main(ai_classes=[]):
   w = world.World()
@@ -70,8 +59,8 @@ def main(ai_classes=[]):
       t = w.dumpTurnToDict(shorten=True)
       s = w.dumpScores()
 
-      # At this point, make decision
       w.world_turns.append((t,s))
+
       if settings.SAVE_IMAGES:
         worldmap.draw_map(cairo_context, 200, 200, t)
 
@@ -79,8 +68,9 @@ def main(ai_classes=[]):
         ncurses.update(t, s)
 
       if len(w.world_turns) >= settings.BUFFER_SIZE:
-        save_world_turns(w.world_turns)
+        jsplayer.save_world_turns(w.world_turns)
         w.world_turns = []
+        gc.collect()
 
   log.info("Finished simulating the world")
 
@@ -95,7 +85,7 @@ def end_game():
   if settings.NCURSES:
     ncurses.end()
 
-  save_world_turns(CliWorld.world_turns)
+  jsplayer.save_world_turns(CliWorld.world_turns)
   # Save the world information to an output file.
   if settings.JS_REPLAY_FILE or settings.JS_REPLAY_FILENAME:
     jsplayer.end_world(CliWorld.dumpWorldToDict())

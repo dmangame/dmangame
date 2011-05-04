@@ -668,7 +668,6 @@ def begin_save_to_js_file(world_turns):
   f.write(HTML_SKELETON)
   f.write(PLAYER_CONTROLS % speeds)
 
-  world_turns = copy.deepcopy(world_turns)
   world_turns, ai_turns = zip(*world_turns)
   world_lookup, world_key_lookups = determine_keys(world_turns)
   h_arr = horizontal_pack(world_turns, world_lookup, world_key_lookups)
