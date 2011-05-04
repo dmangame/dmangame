@@ -147,7 +147,6 @@ class Map:
         self.size = N
         self.objectMap = {}
         self.squareMap = {}
-        self.__bullet_paths = {}
         self.__unit_paths = {}
         self.__legal_moves = {}
 
@@ -248,41 +247,39 @@ class Map:
         m, n = end
         R += 1
         bp_key = ",".join(map(str, (x,y,m,n,R)))
-        if not bp_key in self.__bullet_paths:
-            path = []
-            if x-m is 0:
-                    path = [(x, i+1) for i in xrange(min(y, n), min(y, n) + R)]
-            elif y-n is 0:
-                    path = [(j+1, y) for j in xrange(min(x, m), min(x, m) + R)]
-            else:
-                    ox = x
-                    oy = y
-                    slope = abs(float(n-y)/float(m-x))
-                    if slope < 1:
-                            xmovement = 1
-                            ymovement = slope
-                    else:
-                            xmovement = 1/slope
-                            ymovement = 1
+        path = []
+        if x-m is 0:
+                path = [(x, i+1) for i in xrange(min(y, n), min(y, n) + R)]
+        elif y-n is 0:
+                path = [(j+1, y) for j in xrange(min(x, m), min(x, m) + R)]
+        else:
+                ox = x
+                oy = y
+                slope = abs(float(n-y)/float(m-x))
+                if slope < 1:
+                        xmovement = 1
+                        ymovement = slope
+                else:
+                        xmovement = 1/slope
+                        ymovement = 1
 
-                    if x > m:
-                            xmovement = -xmovement
-                    if y > n:
-                            ymovement = -ymovement
+                if x > m:
+                        xmovement = -xmovement
+                if y > n:
+                        ymovement = -ymovement
 
-                    x += 0.5
-                    y += 0.5
-                    while self.isValidSquare((x,y)):
-                            x += xmovement
-                            y += ymovement
-                            if math.sqrt((ox-x)**2+(oy-y)**2) > R:
-                              break
+                x += 0.5
+                y += 0.5
+                while self.isValidSquare((x,y)):
+                        x += xmovement
+                        y += ymovement
+                        if math.sqrt((ox-x)**2+(oy-y)**2) > R:
+                          break
 
-                            path.append((int(x), int(y)))
+                        path.append((int(x), int(y)))
 
 
-            self.__bullet_paths[bp_key] = path
-        return self.__bullet_paths[bp_key]
+        return path
 
     # Get the path a unit takes when travelling from (x,y) to (m,n)
     def calcUnitPath(self, start, end):

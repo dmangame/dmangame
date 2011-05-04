@@ -641,8 +641,8 @@ class World:
         self.ai_dead_units = defaultdict(set)
 
     def __clearBeforeTurnData(self):
-        self.unitpaths = {}
-        self.bulletpaths = {}
+        self.unitpaths.clear()
+        self.bulletpaths.clear()
         self.collisions.clear()
         self.survivors.clear()
         self.under_attack = set()
@@ -1009,11 +1009,6 @@ class World:
                         }
 
         turn_data["buildings"].append(building_data)
-
-      for bullet in self.bullets:
-        bullet_data = { "position" : self.map.getPosition(bullet) }
-
-        turn_data["bullets"].append(bullet_data)
 
       for square in self.collisions:
         count = self.collisions[square]
