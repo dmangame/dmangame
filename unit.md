@@ -15,8 +15,6 @@ Represents a Unit on the map. A Unit can move, shoot or capture for events, at t
 
 ###Methods###
 
-####\_\_init\_\_(self, worldtalker, stats)####
-
 ####calcBulletPath(self, target_square)####
 Calculates the path a bullet takes to get from the unit's position to target_square
 
