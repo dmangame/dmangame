@@ -18,8 +18,6 @@ the implemented AI.
 
 Methods inherited from BareAI:
 
-####__init__(self, worldtalker)####
-
 ####clearHighlights(self)####
 Clear all highlighted areas by the AI on the map
 
