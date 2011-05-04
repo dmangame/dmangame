@@ -52,4 +52,4 @@ LOADED_AI_MODULES=set()
 # file in order to conserve RAM.
 # WARNING: the buffer size needs to be the minimum amount of
 # turns needed to see a unit fire a bullet. 
-BUFFER_SIZE=500
+BUFFER_SIZE=250

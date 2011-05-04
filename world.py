@@ -970,10 +970,19 @@ class World:
 
       return world_data
 
+    # Default World Looks like:
+    # two AIs
+    # two buildings
+    # one unit shooting
+    # one unit getting hit
+    # one unit moving
+    # one unit capturing
+    # one AI highlighting both a region and line
+    # current turn
 
+    # TODO: The complete world skeleton should be available
     def dumpTurnToDict(self, shorten=False):
       turn_data = {  "buildings"      : [],
-                     "bullets"        : [],
                      "collisions"     : [],
                      "currentturn"    : self.currentTurn,
                      "highlights"       : [],
@@ -1042,6 +1051,7 @@ class World:
           turn_data["highlights"].append(highlight_data)
 
       return turn_data
+
 
 #Map1 = {unit:position, building:position}
 #2Map = {}
