@@ -1,7 +1,5 @@
 #! /usr/bin/env python
-from __future__ import with_statement
 import settings
-import time
 
 import logging
 log = logging.getLogger("MAIN")
@@ -27,6 +25,7 @@ sys.path.append("lib")
 import imp
 import traceback
 from optparse import OptionParser
+
 
 import cli
 IMPORT_GUI_FAILURE=False
@@ -145,17 +144,11 @@ def loadMap(filename):
 
 def appengine_run_game(argv_str, appengine_file_name=None):
   from google.appengine.api import files
-  from appengine import record_game_to_db
-  start_time = time.time()
-
+  from appengine import run_game
   argv = argv_str.split()
   options, args = parseOptions(argv)
-  log.info(options)
-
-  if options.fps: settings.FPS = int(options.fps)
   reload(settings)
   loadMap(options.map)
-
   ais = loadAI(args) or []
   highlighted_ais = loadAI(options.highlight, highlight=True)
   if highlighted_ais:
@@ -166,33 +159,9 @@ def appengine_run_game(argv_str, appengine_file_name=None):
   settings.IGNORE_EXCEPTIONS = True
   logging.basicConfig(level=logging.INFO)
 
-  if not appengine_file_name:
-    appengine_file_name = files.blobstore.create(mime_type='text/html')
-  settings.JS_REPLAY_FILENAME = appengine_file_name
+  if options.fps: settings.FPS = int(options.fps)
 
-  with files.open(appengine_file_name, 'a') as replay_file:
-    settings.JS_REPLAY_FILE = replay_file
-    try:
-      cli.main(ais)
-    except KeyboardInterrupt, e:
-      raise
-    except Exception, e:
-      traceback.print_exc()
-    finally:
-      cli.end_threads()
-      cli.end_game()
-
-
-  files.finalize(appengine_file_name)
-  replay_blob_key = files.blobstore.get_blob_key(appengine_file_name)
-
-  log.info("Saved to: %s", replay_blob_key)
-  log.info("Saved as: %s", appengine_file_name)
-  log.info("http://localhost:8080/replays/%s", replay_blob_key)
-
-  end_time = time.time()
-  run_time = end_time - start_time
-  record_game_to_db(cli.CliWorld, replay_blob_key, run_time)
+  run_game(options, ais, appengine_file_name)
 
 def post_to_appengine():
   yaml_data = open("app.yaml").read()

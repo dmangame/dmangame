@@ -47,6 +47,7 @@ def main(ai_classes=[]):
   turns_left = settings.END_GAME_TURNS
   if settings.NCURSES:
     ncurses.init(w)
+
   for i in xrange(settings.GAME_LENGTH):
       w.spinAI()
       if w.Turn():
