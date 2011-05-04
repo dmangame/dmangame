@@ -11,7 +11,6 @@ import itertools
 import settings
 import logging
 
-
 from lib import jsplayer
 log = logging.getLogger("CLI")
 

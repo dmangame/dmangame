@@ -327,7 +327,7 @@ def main(ais=[]):
 def end_game():
   if settings.JS_REPLAY_FILE or settings.JS_REPLAY_FILENAME:
     jsplayer.save_world_turns(m.world_turns)
-    jsplayer.end_save_to_js_file(m.world_data)
+    jsplayer.end_world(m.world_data)
 
   last_ai_data = m.world_turns[-1][1]
   log.info("END GAME SCORES")
