@@ -7,21 +7,39 @@
   background-color: #dedede;
 }
 
-div.ai_selection:hover,
-div.map_selection:hover {
-  background-color: #ceceff;
+a.ai_selection,
+a.map_selection {
+  text-decoration: none;
+  color: #000;
+}
+
+a.ai_selection:visited,
+a.map_selection:visited {
+  color: #000;
 }
 
 .ai_selection,
 .map_selection {
+  display: block;
   padding: 5px;
   margin-right: 5px;
-  cursor: pointer;
 }
+
+.ai_selection:hover,
+.map_selection:hover {
+  background-color: #ceceff;
+}
+
 
 .map_selection {
   float: left;
   clear: left;
+}
+
+#close_controls {
+  cursor: pointer;
+  display: block;
+  margin-bottom: 15px;
 }
 
 #controls {
@@ -29,6 +47,7 @@ div.map_selection:hover {
 }
 
 #sort_reverse {
+  display: block;
   cursor: pointer;
   margin-top: 5px;
   padding: 10px;
@@ -178,13 +197,13 @@ div.map_selection:hover {
 <div id="controls" class="clearfix">
   <div id="map_controls">
     <div style="float: left;">Map: (Click to Select)</div>
-    <div class="map_selection" map_name="">
+    <a class="map_selection" map_name="" href="#">
       all
-    </div>
+    </a>
     {% for m in maps %}
-    <div class="map_selection" map_name="{{m}}">
+    <a class="map_selection" map_name="{{m}}" href="#">
       {{ m }}
-    </div>
+    </a>
     {% endfor %}
   </div>
 
@@ -192,9 +211,9 @@ div.map_selection:hover {
     <div style="float: left;">Files (Click to Toggle): </div>
     <br />
     {% for a in ai_files %}
-    <div class="ai_selection" ai_name="{{a}}">
+    <a class="ai_selection" ai_name="{{a}}" href="#">
       {{ a }}
-    </div>
+    </a>
     {% endfor %}
   </div>
 
@@ -204,9 +223,11 @@ div.map_selection:hover {
     <br/>
     <ol id="sort_order">
     </ol>
-    <div id="sort_reverse" style="float: left;">Reverse Results</div>
+    <a id="sort_reverse" style="float: left;">Reverse Results</a>
   </div>
+
 </div>
+<a id="close_controls">^ Hide Controls ^</a>
 
 <div id="game_run_collection"></div>
 
@@ -409,6 +430,14 @@ div.map_selection:hover {
       $(this).removeClass("toggled");
       sortReverse = false;
       filterGames();
+    });
+
+    $("#close_controls").toggle(function() {
+      $(this).html("v Show Controls v");
+      $("#controls").fadeOut(400);
+    }, function() {
+      $(this).html("^ Hide Controls ^");
+      $("#controls").fadeIn();
     });
 
     $(".game_run a.delete").live('click', function(e) {
