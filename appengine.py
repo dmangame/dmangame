@@ -4,6 +4,7 @@ from google.appengine.ext import blobstore
 from google.appengine.ext import db
 from google.appengine.ext import deferred
 from google.appengine.api import files
+from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -27,7 +28,7 @@ template.register_template_library('appengine')
 @register.filter
 def truncate(value, arg):
     """
-    Truncates a string after a given number of chars  
+    Truncates a string after a given number of chars
     Argument: Number of chars to truncate after
     """
     try:
@@ -76,6 +77,10 @@ class AIParticipant(db.Model):
 
 PAGESIZE=100
 
+class AdminPage(webapp.RequestHandler):
+    def get(self):
+      self.redirect(users.create_login_url(self.request.uri))
+
 class MainPage(webapp.RequestHandler):
     def get(self):
         games = GameRun.all().order("-created_at").fetch(PAGESIZE)
@@ -101,13 +106,34 @@ class MainPage(webapp.RequestHandler):
         template_values = { "game_runs" : games,
                             "next_page" : has_next_page,
                             "maps"      : game_maps,
-                            "ai_files"  : game_ais }
+                            "ai_files"  : game_ais,
+                            "can_delete" : users.is_current_user_admin()}
 
         path = os.path.join(TEMPLATE_DIR, "game_runs.html")
         self.response.headers['Content-Type'] = 'text/html'
         self.response.out.write(template.render(path, template_values))
 
-class AiRun(webapp.RequestHandler):
+
+class DeleteHandler(webapp.RequestHandler):
+    def post(self):
+        log.info("Delete Handler into")
+        user = users.get_current_user()
+        if not user:
+            self.redirect(users.create_login_url(self.request.uri))
+            return
+
+        log.info(user)
+        if users.is_current_user_admin():
+          game = self.request.get("game_run")
+          gr = GameRun.get(game)
+          log.info(gr)
+          if gr:
+            for ai in gr.aiparticipant_set:
+              ai.delete()
+            blobstore.delete([gr.replay.key])
+            gr.delete()
+
+class RunHandler(webapp.RequestHandler):
     def post(self):
         # Need to iterate through all the parameters of the
         # request, parse their values and use it for
@@ -130,10 +156,13 @@ class ReplayHandler(webapp.RequestHandler):
 
 application = webapp.WSGIApplication(
                                      [('/', MainPage),
-                                      ('/run', AiRun),
+                                      ('/admin', AdminPage),
+                                      ('/delete', DeleteHandler),
+                                      ('/run', RunHandler),
                                       ('/replays/([^/]+)?', ReplayHandler)],
 
                                      debug=True)
+
 # TODO: The game must be over for this to work.
 def record_game_to_db(world, replay_blob_key, run_time):
   gr = GameRun(replay=replay_blob_key,

@@ -56,21 +56,16 @@
   width: 100%;
 }
 
-.game_run .overlay {
-  font-size: 80px;
-  padding-top: 100px;
-  text-align: center;
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 300px;
+.game_run .delete {
+  float: right;
+  margin-right: 5px;
 }
 
-.game_run:hover .overlay {
-  text-decoration: underline;
+.game_run .map .delete:hover {
+  color: #ff0000;
 }
+
 .game_run {
-  cursor: pointer;
   position: relative;
   display: inline-block;
   margin-right: 25px;
@@ -97,6 +92,9 @@
 .game_run .map a {
   color: #fff;
   text-decoration: none;
+}
+.game_run .map a:hover {
+  color: #00ff00;
 }
 
 .game_run .ai_participants {
@@ -209,11 +207,13 @@
        turns="{{gr.turns}}"
        num_ai="{{gr.aiparticipant_set.count}}"
        created_at="{{gr.created_at}}" >
-    <div class="overlay">&gt;</div>
     <h2 class="map">
     <a class="replay" href="/replays/{{ gr.replay.key }}">
-      {{gr.map_name}}
+      {{gr.map_name}} 
     </a>
+    {% if can_delete %}
+      <a class="delete" href="/delete">x</a>
+    {% endif %}
     </h2>
 
 
@@ -337,11 +337,6 @@
       filterGames();
     });
 
-    $(".game_run").live('click', function() {
-      var href = $(this).find("a.replay").attr("href");
-      window.location = href;
-    });
-
     var attrCompare = function(a,b,attr) {
       var a_attr = $(a).attr(attr);
       var b_attr = $(b).attr(attr);
@@ -404,8 +399,22 @@
       sortReverse = false;
       filterGames();
     });
-  });
 
+    $(".game_run a.delete").live('click', function(e) {
+      var gr = $(this).parents(".game_run"),
+          url = $(this).attr("href"),
+          id  = gr.attr("data-id");
+      $.ajax(url, {
+        data : { game_run : id },
+        success : function() {
+          var grs = $(".game_run[data-id="+id+"]");
+          grs.remove();},
+        type : "POST",
+      });
+
+      e.preventDefault();
+    });
+  });
 </script>
 
 {% endblock content %}
