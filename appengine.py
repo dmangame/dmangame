@@ -10,11 +10,9 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext.webapp import template
 
 import urllib
-import gc
 import hashlib
 import os
 import sys
-import time
 
 import ai as ai_module
 import code_signature
@@ -136,7 +134,6 @@ application = webapp.WSGIApplication(
                                       ('/replays/([^/]+)?', ReplayHandler)],
 
                                      debug=True)
-
 # TODO: The game must be over for this to work.
 def record_game_to_db(world, replay_blob_key, run_time):
   gr = GameRun(replay=replay_blob_key,
@@ -170,78 +167,9 @@ def record_game_to_db(world, replay_blob_key, run_time):
 
     aip.put()
 
-def run_game(options, ais, appengine_file_name=None):
-  start_time = time.time()
-
-  log.info(options)
-
-  if not appengine_file_name:
-    appengine_file_name = files.blobstore.create(mime_type='text/html')
-  settings.JS_REPLAY_FILENAME = appengine_file_name
-
-  world_turns = []
-  w = world.World()
-  turns_left = settings.END_GAME_TURNS
-  for ai_class in ais:
-    ai_player = w.addAI(ai_class)
-    ai_module.generate_ai_color(ai_player)
-
-  try:
-    for i in xrange(settings.GAME_LENGTH):
-        w.spinAI()
-        if w.Turn():
-          if turns_left > 0:
-            turns_left -= 1
-          else:
-            break
-
-        t = w.dumpTurnToDict(shorten=True)
-        s = w.dumpScores()
-
-        world_turns.append((t,s))
-
-        if len(world_turns) >= settings.BUFFER_SIZE:
-          with files.open(appengine_file_name, 'a') as replay_file:
-            settings.JS_REPLAY_FILE = replay_file
-            jsplayer.save_world_turns(world_turns)
-            replay_file.close()
-
-          world_turns = []
-          gc.collect()
-
-    log.info("Finished simulating the world")
-  except KeyboardInterrupt, e:
-    raise
-  except Exception, e:
-    traceback.print_exc()
-  finally:
-    for ai in w.AI:
-      log.info("%s:%s", ai.__class__, ai.score)
-
-    with files.open(appengine_file_name, 'a') as replay_file:
-      settings.JS_REPLAY_FILE = replay_file
-      if world_turns:
-        jsplayer.save_world_turns(world_turns)
-      # Save the world information to an output file.
-      if settings.JS_REPLAY_FILE or settings.JS_REPLAY_FILENAME:
-        jsplayer.end_world(w.dumpWorldToDict())
-      replay_file.close()
-
-
-  files.finalize(appengine_file_name)
-  replay_blob_key = files.blobstore.get_blob_key(appengine_file_name)
-
-  log.info("Saved to: %s", replay_blob_key)
-  log.info("Saved as: %s", appengine_file_name)
-  log.info("http://localhost:8080/replays/%s", replay_blob_key)
-
-  end_time = time.time()
-  run_time = end_time - start_time
-  record_game_to_db(w, replay_blob_key, run_time)
-
-
 def main():
     run_wsgi_app(application)
 
 if __name__ == "__main__":
     main()
+

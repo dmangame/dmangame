@@ -143,8 +143,6 @@ def loadMap(filename):
 
 
 def appengine_run_game(argv_str, appengine_file_name=None):
-  from google.appengine.api import files
-  from appengine import run_game
   argv = argv_str.split()
   options, args = parseOptions(argv)
   reload(settings)
@@ -161,7 +159,7 @@ def appengine_run_game(argv_str, appengine_file_name=None):
 
   if options.fps: settings.FPS = int(options.fps)
 
-  run_game(options, ais, appengine_file_name)
+  cli.appengine_main(options, ais, appengine_file_name)
 
 def post_to_appengine():
   yaml_data = open("app.yaml").read()
