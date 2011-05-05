@@ -261,7 +261,7 @@ a.map_selection:visited {
        map_name="{{gr.map_name}}"
        turns="{{gr.turns}}"
        num_ai="{{gr.aiparticipant_set.count}}"
-       created_at="{{gr.created_at}}" >
+       created_at="{{gr.created_at|datetime_to_seconds}}" >
     <div class="game_run_content">
       <h2 class="map">
       <a class="replay" href="/replays/{{ gr.replay.key }}">

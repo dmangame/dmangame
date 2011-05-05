@@ -14,6 +14,7 @@ import urllib
 import hashlib
 import os
 import sys
+import time
 
 import ai as ai_module
 import code_signature
@@ -24,6 +25,12 @@ import settings
 
 register = webapp.template.create_template_register()
 template.register_template_library('appengine')
+
+@register.filter
+def datetime_to_seconds(value):
+    dt = value
+    seconds = time.mktime(dt.timetuple())
+    return seconds
 
 @register.filter
 def truncate(value, arg):
