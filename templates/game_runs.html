@@ -46,11 +46,18 @@ a.map_selection:visited {
   padding-bottom: 25px;
 }
 
+#controls h3 {
+  text-size: 140%;
+  margin: 10px 0;
+}
+
 #sort_reverse {
   display: block;
   cursor: pointer;
+  float: right;
   margin-top: 5px;
   padding: 10px;
+  margin-bottom: 25px;
   border: 2px dotted black;
 }
 #sort_order {
@@ -58,50 +65,37 @@ a.map_selection:visited {
 }
 
 #sort_controls {
-  margin-top: 25px;
-  clear: both;
-  width: 100%;
+  float: left;
 }
 
-#sort_controls ul {
-  list-style: none;
+#sort_controls ol {
 }
 
 #sort_controls li {
   text-decoration: none;
-  float: left;
-  margin: 0px 25px;
-  padding: 5px;
+  padding: 10px;
+  margin: 5px 0;
+  padding-left: 25px;
   background-color: #dedede;
   cursor: pointer;
 }
 
 
 #ai_controls {
-  margin-left: 25px;
 }
 
-#map_controls {
+
+#game_run_collection {
   clear: both;
-  width: 100%;
 }
 
-.game_run .delete {
-  float: right;
-  margin-right: 5px;
-}
-
-.game_run .map .delete:hover {
-  color: #ff0000;
-}
+.game_run_content {
+  border: 2px dashed #000; }
 
 .game_run {
   position: relative;
   display: inline-block;
-  margin-right: 25px;
   margin-bottom: 25px;
-  width: 300px;
-  border: 2px dashed #000;
   padding-bottom: 15px;
 }
 
@@ -109,6 +103,7 @@ a.map_selection:visited {
   padding: 0 10px;
   margin-bottom: 5px;
 }
+
 
 .game_run .map {
   background-color: #000;
@@ -127,8 +122,18 @@ a.map_selection:visited {
   color: #00ff00;
 }
 
+.game_run .map .delete {
+  float: right;
+  margin-right: 5px;
+}
+
+.game_run .map .delete:hover {
+  color: #ff0000;
+}
+
+
 .game_run .ai_participants {
-  height: 100px;
+  height: 75px;
   overflow: hidden;
   position: relative;
   padding-top: 30px;
@@ -137,14 +142,22 @@ a.map_selection:visited {
 .game_run .ai_participant {
   padding: 0 10px;
 }
+
 .game_run .winner {
   background-color: #eeffee;
   font-size: 20px;
   height: 30px;
   position: absolute;
   top: 0px;
-  padding: 0px 5px;
-  width: 290px
+  width: 100%;
+  padding: 0px;
+}
+
+.game_run .winner .ai_class_name {
+  margin-left: 5px;
+}
+.game_run .winner .deaths {
+  margin-right: 5px;
 }
 
 .game_run .loser {
@@ -159,10 +172,8 @@ a.map_selection:visited {
 
 .game_run .ai_class_name {
   float: left;
-  width: 200px;
   overflow: hidden;
 }
-
 
 
 
@@ -192,11 +203,11 @@ a.map_selection:visited {
 </style>
 
 
-<body>
+<body class="container_12">
 
 <div id="controls" class="clearfix">
-  <div id="map_controls">
-    <div style="float: left;">Map: (Click to Select)</div>
+  <div id="map_controls" class="grid_4">
+    <h3 style="float: left;">Map: (Click to Select)</h3>
     <a class="map_selection" map_name="" href="#">
       all
     </a>
@@ -207,9 +218,8 @@ a.map_selection:visited {
     {% endfor %}
   </div>
 
-  <div id="ai_controls" class="clearfix">
-    <div style="float: left;">Files (Click to Toggle): </div>
-    <br />
+  <div id="ai_controls" class="clearfix grid_4">
+    <h3 >Files (Click to Toggle): </h3>
     {% for a in ai_files %}
     <a class="ai_selection" ai_name="{{a}}" href="#">
       {{ a }}
@@ -217,68 +227,73 @@ a.map_selection:visited {
     {% endfor %}
   </div>
 
-  <div id="sort_controls" class="clearfix">
+  <div id="sort_controls" class="clearfix grid_4">
 
-    <div style="float: left;">Sort By (Drag to change ordering): </div>
-    <br/>
-    <ol id="sort_order">
+    <h3 >Sort By (Drag to change ordering): </h3>
+    <ol id="sort_order" class="grid_4">
     </ol>
-    <a id="sort_reverse" style="float: left;">Reverse Results</a>
   </div>
 
 </div>
-<a id="close_controls">^ Hide Controls ^</a>
+
+<div class="clearfix grid_12">
+  <a id="sort_reverse"> Reverse Results</a>
+  <a id="close_controls">^ Hide Controls ^</a>
+</div>
 
 <div id="game_run_collection"></div>
 
 <div id="game_runs" class="hidden">
 {% for gr in game_runs %}
-  <div class="game_run"
+  <div class="game_run grid_4"
        data-id="{{gr.key}}"
        map_name="{{gr.map_name}}"
        turns="{{gr.turns}}"
        num_ai="{{gr.aiparticipant_set.count}}"
        created_at="{{gr.created_at}}" >
-    <h2 class="map">
-    <a class="replay" href="/replays/{{ gr.replay.key }}">
-      {{gr.map_name}} 
-    </a>
-    {% if can_delete %}
-      <a class="delete" href="/delete">x</a>
-    {% endif %}
-    </h2>
+    <div class="game_run_content">
+      <h2 class="map">
+      <a class="replay" href="/replays/{{ gr.replay.key }}">
+        {{gr.map_name}} 
+      </a>
+      {% if can_delete %}
+        <a class="delete" href="/delete">x</a>
+      {% endif %}
+      </h2>
 
 
-    <div class="ai_participants">
-      {% for ai in gr.aiparticipant_set %}
-      <div class="ai_participant {% if ai.win %}winner{%else%}loser{%endif%}" file_name="{{ai.file_name}}">
-         <div class="ai_class_name"
-               title="{{ ai.file_name }}:{{ ai.version }}">
-            {{ ai.class_name|truncate:14 }}
-         </div>
+      <div class="ai_participants">
+        {% for ai in gr.aiparticipant_set %}
+        <div class="ai_participant {% if ai.win %}winner{%else%}loser{%endif%}" file_name="{{ai.file_name}}">
+           <div class="ai_class_name"
+                 title="{{ ai.file_name }}:{{ ai.version }}">
+              {{ ai.class_name|truncate:14 }}
+           </div>
 
-        <div class="deaths"> {{ ai.deaths }} </div>
-        <div class="kills"> {{ ai.kills }} </div>
+          <div class="deaths"> {{ ai.deaths }} </div>
+          <div class="kills"> {{ ai.kills }} </div>
+        </div>
+        {% endfor %}
       </div>
-      {% endfor %}
-    </div>
 
-    <div class="info">
-    <h2 class="turns">
-      {{gr.turns}} Turns
-      <span class="runtime">
-        ({{gr.run_time|floatformat:2}}s)
-      </span>
-    </h2>
-    <div class="game_version">
-      version: {{ gr.version|truncate:6 }}
-    </div>
-    <div class="playtime_ago"
-         title="{{gr.created_at|date}} {{ gr.created_at|time }}">
-      {{gr.created_at|timesince}} ago
-    </div>
-    </div>
-  </div>
+      <div class="info">
+      <h2 class="turns">
+        {{gr.turns}} Turns
+        <span class="runtime">
+          ({{gr.run_time|floatformat:2}}s)
+        </span>
+      </h2>
+      <div class="game_version">
+        version: {{ gr.version|truncate:6 }}
+      </div>
+      <div class="playtime_ago"
+           title="{{gr.created_at|date}} {{ gr.created_at|time }}">
+        {{gr.created_at|timesince}} ago
+      </div>
+      </div>
+    </div> <!-- Game Run Content -->
+  </div> <!-- Game Run -->
+
 {% endfor %}
 </div>
 
@@ -289,7 +304,6 @@ a.map_selection:visited {
 
     $.fn.reverse = [].reverse;
 
-    $("#game_run_collection").quicksand($("#game_runs .game_run"));
 
     // Keep track of filtering AIs
     var sortOrder = [];
@@ -422,7 +436,7 @@ a.map_selection:visited {
       }
     });
 
-    $("#sort_controls #sort_reverse").toggle(function() {
+    $("#sort_reverse").toggle(function() {
       $(this).addClass("toggled");
       sortReverse = true;
       filterGames();
@@ -454,6 +468,8 @@ a.map_selection:visited {
 
       e.preventDefault();
     });
+
+    $("#game_run_collection").quicksand($("#game_runs .game_run"));
   });
 </script>
 
