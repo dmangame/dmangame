@@ -104,8 +104,8 @@ a.map_selection:visited {
 }
 
 .game_run .info {
-  padding: 0 10px;
   margin-bottom: 5px;
+  width: 100%;
 }
 
 
@@ -164,11 +164,17 @@ a.map_selection:visited {
   margin-right: 5px;
 }
 
+.game_run h2.turns {
+  font-size: 150%;
+  margin-left: 5px;
+}
+
 .game_run .loser {
   font-size: 12px;
 }
 
 .game_run .runtime {
+  margin-right: 5px;
   float: right;
   text-decoration: none;
   font-weight: normal;
@@ -196,11 +202,12 @@ a.map_selection:visited {
 }
 
 .game_run .playtime_ago {
-  float: right;
+  margin-left: 5px;
 }
 
 .game_run .game_version {
   display: inline-block;
+  margin-left: 5px;
 }
 
 
@@ -280,7 +287,7 @@ a.map_selection:visited {
         {% endfor %}
       </div>
 
-      <div class="info">
+      <div class="info clearfix">
       <h2 class="turns">
         {{gr.turns}} Turns
         <span class="runtime">
