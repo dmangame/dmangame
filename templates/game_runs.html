@@ -20,6 +20,7 @@ a.map_selection:visited {
 
 .ai_selection,
 .map_selection {
+  width: 100%;
   display: block;
   padding: 5px;
   margin-right: 5px;
@@ -73,11 +74,14 @@ a.map_selection:visited {
 
 #sort_controls li {
   text-decoration: none;
-  padding: 10px;
+  padding: 5px;
   margin: 5px 0;
   padding-left: 25px;
   background-color: #dedede;
   cursor: pointer;
+}
+#sort_controls li:hover {
+  background-color: #ceceff;
 }
 
 
@@ -133,14 +137,14 @@ a.map_selection:visited {
 
 
 .game_run .ai_participants {
-  height: 100px;
+  height: 125px;
   overflow: hidden;
   position: relative;
   padding-top: 30px;
 }
 
 .game_run .ai_participant {
-  padding: 0 10px;
+  width: 100%;
 }
 
 .game_run .winner {
@@ -153,10 +157,10 @@ a.map_selection:visited {
   padding: 0px;
 }
 
-.game_run .winner .ai_class_name {
+.game_run .ai_participant .ai_class_name {
   margin-left: 5px;
 }
-.game_run .winner .deaths {
+.game_run .ai_participant .deaths {
   margin-right: 5px;
 }
 
@@ -264,7 +268,7 @@ a.map_selection:visited {
 
       <div class="ai_participants">
         {% for ai in gr.aiparticipant_set %}
-        <div class="ai_participant {% if ai.win %}winner{%else%}loser{%endif%}" file_name="{{ai.file_name}}">
+        <div class="ai_participant {% if ai.win %}winner{%else%}loser{%endif%} clearfix" file_name="{{ai.file_name}}">
            <div class="ai_class_name"
                  title="{{ ai.file_name }}:{{ ai.version }}">
               {{ ai.class_name|truncate:14 }}
