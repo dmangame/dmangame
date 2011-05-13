@@ -92,12 +92,10 @@ def end_game():
   if settings.JS_REPLAY_FILE or settings.JS_REPLAY_FILENAME:
     jsplayer.end_world(CliWorld.dumpWorldToDict())
 
-def appengine_main(options, ais, appengine_file_name):
+def appengine_main(ais, appengine_file_name=None, tournament_key=None):
   from appengine import record_game_to_db
   from google.appengine.api import files
   start_time = time.time()
-
-  log.info(options)
 
   if not appengine_file_name:
     appengine_file_name = files.blobstore.create(mime_type='text/html')
@@ -162,8 +160,9 @@ def appengine_main(options, ais, appengine_file_name):
   end_time = time.time()
   run_time = end_time - start_time
 
-  record_game_to_db(w, replay_blob_key, run_time)
+  record_game_to_db(w, replay_blob_key, run_time, tournament_key)
 
+  return w
 
 
 

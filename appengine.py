@@ -57,6 +57,10 @@ import main as dmangame
 import logging
 log = logging.getLogger("APPENGINE")
 
+class Tournament(db.Model):
+    created_at    = db.DateTimeProperty(auto_now_add=True)
+    participants  = db.IntegerProperty()
+
 class GameRun(db.Model):
     created_at    = db.DateTimeProperty(auto_now_add=True)
     map_name      = db.StringProperty()
@@ -65,6 +69,7 @@ class GameRun(db.Model):
     updated_at    = db.DateTimeProperty(auto_now=True)
     turns         = db.IntegerProperty()
     version       = db.StringProperty()
+    tournament    = db.ReferenceProperty(Tournament)
 
 class AIParticipant(db.Model):
     created_at = db.DateTimeProperty(auto_now_add=True)
@@ -140,6 +145,17 @@ class DeleteHandler(webapp.RequestHandler):
             blobstore.delete([gr.replay.key])
             gr.delete()
 
+class TournamentHandler(webapp.RequestHandler):
+    def post(self):
+        argv_str = urllib.unquote(self.request.get("argv"))
+        self.response.headers['Content-Type'] = 'text/plain'
+        fn = files.blobstore.create(mime_type='text/html')
+        self.response.out.write('Running tournament with %s' % argv_str)
+
+        t = Tournament()
+        t.put()
+        deferred.defer(dmangame.appengine_run_tournament, argv_str, str(t.key()))
+
 class RunHandler(webapp.RequestHandler):
     def post(self):
         # Need to iterate through all the parameters of the
@@ -165,18 +181,23 @@ application = webapp.WSGIApplication(
                                      [('/', MainPage),
                                       ('/admin', AdminPage),
                                       ('/delete', DeleteHandler),
-                                      ('/run', RunHandler),
-                                      ('/replays/([^/]+)?', ReplayHandler)],
-
+                                      ('/run_game', RunHandler),
+                                      ('/replays/([^/]+)?', ReplayHandler),
+                                      ('/run_tournament', TournamentHandler)],
                                      debug=True)
 
 # TODO: The game must be over for this to work.
-def record_game_to_db(world, replay_blob_key, run_time):
+def record_game_to_db(world, replay_blob_key, run_time, tournament_key=None):
+  t = None
+  if tournament_key:
+    t = db.Key(tournament_key)
+
   gr = GameRun(replay=replay_blob_key,
                turns=world.currentTurn-1,
                run_time=run_time,
                map_name=settings.MAP_NAME,
-               version=code_signature.digestCode())
+               version=code_signature.digestCode(),
+               tournament=t)
   gr.put()
 
   for ai_datum in world.dumpScores():

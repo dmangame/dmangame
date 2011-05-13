@@ -69,6 +69,10 @@ def parseOptions(opts=None):
                       action="store_true", dest="profile",
                       help="enable profiling with cProfile",
                       default=False)
+    parser.add_option("-t", "--tournament",
+                      dest="tournament",
+                      action="store_true", default=False,
+                      help="Run app engine tournament")
     parser.add_option("-a", "--app-engine",
                       dest="app_engine",
                       action="store_true", default=False,
@@ -141,6 +145,44 @@ def loadMap(filename):
   except Exception, e:
       log.info("Error loading %s, %s", filename, e)
 
+def appengine_run_tournament(argv_str, tournament_key):
+  from google.appengine.ext import deferred
+  import tournament
+
+  argv = argv_str.split()
+  options, args = parseOptions(argv)
+  ai_files = args or []
+  ai_files.extend(options.highlight or [])
+
+
+  for game in tournament.league_games(ai_files):
+    deferred.defer(appengine_tournament_game, game, options.map, tournament_key)
+
+def appengine_tournament_game(ai_files, map_file, tournament_key):
+  reload(settings)
+  loadMap(map_file)
+  ais = loadAI(ai_files)
+
+  settings.SINGLE_THREAD = True
+  settings.IGNORE_EXCEPTIONS = True
+  logging.basicConfig(level=logging.INFO)
+
+  world = cli.appengine_main(ais, tournament_key=tournament_key)
+
+  # Now to generate tournament compatible scores
+  game_scores = {}
+  for ai in world.dumpScores():
+    ai_instance = world.team_map[ai["team"]]
+    ai_class = ai_instance.__class__
+    ai_module = ai_class.__module__
+    ai_file = sys.modules[ai_module].__file__
+    if ai["units"] > 0:
+      game_scores[ai_file] = 1
+    else:
+      game_scores[ai_file] = 0
+
+  return game_scores
+
 
 def appengine_run_game(argv_str, appengine_file_name=None):
   argv = argv_str.split()
@@ -159,16 +201,20 @@ def appengine_run_game(argv_str, appengine_file_name=None):
 
   if options.fps: settings.FPS = int(options.fps)
 
-  cli.appengine_main(options, ais, appengine_file_name)
+  cli.appengine_main(ais, appengine_file_name)
 
 def post_to_appengine():
   yaml_data = open("app.yaml").read()
   app_data = yaml.load(yaml_data)
+  if not settings.TOURNAMENT:
+    mode = "run_game"
+  else:
+    mode = "run_tournament"
 
   if settings.APPENGINE_LOCAL:
-    url_to = "http://localhost:8080/run"
+    url_to = "http://localhost:8080/%s"%(mode)
   else:
-    url_to = "http://%s.appspot.com/run" % (app_data["application"])
+    url_to = "http://%s.appspot.com/%s" % (app_data["application"], mode)
 
   data = " ".join(sys.argv[1:])
   data_str = urllib.urlencode({"argv" : data})
@@ -182,6 +228,9 @@ def post_to_appengine():
 
 def run_game():
   options, args = parseOptions()
+
+  if options.tournament:
+    settings.TOURNAMENT = True
 
   if options.app_engine:
     post_to_appengine()
