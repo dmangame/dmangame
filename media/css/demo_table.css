@@ -160,6 +160,10 @@ table.display td.center {
   display: inline;
 }
 
+th {
+  cursor: pointer;
+}
+
 .sorting_asc_disabled {
 }
 
