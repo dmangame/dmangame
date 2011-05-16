@@ -85,22 +85,6 @@
 	float: left;
 }
 
-.paginate_disabled_previous {
-	background-image: url('../images/back_disabled.jpg');
-}
-
-.paginate_enabled_previous {
-	background-image: url('../images/back_enabled.jpg');
-}
-
-.paginate_disabled_next {
-	background-image: url('../images/forward_disabled.jpg');
-}
-
-.paginate_enabled_next {
-	background-image: url('../images/forward_enabled.jpg');
-}
-
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -110,9 +94,9 @@ table.display {
 	margin: 0 auto;
 	clear: both;
 	width: 100%;
-	
+
 	/* Note Firefox 3.5 and before have a bug with border-collapse
-	 * ( https://bugzilla.mozilla.org/show%5Fbug.cgi?id=155955 ) 
+	 * ( https://bugzilla.mozilla.org/show%5Fbug.cgi?id=155955 )
 	 * border-spacing: 0; is one possible option. Conditional-css.com is
 	 * useful for this kind of thing
 	 *
@@ -120,7 +104,7 @@ table.display {
 	 * It subtracts one px relative to the other browsers from the first column, and
 	 * adds one to the end...
 	 *
-	 * If you want that effect I'd suggest setting a border-top/left on th/td's and 
+	 * If you want that effect I'd suggest setting a border-top/left on th/td's and
 	 * then filling in the gaps with other borders.
 	 */
 }
@@ -157,24 +141,29 @@ table.display td.center {
  * DataTables sorting
  */
 
-.sorting_asc {
-	background: url('../images/sort_asc.png') no-repeat center right;
+.sorting_asc::after {
+  content: "\21D1";
+  font-size: 25px;
+  display: inline;
 }
 
-.sorting_desc {
-	background: url('../images/sort_desc.png') no-repeat center right;
+
+.sorting_desc::after {
+  content: "\21D3";
+  font-size: 25px;
+  display: inline;
 }
 
-.sorting {
-	background: url('../images/sort_both.png') no-repeat center right;
+.sorting::after {
+  content: "\21D5";
+  font-size: 25px;
+  display: inline;
 }
 
 .sorting_asc_disabled {
-	background: url('../images/sort_asc_disabled.png') no-repeat center right;
 }
 
 .sorting_desc_disabled {
-	background: url('../images/sort_desc_disabled.png') no-repeat center right;
 }
 
 
