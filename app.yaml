@@ -5,6 +5,9 @@ api_version: 1
 
 
 handlers:
+- url: /media
+  static_dir: media
+
 - url: /.*
   script: appengine.py
 

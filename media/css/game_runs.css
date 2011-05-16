@@ -1,0 +1,208 @@
+.toggled {
+  background-color: #dedede;
+}
+
+a.ai_selection,
+a.map_selection {
+  text-decoration: none;
+  color: #000;
+}
+
+a.ai_selection:visited,
+a.map_selection:visited {
+  color: #000;
+}
+
+.ai_selection,
+.map_selection {
+  width: 100%;
+  display: block;
+  padding: 5px;
+  margin-right: 5px;
+}
+
+.ai_selection:hover,
+.map_selection:hover {
+  background-color: #ceceff;
+}
+
+
+.map_selection {
+  float: left;
+  clear: left;
+}
+
+#close_controls {
+  cursor: pointer;
+  display: block;
+  margin-bottom: 15px;
+}
+
+#controls {
+  padding-bottom: 25px;
+}
+
+#controls h3 {
+  text-size: 140%;
+  margin: 10px 0;
+}
+
+#sort_reverse {
+  display: block;
+  cursor: pointer;
+  float: right;
+  margin-top: 5px;
+  padding: 10px;
+  margin-bottom: 25px;
+  border: 2px dotted black;
+}
+#sort_order {
+  float: left;
+}
+
+#sort_controls {
+  float: left;
+}
+
+#sort_controls ol {
+}
+
+#sort_controls li {
+  text-decoration: none;
+  padding: 5px;
+  margin: 5px 0;
+  padding-left: 25px;
+  background-color: #dedede;
+  cursor: pointer;
+}
+#sort_controls li:hover {
+  background-color: #ceceff;
+}
+
+
+#ai_controls {
+}
+
+
+#game_run_collection {
+  clear: both;
+}
+
+.game_run_content {
+  border: 2px dashed #000; }
+
+.game_run {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+}
+
+.game_run .info {
+  margin-bottom: 5px;
+  width: 100%;
+}
+
+
+.game_run .map {
+  background-color: #000;
+  color: #fff;
+  text-align: center;
+  padding: 5px;
+  margin: 0px;
+  font-size: 24px;
+}
+
+.game_run .map a {
+  color: #fff;
+  text-decoration: none;
+}
+.game_run .map a:hover {
+  color: #00ff00;
+}
+
+.game_run .map .delete {
+  float: right;
+  margin-right: 5px;
+}
+
+.game_run .map .delete:hover {
+  color: #ff0000;
+}
+
+
+.game_run .ai_participants {
+  height: 125px;
+  overflow: hidden;
+  position: relative;
+  padding-top: 30px;
+}
+
+.game_run .ai_participant {
+  width: 100%;
+}
+
+.game_run .winner {
+  background-color: #eeffee;
+  font-size: 20px;
+  height: 30px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  padding: 0px;
+}
+
+.game_run .ai_participant .ai_class_name {
+  margin-left: 5px;
+}
+.game_run .ai_participant .deaths {
+  margin-right: 5px;
+}
+
+.game_run h2.turns {
+  font-size: 150%;
+  margin-left: 5px;
+}
+
+.game_run .loser {
+  font-size: 12px;
+}
+
+.game_run .runtime {
+  margin-right: 5px;
+  float: right;
+  text-decoration: none;
+  font-weight: normal;
+}
+
+.game_run .ai_class_name {
+  float: left;
+  overflow: hidden;
+}
+
+
+
+.game_run .kills {
+  color: #000000;
+}
+.game_run .deaths {
+  color: #ff0000;
+}
+
+.game_run .kills,
+.game_run .deaths {
+  width: 30px;
+  float: right;
+  text-align: right;
+}
+
+.game_run .playtime_ago {
+  margin-left: 5px;
+}
+
+.game_run .game_version {
+  display: inline-block;
+  margin-left: 5px;
+}
+
+
