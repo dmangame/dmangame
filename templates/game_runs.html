@@ -86,6 +86,11 @@
           ({{gr.run_time|floatformat:2}}s)
         </span>
       </h2>
+      {% if gr.tournament %}
+        <div class="tournament">
+          league: <a href="stats?tournament={{gr.tournament.key}}">{{ gr.tournament.key|truncate:6 }}</a>
+        </div>
+      {% endif %}
       <div class="game_version">
         version: {{ gr.version|truncate:6 }}
       </div>

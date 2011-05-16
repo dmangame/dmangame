@@ -21,10 +21,16 @@ import code_signature
 import world
 from lib import jsplayer
 
+from collections import defaultdict
+
 import settings
 
 register = webapp.template.create_template_register()
 template.register_template_library('appengine')
+
+@register.filter
+def hash(h,key):
+    return h[key]
 
 @register.filter
 def datetime_to_seconds(value):
@@ -56,6 +62,7 @@ import main as dmangame
 
 import logging
 log = logging.getLogger("APPENGINE")
+log.setLevel(logging.INFO)
 
 class Tournament(db.Model):
     created_at    = db.DateTimeProperty(auto_now_add=True)
@@ -89,9 +96,104 @@ class AIParticipant(db.Model):
 
 PAGESIZE=100
 
+def aggregate_games(tournament=None):
+  q = GameRun.all().order("-created_at")
+  ais = set()
+  total_games = 0
+  ai_classes = {}
+  if tournament:
+    q.filter("tournament =", tournament)
+
+  scores = defaultdict(float)
+  games = defaultdict(lambda: defaultdict(int))
+  win_ratios = defaultdict(lambda: defaultdict(int))
+  wins = defaultdict(lambda: defaultdict(int))
+  losses = defaultdict(lambda: defaultdict(int))
+  draws = defaultdict(lambda: defaultdict(int))
+  offset = 0
+
+  all_ais = set()
+
+  while True:
+    runs = q.fetch(PAGESIZE+1, offset)
+    offset += PAGESIZE
+
+    for game in runs:
+      ais = list(game.aiparticipant_set)
+      total_games += 1
+      game_won = False
+      winner = None
+      for ai in ais:
+        if not ai.file_name in all_ais:
+          all_ais.add(ai.file_name)
+          ai_classes[ai.file_name] = ai.class_name
+
+      for ai in ais:
+        for other_ai in ais:
+          if ai != other_ai:
+            games[ai.file_name][other_ai.file_name] += 1
+        if ai.win:
+          winner = ai
+          game_won = True
+
+      if not game_won:
+        for ai in ais:
+          scores[ai.file_name] += 1.0 / float(len(ais))
+          for other_ai in ais:
+            draws[ai.file_name][other_ai.file_name] += 1
+            draws[other_ai.file_name][ai.file_name] += 1
+
+      else:
+        for ai in ais:
+          if not ai == winner:
+            losses[ai.file_name][winner.file_name] += 1
+            wins[winner.file_name][ai.file_name] += 1
+
+      log.info(ais)
+
+    if len(runs) <= PAGESIZE:
+      # No more results
+      break
+
+
+  ai_scores = []
+  for ai in all_ais:
+    for other_ai in all_ais:
+      if games[ai][other_ai] > 0:
+        win_ratios[ai][other_ai] = float(wins[ai][other_ai]) / games[ai][other_ai] * 100
+    ai_data = { "score"  : scores[ai],
+                "wins"   : wins[ai],
+                "losses" : losses[ai],
+                "draws"  : draws[ai],
+                "games"  : games[ai],
+                "ratios" : win_ratios[ai],
+                "file_name" : ai,
+                "class_name" : ai_classes[ai]}
+
+    ai_scores.append(ai_data)
+  return ai_scores, len(all_ais), total_games
+
+class AIStats(webapp.RequestHandler):
+    def get(self):
+      file_name = self.request.get("file_name")
+      tournament_key = self.request.get("tournament")
+      tournament = None
+      if tournament_key:
+        tournament = Tournament.get(tournament_key)
+
+      ai_scores, num_ais, total_games = aggregate_games(tournament=tournament)
+
+      self.response.headers['Content-Type'] = 'text/html'
+      template_values = { "ai_scores" : ai_scores, "total_games" : total_games, "count_ai" : num_ais }
+
+      path = os.path.join(TEMPLATE_DIR, "stats.html")
+      self.response.headers['Content-Type'] = 'text/html'
+      self.response.out.write(template.render(path, template_values))
+
 class AdminPage(webapp.RequestHandler):
     def get(self):
       self.redirect(users.create_login_url(self.request.uri))
+
 
 class MainPage(webapp.RequestHandler):
     def get(self):
@@ -180,6 +282,7 @@ class ReplayHandler(webapp.RequestHandler):
 application = webapp.WSGIApplication(
                                      [('/', MainPage),
                                       ('/admin', AdminPage),
+                                      ('/stats', AIStats),
                                       ('/delete', DeleteHandler),
                                       ('/run_game', RunHandler),
                                       ('/replays/([^/]+)?', ReplayHandler),

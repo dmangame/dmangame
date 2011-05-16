@@ -10,7 +10,7 @@ log = logging.getLogger("TOURNAMENT")
 # League Matchup
 # Number of rounds, make sure everyone plays someone they
 # haven't played before.
-def league_games(contestants, max_games=10):
+def league_games(contestants, max_games=50):
   games = set()
   tries = 0
   player_ones = copy.copy(contestants)

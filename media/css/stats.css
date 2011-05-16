@@ -1,0 +1,56 @@
+body {
+  margin: auto;
+}
+
+h2 {
+  font-size: 140%;
+}
+
+h3 {
+  margin: 10px 0;
+  font-size: 120%;
+}
+
+table {
+  font-size: 140%;
+}
+.player_1,
+.player_2 {
+  padding: 5px;
+}
+
+#stats {
+  width: 100% !important;
+  margin: 25px 0px;
+}
+.win,
+.loss,
+.draw {
+  margin-left: 25px;
+  margin-top: 5px;
+  width: 50px;
+}
+
+.hidden {
+  display: none;
+}
+
+tr.result {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+#stats_wrapper {
+  float: left;
+  width: 100%;
+}
+
+.games,
+.win_ratio,
+.win, .loss, .draw {
+  text-align: right;
+}
+
+.opponent, .player_2 {
+  text-align: right;
+}
