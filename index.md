@@ -32,11 +32,17 @@ You can find the latest version of the source code on [github][2].
 
     git clone git://github.com/okayzed/dmangame.git
 
-## dependencies
+## dependencies ##
+
+### required: ###
+
+python 2.x
+
+### optional: ###
 
 If using graphics, pygtk (which should include cairo).
 
-If not, then just python.
+If posting to app engine, pyyaml
 
 ## running it
 
