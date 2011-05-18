@@ -11,7 +11,7 @@ log = logging.getLogger("TOURNAMENT")
 # Number of rounds, make sure everyone plays someone they
 # haven't played before.
 def league_games(contestants, max_games=50):
-  games = set()
+  games = []
   tries = 0
   player_ones = copy.copy(contestants)
   player_twos = copy.copy(contestants)
@@ -21,11 +21,7 @@ def league_games(contestants, max_games=50):
     random.shuffle(player_ones)
     random.shuffle(player_twos)
     play_games = zip(player_ones, player_twos)
-
-    old_len = len(games)
-    games.update(play_games)
-    if old_len == len(games):
-      break
+    games.extend(play_games)
 
 
   return list(games)[:max_games]

@@ -70,7 +70,7 @@ def parseOptions(opts=None):
                       default=False)
     parser.add_option("-t", "--tournament",
                       dest="tournament",
-                      action="store_true", default=False,
+                      action="store", default=0, type=int,
                       help="Run app engine tournament")
     parser.add_option("-a", "--app-engine",
                       dest="app_engine",
@@ -154,7 +154,7 @@ def appengine_run_tournament(argv_str, tournament_key):
   ai_files.extend(options.highlight or [])
 
 
-  for game in tournament.league_games(ai_files):
+  for game in tournament.league_games(ai_files, options.tournament):
     deferred.defer(appengine_tournament_game, game, options.map, tournament_key)
 
 def appengine_tournament_game(ai_files, map_file, tournament_key):
@@ -230,7 +230,7 @@ def run_game():
   options, args = parseOptions()
 
   if options.tournament:
-    settings.TOURNAMENT = True
+    settings.TOURNAMENT = options.tournament
 
   if options.app_engine:
     post_to_appengine()
