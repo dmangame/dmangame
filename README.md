@@ -15,9 +15,16 @@ You can find the latest version of the source code on [github][]
 
 ## Dependencies ##
 
+### Required: ###
+
+python 2.x
+
+### Optional: ###
+
 If using graphics, pygtk (which should include cairo).
 
-If not, then just python.
+If posting to app engine, pyyaml
+
 
 ## Playing ##
 

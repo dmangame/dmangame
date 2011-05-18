@@ -13,7 +13,6 @@ except Exception, e:
 
 import settings
 
-import yaml
 import urllib2
 import urllib
 
@@ -204,6 +203,7 @@ def appengine_run_game(argv_str, appengine_file_name=None):
   cli.appengine_main(ais, appengine_file_name)
 
 def post_to_appengine():
+  import yaml
   yaml_data = open("app.yaml").read()
   app_data = yaml.load(yaml_data)
   if not settings.TOURNAMENT:
