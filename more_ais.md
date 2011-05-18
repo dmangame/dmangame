@@ -20,5 +20,17 @@ The [dmanai][1] repository contains AIs for dmangame.
 
 {% endhighlight %}
 
-   [1]: http://github.com/okayzed/dmanai
 
+### submitting your own AI to dmanai
+
+If you want to run your AI on the dmangame app engine
+instance, or just want your AI to be available for others:
+
+ * 1) fork ([github help for fork][2]) the [dmanai repository][1].
+ * 2) add your AI into a subdirectory of the main repository with a unique username. for example: dmanai/okay/rushai.py
+ * 3) submit a pull request ([github help for pull requests][3]) to the dmanai repository
+
+
+[1]: http://github.com/okayzed/dmanai
+[2]: http://help.github.com/fork-a-repo/
+[3]: http://help.github.com/pull-requests/
