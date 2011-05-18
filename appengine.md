@@ -10,7 +10,12 @@ allows you to run as many games as you want in parallel and
 then browse their results through a web UI.
 
 by default, it is configured to run games on [my app engine
-instance][0]. it is on the latest (and possibly later) code from github and contain the latest AI from dmanai/.
+instance][0]. it is on the latest (and possibly later) code
+from github and contain the latest AI from dmanai/. 
+
+if you you'd like to have your AI run on my app engine
+instance, see the instructions on how to submit an AI to
+dmanai in the [more AI][1] section.
 
 ### running on app engine
 
@@ -46,6 +51,7 @@ and when ready to see results in larger quantities run the
 update step.
 
 [0]: http://dmangame-app.appspot.com
+[1]: /more_ai.html
 
 
 
