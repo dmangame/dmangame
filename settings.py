@@ -54,3 +54,9 @@ LOADED_AI_MODULES=set()
 # WARNING: the buffer size needs to be the minimum amount of
 # turns needed to see a unit fire a bullet. 
 BUFFER_SIZE=250
+
+
+# Import local settings
+try:
+    from local_settings import *
+except: pass
