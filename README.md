@@ -60,6 +60,16 @@ If posting to app engine, pyyaml
     # http://dmangame-app.appspot.com
     python main.py dmanai/okay/rushai.py dmanai/bob/expand-then-search.py -m maps/macro.py --app-engine
 
+    # Using remote AI
+    # The format of a remote AI is:
+    # github_user:path_to_dep1,path_to_dep2,path_to_ai_module
+    # The AI is then downloaded from that github user's fork of dmanai and used
+    # as a player
+    #
+    # The following loads goose.py (with okay.py as a required dependency)
+    # and expand then search from github.com/okayzed/dmanai
+    python main.py okayzed:okay/okay.py,okay/goose.py okayzed:bob/expand-then-search.py
+
 See Also:
 ---------
 I've been a fan of AI based games for a while, such as the [Google AI
