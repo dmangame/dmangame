@@ -25,6 +25,11 @@ from lib import jsplayer
 from collections import defaultdict
 
 import settings
+import main as dmangame
+
+import logging
+log = logging.getLogger("APPENGINE")
+log.setLevel(logging.INFO)
 
 register = webapp.template.create_template_register()
 template.register_template_library('appengine')
@@ -57,13 +62,6 @@ def truncate(value, arg):
         return value
 
 TEMPLATE_DIR=os.path.join(os.path.dirname(__file__), 'templates')
-
-
-import main as dmangame
-
-import logging
-log = logging.getLogger("APPENGINE")
-log.setLevel(logging.INFO)
 
 class Tournament(db.Model):
     created_at    = db.DateTimeProperty(auto_now_add=True)
@@ -200,7 +198,7 @@ class DisqusPage(webapp.RequestHandler):
     path = os.path.join(TEMPLATE_DIR, "disqus.html")
     self.response.headers['Content-Type'] = 'text/html'
     self.response.out.write(template.render(path, template_values))
-  
+
 class ReplayPage(webapp.RequestHandler):
     def get(self, resource):
         resource = str(urllib.unquote(resource))
@@ -235,12 +233,11 @@ class MainPage(webapp.RequestHandler):
             file_set.add(ai.file_name)
           map_set.add(game.map_name)
 
+
         has_next_page = False
         if len(games) == PAGESIZE + 1:
           has_next_page = games[-1].created_at
           games = games[:PAGESIZE]
-
-
 
         game_maps = sorted(list(map_set))
         game_ais = sorted(list(file_set))
@@ -327,7 +324,7 @@ def record_game_to_db(world, replay_blob_key, run_time, tournament_key=None):
     ai = world.team_map[team]
     mod = sys.modules[ai.__class__.__module__]
     md = hashlib.md5()
-    md.update(open(mod.__file__).read())
+    md.update(mod.__file_content__)
     version = md.hexdigest()
 
     win=False
@@ -350,5 +347,6 @@ def main():
     run_wsgi_app(application)
 
 if __name__ == "__main__":
+    code_signature.freezeModules()
     main()
 

@@ -1,9 +1,15 @@
 import hashlib
+import copy
 import os
 import sys
 import settings
 
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
+
+LOADED_MODULES=set()
+def freezeModules():
+  LOADED_MODULES=set(copy.copy(sys.modules))
+
 def digestCode():
     child_modules = []
     md = hashlib.md5()
@@ -21,7 +27,7 @@ def digestCode():
       # always being around when there is a .pyc
       f = module.__file__.replace(".pyc", ".py")
 
-      if not module in settings.LOADED_AI_MODULES:
+      if module in LOADED_MODULES:
         md.update(open(f).read())
 
 

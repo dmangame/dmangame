@@ -29,6 +29,8 @@ from optparse import OptionParser
 import cli
 IMPORT_GUI_FAILURE=False
 
+GITHUB_URL="https://github.com/%s/dmanai/raw/master/%s"
+
 try:
   import gui
 except Exception, e:
@@ -82,8 +84,63 @@ def parseOptions(opts=None):
     (options, args) = parser.parse_args(opts)
     return options,args
 
+def setupModule(module_name, filename, data=None):
 
-def loadAI(ais, highlight=False):
+  if not data:
+    data = open(filename).read()
+
+  if module_name in sys.modules:
+    del sys.modules[module_name]
+
+  mod = imp.new_module(str(module_name))
+  sys.modules[module_name] = mod
+
+  mod.__file__ = filename
+  mod.__file_content__ = data
+
+  exec(data, mod.__dict__, mod.__dict__)
+  return mod
+
+
+# Should this file be saved to disk?
+def loadGithubAIData(ai_str):
+  user,filenames = ai_str.split(":")
+  files = filenames.split(",")
+  log.info("Loading AI from github user %s", user)
+
+
+  for filename in files:
+    ai_mod = filename == files[-1]
+    split_ext = os.path.splitext(filename)
+
+    module_name = os.path.basename(split_ext[0])
+
+    # URL BEING LOADED
+    url = GITHUB_URL % (user, filename)
+    if ai_mod:
+      log.info("Loading AI module from %s" % (url))
+    else:
+      log.info("Loading AI dependency from %s" % (url))
+
+    f = urllib2.urlopen(url)
+    data = f.read()
+
+    filename = "%s:%s" % (user, filename)
+    mod = setupModule(module_name, filename, data)
+
+
+  return mod
+
+def loadFileAIData(ai_str):
+  filename = ai_str
+
+  split_ext = os.path.splitext(filename)
+
+  module_name = os.path.basename(split_ext[0])
+
+  return setupModule(module_name, filename)
+
+def loadAIModules(ais, highlight=False):
     if not ais:
       return
 
@@ -94,20 +151,12 @@ def loadAI(ais, highlight=False):
     for filename in ais:
         try:
             log.info("Loading %s..." % (filename),)
-            split_ext = os.path.splitext(filename)
+            if filename.find(":") > 0:
+              mod = loadGithubAIData(filename)
+            else:
+              mod = loadFileAIData(filename)
 
-            module_name = os.path.basename(split_ext[0])
-
-            if module_name in sys.modules:
-              del sys.modules[module_name]
-
-            mod = imp.new_module(str(module_name))
-            sys.modules[module_name] = mod
-
-            mod.__file__ = filename
-            execfile(filename, mod.__dict__, mod.__dict__)
             ai_modules.append(mod)
-            settings.LOADED_AI_MODULES.add(mod)
             log.info("Done")
 
         except Exception, e:
@@ -158,13 +207,13 @@ def appengine_run_tournament(argv_str, tournament_key):
     deferred.defer(appengine_tournament_game, game, options.map, tournament_key)
 
 def appengine_tournament_game(ai_files, map_file, tournament_key):
+  logging.basicConfig(level=logging.INFO)
   reload(settings)
   loadMap(map_file)
-  ais = loadAI(ai_files)
+  ais = loadAIModules(ai_files)
 
   settings.SINGLE_THREAD = True
   settings.IGNORE_EXCEPTIONS = True
-  logging.basicConfig(level=logging.INFO)
 
   world = cli.appengine_main(ais, tournament_key=tournament_key)
 
@@ -184,19 +233,19 @@ def appengine_tournament_game(ai_files, map_file, tournament_key):
 
 
 def appengine_run_game(argv_str, appengine_file_name=None):
+  logging.basicConfig(level=logging.INFO)
   argv = argv_str.split()
   options, args = parseOptions(argv)
   reload(settings)
   loadMap(options.map)
-  ais = loadAI(args) or []
-  highlighted_ais = loadAI(options.highlight, highlight=True)
+  ais = loadAIModules(args) or []
+  highlighted_ais = loadAIModules(options.highlight, highlight=True)
   if highlighted_ais:
     ais.extend(highlighted_ais)
     settings.SHOW_HIGHLIGHTS = set(highlighted_ais)
 
   settings.SINGLE_THREAD = True
   settings.IGNORE_EXCEPTIONS = True
-  logging.basicConfig(level=logging.INFO)
 
   if options.fps: settings.FPS = int(options.fps)
 
@@ -237,9 +286,15 @@ def run_game():
     return
 
   logger_stream = None
+  if options.ncurses:
+    settings.NCURSES = True
+    print "Logging game to game.log"
+    logger_stream = open("game.log", "w")
 
-  ais = loadAI(args) or []
-  highlighted_ais = loadAI(options.highlight, highlight=True)
+  logging.basicConfig(level=logging.INFO, stream=logger_stream)
+
+  ais = loadAIModules(args) or []
+  highlighted_ais = loadAIModules(options.highlight, highlight=True)
   if highlighted_ais:
     ais.extend(highlighted_ais)
     settings.SHOW_HIGHLIGHTS = set(highlighted_ais)
@@ -255,12 +310,6 @@ def run_game():
   if options.fps:
     settings.FPS = int(options.fps)
 
-  if options.ncurses:
-    settings.NCURSES = True
-    print "Logging game to game.log"
-    logger_stream = open("game.log", "w")
-
-  logging.basicConfig(level=logging.INFO, stream=logger_stream)
 
   ui = cli if options.cli or IMPORT_GUI_FAILURE else gui
 
