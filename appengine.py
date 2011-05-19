@@ -190,6 +190,16 @@ class AIStatsPage(webapp.RequestHandler):
       self.response.headers['Content-Type'] = 'text/html'
       self.response.out.write(template.render(path, template_values))
 
+class DisqusPage(webapp.RequestHandler):
+  def get(self, resource):
+    resource = str(urllib.unquote(resource))
+    self.response.headers['Content-Type'] = 'text/html'
+    template_values = { "blob_key" : resource }
+
+    path = os.path.join(TEMPLATE_DIR, "disqus.html")
+    self.response.headers['Content-Type'] = 'text/html'
+    self.response.out.write(template.render(path, template_values))
+  
 class ReplayPage(webapp.RequestHandler):
     def get(self, resource):
         resource = str(urllib.unquote(resource))
@@ -285,6 +295,7 @@ application = webapp.WSGIApplication(
                                       ('/stats', AIStatsPage),
                                       ('/delete', DeleteHandler),
                                       ('/run_game', RunHandler),
+                                      ('/disqus/([^/]+)?', DisqusPage),
                                       ('/replays/([^/]+)?', ReplayPage),
                                       ('/run_tournament', TournamentHandler)],
                                      debug=True)
