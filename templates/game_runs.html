@@ -56,7 +56,7 @@
        created_at="{{gr.created_at|datetime_to_seconds}}" >
     <div class="game_run_content">
       <h2 class="map">
-      <a class="replay" href="/replays/{{ gr.replay.key }}">
+      <a class="replay" href="/disqus/{{ gr.replay.key }}">
         {{gr.map_name}} 
       </a>
       {% if can_delete %}

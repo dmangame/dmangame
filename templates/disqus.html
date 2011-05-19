@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<body>
+<style>
+
+iframe {
+  border: 0px;
+}
+
+#comments_note {
+  position: absolute;
+  right: 0;
+  top: 0;
+  margin-right: 25px;
+}
+
+#thread_wrapper {
+  margin-left: 25px;
+  margin-bottom: 25px;
+}
+</style>
+
+<div id="comments_note">
+Scroll down to see comments
+</div>
+
+<iframe src="/replays/{{blob_key}}" width="100%" height="100%"></iframe>
+
+<div id="thread_wrapper">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+      var disqus_shortname = 'dmangame'; // required: replace example with your forum shortname
+
+      // The following are highly recommended additional parameters. Remove the slashes in front to use.
+      var disqus_identifier = '{{blob_key}}';
+      // var disqus_url = 'http://example.com/permalink-to-page.html';
+
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+          var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+          dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+          (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+</body>
+
+{% endblock content %}
