@@ -15,6 +15,7 @@ import hashlib
 import os
 import sys
 import time
+import datetime
 
 import ai as ai_module
 import code_signature
@@ -216,7 +217,14 @@ class AdminPage(webapp.RequestHandler):
 
 class MainPage(webapp.RequestHandler):
     def get(self):
-        games = GameRun.all().order("-created_at").fetch(PAGESIZE)
+        before = self.request.get("before")
+
+        query = GameRun.all().order("-created_at")
+        if before:
+          query = query.filter("created_at < ", datetime.datetime.fromtimestamp(float(before)))
+
+        games = query.fetch(PAGESIZE+1)
+        log.info(map(lambda x: x.key().id(), games))
 
 
         file_set = set()

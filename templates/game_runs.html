@@ -44,6 +44,7 @@
   <a id="close_controls">^ Hide Controls ^</a>
 </div>
 
+{% include "game_run_paging.html" %}
 <div id="game_run_collection"></div>
 
 <div id="game_runs" class="hidden">
@@ -280,5 +281,7 @@
     $("#game_run_collection").quicksand($("#game_runs .game_run"));
   });
 </script>
+
+{% include "game_run_paging.html" %}
 
 {% endblock content %}
