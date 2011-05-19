@@ -173,7 +173,7 @@ def aggregate_games(tournament=None):
     ai_scores.append(ai_data)
   return ai_scores, len(all_ais), total_games
 
-class AIStats(webapp.RequestHandler):
+class AIStatsPage(webapp.RequestHandler):
     def get(self):
       file_name = self.request.get("file_name")
       tournament_key = self.request.get("tournament")
@@ -189,6 +189,15 @@ class AIStats(webapp.RequestHandler):
       path = os.path.join(TEMPLATE_DIR, "stats.html")
       self.response.headers['Content-Type'] = 'text/html'
       self.response.out.write(template.render(path, template_values))
+
+class ReplayPage(webapp.RequestHandler):
+    def get(self, resource):
+        resource = str(urllib.unquote(resource))
+        blob_info = blobstore.BlobInfo.get(resource)
+        blob_reader = blob_info.open()
+        blob_data = blob_reader.read()
+        self.response.headers['Content-Type'] = 'text/html'
+        self.response.out.write(blob_data)
 
 class AdminPage(webapp.RequestHandler):
     def get(self):
@@ -270,22 +279,13 @@ class RunHandler(webapp.RequestHandler):
         self.response.out.write('Running game with %s' % argv_str)
         deferred.defer(dmangame.appengine_run_game, argv_str, fn)
 
-class ReplayHandler(webapp.RequestHandler):
-    def get(self, resource):
-        resource = str(urllib.unquote(resource))
-        blob_info = blobstore.BlobInfo.get(resource)
-        blob_reader = blob_info.open()
-        blob_data = blob_reader.read()
-        self.response.headers['Content-Type'] = 'text/html'
-        self.response.out.write(blob_data)
-
 application = webapp.WSGIApplication(
                                      [('/', MainPage),
                                       ('/admin', AdminPage),
-                                      ('/stats', AIStats),
+                                      ('/stats', AIStatsPage),
                                       ('/delete', DeleteHandler),
                                       ('/run_game', RunHandler),
-                                      ('/replays/([^/]+)?', ReplayHandler),
+                                      ('/replays/([^/]+)?', ReplayPage),
                                       ('/run_tournament', TournamentHandler)],
                                      debug=True)
 
