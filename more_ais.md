@@ -10,15 +10,33 @@ The [dmanai][1] repository contains AIs for dmangame.
 ### playing with AIs from dmanai
 
 
+#### Cloning git locally
+
 {% highlight bash %}
 
-    cd dmangame/
-    git clone git://github.com/okayzed/dmanai.git
-    python main.py dmanai/okay/rushai.py \
-               dmanai/bob/expand-then-search.py \
-               dmanai/okay/goose.py
+cd dmangame/
+git clone git://github.com/okayzed/dmanai.git
+python main.py dmanai/okay/rushai.py \
+           dmanai/bob/expand-then-search.py \
+           dmanai/okay/goose.py
 
 {% endhighlight %}
+
+#### Using a remote git account
+
+{% highlight bash %}
+# To use a github hosted AI, the format of the AI argument
+# should be
+# github_user:path_to_dep1.py,path_to_dep2.py,path_to_ai.py
+# This AI format is usable on app engine, as well, allowing
+# for tournaments between remote AIs.
+
+cd dmangame/
+python main.py okayzed:okay/okay.py,okay/rushai.py okayzed:bob/expand-then-search.py
+
+
+{% endhighlight %}
+
 
 
 ### submitting your own AI to dmanai
