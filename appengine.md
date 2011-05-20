@@ -51,7 +51,7 @@ and when ready to see results in larger quantities run the
 update step.
 
 [0]: http://dmangame-app.appspot.com
-[1]: /more_ai.html
+[1]: more_ais.html
 
 
 
