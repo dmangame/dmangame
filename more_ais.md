@@ -5,10 +5,25 @@ layout: default
 
 ## more ais
 
-The [dmanai][1] repository contains AIs for dmangame.
+The [dmanai][1] repository contains AIs for dmangame. If you'd
+like your AI to be available for others to play against, fork
+the dmanai repository on github.
 
 ### playing with AIs from dmanai
 
+#### Using a github hosted AI
+
+{% highlight bash %}
+# To use a github hosted AI, the format of the AI argument
+# should be
+# github_user:path_to_dep1.py,path_to_dep2.py,path_to_ai.py
+# This AI format is usable on app engine, as well, allowing
+# for tournaments between remote AIs.
+
+cd dmangame/
+python main.py okayzed:okay/okay.py,okay/rushai.py \
+okayzed:bob/expand-then-search.py
+{% endhighlight %}
 
 #### Cloning git locally
 
@@ -22,21 +37,6 @@ python main.py dmanai/okay/rushai.py \
 
 {% endhighlight %}
 
-#### Using a remote git account
-
-{% highlight bash %}
-# To use a github hosted AI, the format of the AI argument
-# should be
-# github_user:path_to_dep1.py,path_to_dep2.py,path_to_ai.py
-# This AI format is usable on app engine, as well, allowing
-# for tournaments between remote AIs.
-
-cd dmangame/
-python main.py okayzed:okay/okay.py,okay/rushai.py \
-okayzed:bob/expand-then-search.py
-
-
-{% endhighlight %}
 
 
 
