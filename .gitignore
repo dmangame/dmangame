@@ -5,3 +5,4 @@ comments
 *.html
 dmanai
 _site
+local_settings.py
