@@ -1,13 +1,12 @@
-<h2 class="title">{{ post.title }}</h2> 
+<h3 class="title">{{ post.title }}</h3> 
 <div class="post post-{{ post.id }}">
 
-<p class="author">
+<div class="author" style="text-align: right">
   Added by {{ post.author }}
   on {{ post.date | date: '%B %d, %Y' }}
-</p>
+</div>
 
 <hr />
-
 <div class="entrybody">
   {{ post.content }}
 </div>
