@@ -32,7 +32,8 @@ python main.py dmanai/okay/rushai.py \
 # for tournaments between remote AIs.
 
 cd dmangame/
-python main.py okayzed:okay/okay.py,okay/rushai.py okayzed:bob/expand-then-search.py
+python main.py okayzed:okay/okay.py,okay/rushai.py \
+okayzed:bob/expand-then-search.py
 
 
 {% endhighlight %}
