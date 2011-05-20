@@ -1,0 +1,15 @@
+<h2 class="title"><a href="{{ post.url }}">{{ post.title }}</a></h2> 
+<div class="post post-{{ post.id }}">
+
+<p class="author">
+  Added by {{ post.author }}
+  on {{ post.date | date: '%B %d, %Y' }}
+</p>
+
+<hr />
+
+<div class="entrybody">
+  {{ post.content }}
+</div>
+</div>
+

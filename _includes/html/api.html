@@ -1,0 +1,18 @@
+<div id="api" style="display:none">
+  <h2>API</h2>
+
+  <p>See ai/base.py for the available AI functions, and look in ai/ for more example AIs.</p>
+
+  <p>The easiest way to see the documentation is to run <code class="prettyprint">pydoc -p
+  8000</code> and browse to the <a href="http://localhost:8000/ai.base.html">ai docs</a> or <a href="http://localhost:8000/unit.html">unit docs</a>.</p>
+
+  <p>If you don't care for _unit_died and _unit_spawned (or want
+  to do your own book keeping), you can subclass from ai.BareAI
+  - in which case you need to implement the following two
+    functions:</p>
+
+  <pre><code class="prettyprint">
+def turn(self)
+def init(self)
+  </code></pre>
+</div>

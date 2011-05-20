@@ -1,0 +1,11 @@
+---
+layout: default
+title: dmangame news
+---
+
+<h2>Latest News</h2>
+
+{% for post in paginator.posts %}
+  {% include single_post.html %}
+{% endfor %}
+
