@@ -68,7 +68,11 @@ ul {
   list-style: none;
 }
 
-#links a:first-child {
+#irc a {
+  padding-left: 0px !important;
+}
+
+#links > a:first-child {
   padding-top: 30px;
 }
 #links a {
@@ -102,7 +106,6 @@ ul {
 }
 
 #irc {
-  padding-top: 25px;
   color: #000;
   font-size: 20px;
   text-align: center;
