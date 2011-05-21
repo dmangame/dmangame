@@ -3,11 +3,12 @@ title: More AIs
 layout: default
 ---
 
-## more ais
+## sharing AIs
 
-The [dmanai][1] repository contains AIs for dmangame. If you'd
-like your AI to be available for others to play against, fork
-the dmanai repository on github.
+The [dmanai][1] repository contains sample AIs for dmangame.
+If you'd like your AI to be available for others to play
+against, fork the dmanai repository on github. The AI in your
+fork are then available for others to play against.
 
 ### playing with AIs from dmanai
 
@@ -25,7 +26,10 @@ python main.py okayzed:okay/okay.py,okay/rushai.py \
 okayzed:bob/expand-then-search.py
 {% endhighlight %}
 
-#### Cloning git locally
+You can play against any forked AI this way, but the AI must
+be in the master branch of the repository.
+
+#### Cloning an AI repository locally
 
 {% highlight bash %}
 
@@ -36,9 +40,6 @@ python main.py dmanai/okay/rushai.py \
            dmanai/okay/goose.py
 
 {% endhighlight %}
-
-
-
 
 ### submitting your own AI to dmanai
 
