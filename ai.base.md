@@ -11,7 +11,7 @@ layout: default
 ####init(self, \*args, kwargs)####
 
 ####turn(self)####
-calls into the \_spin, \_init, \_new_unit and \_unit\_died methods of
+calls into the \_spin, \_init, \_unit_spawned and \_unit\_died methods of
 the implemented AI.
 
 * * *
