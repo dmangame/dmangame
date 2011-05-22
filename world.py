@@ -778,14 +778,17 @@ class World:
     def createMoveEvent(self, unit, square):
         log.debug("Creating MoveEvent: Unit %s to Square %s", unit, square)
         self.__clearQueue(unit)
+        position = self.map.getPosition(unit)
+        if position == square:
+          return
+
         if isValidSquare(square, self.mapSize):
             e = MoveEvent(unit, square)
             # If we've already calculated the full path to destination, we
             # don't need to recalculate it. This is so that subsequent move
             # events to the same place don't require recalculation.
             if self.endpaths[unit] != square:
-              pathlong = self.map.calcUnitPath(self.map.getPosition(unit),
-                          square)
+              pathlong = self.map.calcUnitPath(position, square)
               self.unitfullpaths[unit] = pathlong
               self.endpaths[unit] = square
 
