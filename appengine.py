@@ -16,6 +16,7 @@ import os
 import sys
 import time
 import datetime
+import traceback
 
 import ai as ai_module
 import code_signature
@@ -77,12 +78,32 @@ class GameRun(db.Model):
     version       = db.StringProperty()
     tournament    = db.ReferenceProperty(Tournament)
 
+# Represents an AI playing in the app engine ladder matches.
+# The ladder player is added via a post to app engine and can
+# be removed via a post to app engine.
+
+# In order for the player to be added to app engine, though,
+# the AI must contain the line INCLUDE_IN_LADDER=True
+class AILadderPlayer(db.Model):
+  created_at = db.DateTimeProperty(auto_now_add=True)
+  updated_at = db.DateTimeProperty(auto_now=True)
+  class_name = db.StringProperty(required=True)
+  file_name  = db.StringProperty(required=True)
+  enabled    = db.BooleanProperty(default=False)
+
+
+  # mu / sigma terms for trueskill
+  skill       = db.FloatProperty(default=25.0)
+  uncertainty = db.FloatProperty(default=25/3.0)
+
+# This is the AI representing a player in a game
 class AIParticipant(db.Model):
     created_at = db.DateTimeProperty(auto_now_add=True)
     updated_at = db.DateTimeProperty(auto_now=True)
     class_name = db.StringProperty(required=True)
     file_name  = db.StringProperty(required=True)
     game_run   = db.ReferenceProperty(GameRun)
+    player     = db.ReferenceProperty(AILadderPlayer, default=None)
     version    = db.StringProperty(required=True)
     win        = db.BooleanProperty(required=True)
 
@@ -271,6 +292,97 @@ class DeleteHandler(webapp.RequestHandler):
             blobstore.delete([gr.replay.key])
             gr.delete()
 
+HOW_TO_PARTICIPATE = """
+Almost there! %s is loadable by the server, but it is not setup to participate in ladder matches just yet.
+
+In order to register %s in ladder matches:
+
+* add "PLAY_IN_LADDER=True" to your AI Class as a class variable
+* commit your AI
+* push your repository to github
+* re-run this command
+"""
+
+FIRST_REGISTER_MSG = "%s passed basic sanity check. Successfully added %s as ladder player"
+REREGISTER_MSG = """
+Congratulations, %s is registered as a ladder player.
+
+skill: %.2f, uncertainty: %.2f"""
+
+UNREGISTERED_AI = """
+%s is no longer a competitor in ladder matches on this server.
+
+To add %s as a competitor in ladder matches:
+
+* add "PLAY_IN_LADDER=True" to the AI Class as a class variable
+* commit your AI
+* push your repository to github
+* re-run this command
+"""
+
+# Adds an AI from github to the ladder handler. It first fetches the AI to do a
+# basic sanity check
+class RegisterAIHandler(webapp.RequestHandler):
+  def post(self):
+    # Just need to get the github file name and run the sanity check for the
+    # module
+    argv_str = urllib.unquote(self.request.get("argv"))
+    options,args = dmangame.parseOptions(argv_str.split())
+    response_str = ""
+
+    for ai_str in args:
+      response_str += "\n\n***Updating %s\n" % ai_str
+
+      # Find the AI Ladder Player for this ai string or create
+      # one if it doesn't exist.
+      ladder_player = AILadderPlayer.get_by_key_name(ai_str)
+      try:
+        ai_modules = dmangame.loadAIModules([ai_str])
+        ai_module = ai_modules.pop()
+      except Exception, e:
+        response_str += 'There was an issue loading the AI at %s.\n\n %s.' % (ai_str, traceback.format_exc())
+        continue
+
+      play_in_ladder = False
+      try:
+        if ai_module.PLAY_IN_LADDER:
+          play_in_ladder = bool(ai_module.PLAY_IN_LADDER)
+      except AttributeError:
+        pass
+
+      if ladder_player:
+        if play_in_ladder:
+          ladder_player.enabled = True
+          ladder_player.put()
+          response_str += REREGISTER_MSG % (ai_str, ladder_player.skill, ladder_player.uncertainty)
+        else:
+          ladder_player.enabled = False
+          ladder_player.put()
+
+          response_str += UNREGISTERED_AI % (ai_str, ai_str)
+      else:
+        if play_in_ladder:
+
+          ladder_player = AILadderPlayer(class_name=ai_module.__name__,
+                                         file_name=ai_str,
+                                         enabled=True,
+                                         key_name=ai_str)
+          ladder_player.put()
+
+          response_str += FIRST_REGISTER_MSG % (ai_str, ai_str)
+
+        else:
+          response_str += HOW_TO_PARTICIPATE % (ai_str, ai_str)
+
+    self.response.headers['Content-Type'] = 'text/plain'
+    self.response.out.write(response_str)
+
+class RunLadderHandler(webapp.RequestHandler):
+  def post(self):
+    # Needs to iterate through the AILadderPlayer instances and schedule some
+    # matches
+    pass
+
 class TournamentHandler(webapp.RequestHandler):
     def post(self):
         argv_str = urllib.unquote(self.request.get("argv"))
@@ -300,6 +412,8 @@ application = webapp.WSGIApplication(
                                       ('/stats', AIStatsPage),
                                       ('/delete', DeleteHandler),
                                       ('/run_game', RunHandler),
+                                      ('/ladder/register', RegisterAIHandler),
+                                      ('/ladder/run', RunLadderHandler),
                                       ('/disqus/([^/]+)?', DisqusPage),
                                       ('/replays/([^/]+)?', ReplayPage),
                                       ('/run_tournament', TournamentHandler)],

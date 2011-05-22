@@ -78,9 +78,15 @@ def parseOptions(opts=None):
                       dest="app_engine",
                       action="store_true", default=False,
                       help="Run on google app engine")
+
     parser.add_option("-o", "--output",
                       dest="replay_file",
                       help="create HTML replay file")
+
+    parser.add_option("-r", "--register",
+                      dest="update_app_engine_ai",
+                      action="store_true", default=False,
+                      help="Register AI for ladder matches")
     (options, args) = parser.parse_args(opts)
     return options,args
 
@@ -251,6 +257,26 @@ def appengine_run_game(argv_str, appengine_file_name=None):
 
   cli.appengine_main(ais, appengine_file_name)
 
+def update_ai_on_appengine():
+  import yaml
+  yaml_data = open("app.yaml").read()
+  app_data = yaml.load(yaml_data)
+  dest = "ladder/register"
+  if settings.APPENGINE_LOCAL:
+    url_to = "http://localhost:8080/%s"%(dest)
+  else:
+    url_to = "http://%s.appspot.com/%s" % (app_data["application"], dest)
+
+  data = " ".join(sys.argv[1:])
+  data_str = urllib.urlencode({"argv" : data})
+
+  print "Posting to: ", url_to
+  print "Posting with:"
+  print data_str
+  r = urllib2.urlopen(url_to, data_str)
+  print r.read()
+
+
 def post_to_appengine():
   import yaml
   yaml_data = open("app.yaml").read()
@@ -283,6 +309,10 @@ def run_game():
 
   if options.app_engine:
     post_to_appengine()
+    return
+
+  if options.update_app_engine_ai:
+    update_ai_on_appengine()
     return
 
   logger_stream = None
