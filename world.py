@@ -289,8 +289,9 @@ class World:
 
 
     def spinAI(self):
+      building_owners = set(self.buildings.values())
       for ai in self.AI:
-        if not self.ai_units[ai.ai_id]:
+        if not self.ai_units[ai.ai_id] and not ai in building_owners:
           continue
 
         start_time = time.time()
