@@ -199,20 +199,18 @@ def loadMap(filename):
   except Exception, e:
       log.info("Error loading %s, %s", filename, e)
 
-def appengine_run_tournament(argv_str, tournament_key):
+# AI Players have a filename, skill and uncertainty.
+def appengine_run_tournament(ai_files, argv_str, tournament_key):
   from google.appengine.ext import deferred
   import tournament
 
-  argv = argv_str.split()
-  options, args = parseOptions(argv)
-  ai_files = args or []
-  ai_files.extend(options.highlight or [])
-
+  options, args = parseOptions(argv_str.split())
 
   for game in tournament.league_games(ai_files, options.tournament):
-    deferred.defer(appengine_tournament_game, game, options.map, tournament_key)
+    deferred.defer(appengine_tournament_game, game, None, tournament_key)
 
 def appengine_tournament_game(ai_files, map_file, tournament_key):
+  from appengine import record_ladder_match
   logging.basicConfig(level=logging.INFO)
   reload(settings)
   loadMap(map_file)
@@ -223,19 +221,8 @@ def appengine_tournament_game(ai_files, map_file, tournament_key):
 
   world = cli.appengine_main(ais, tournament_key=tournament_key)
 
-  # Now to generate tournament compatible scores
-  game_scores = {}
-  for ai in world.dumpScores():
-    ai_instance = world.team_map[ai["team"]]
-    ai_class = ai_instance.__class__
-    ai_module = ai_class.__module__
-    ai_file = sys.modules[ai_module].__file__
-    if ai["units"] > 0:
-      game_scores[ai_file] = 1
-    else:
-      game_scores[ai_file] = 0
 
-  return game_scores
+  record_ladder_match(world)
 
 
 def appengine_run_game(argv_str, appengine_file_name=None):

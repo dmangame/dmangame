@@ -13,6 +13,9 @@ log = logging.getLogger("TOURNAMENT")
 def league_games(contestants, max_games=50):
   games = []
   tries = 0
+  if len(contestants) <= 1:
+    return []
+
   player_ones = copy.copy(contestants)
   player_twos = copy.copy(contestants)
 
@@ -21,7 +24,7 @@ def league_games(contestants, max_games=50):
     random.shuffle(player_ones)
     random.shuffle(player_twos)
     play_games = zip(player_ones, player_twos)
-    games.extend(play_games)
+    games.extend(filter(lambda g: g[0] != g[1], play_games))
 
 
   return list(games)[:max_games]

@@ -22,6 +22,7 @@ import ai as ai_module
 import code_signature
 import world
 from lib import jsplayer
+from lib.trueskill import trueskill
 
 from collections import defaultdict
 
@@ -392,7 +393,10 @@ class TournamentHandler(webapp.RequestHandler):
 
         t = Tournament()
         t.put()
-        deferred.defer(dmangame.appengine_run_tournament, argv_str, str(t.key()))
+
+        ai_players = AILadderPlayer.all().filter("enabled =", True).fetch(PAGESIZE)
+        ai_files = map(lambda a: a.file_name, ai_players)
+        deferred.defer(dmangame.appengine_run_tournament, ai_files, argv_str, str(t.key()))
 
 class RunHandler(webapp.RequestHandler):
     def post(self):
@@ -419,7 +423,51 @@ application = webapp.WSGIApplication(
                                       ('/run_tournament', TournamentHandler)],
                                      debug=True)
 
-# TODO: The game must be over for this to work.
+class MatchParticipant:
+  pass
+
+def record_ladder_match(world):
+  # Now to generate tournament compatible scores
+  # Collect the
+  game_scores = {}
+  ai_players = world
+  ai_files = set()
+
+  for ai in world.dumpScores():
+    ai_instance = world.team_map[ai["team"]]
+    ai_class = ai_instance.__class__
+    ai_module = ai_class.__module__
+    ai_file = sys.modules[ai_module].__file__
+    ai_files.add(ai_file)
+
+    if ai["units"] > 0:
+      game_scores[ai_file] = 1
+    else:
+      game_scores[ai_file] = 0
+
+  ai_players = AILadderPlayer.get_by_key_name(ai_files)
+  contestants = []
+  # ai_players and ai_files are relatively ordered.
+  for ai_player in ai_players:
+    m = MatchParticipant()
+    m.skill = (ai_player.skill, ai_player.uncertainty)
+    m.rank = game_scores[ai_player.file_name]
+    m.player = ai_player
+    contestants.append(m)
+
+
+  trueskill.AdjustPlayers(contestants)
+
+  log.info("Calculating new trueskill ratings")
+  for c in contestants:
+    skill, uncertainty = c.skill
+    log.info("old: %s:%s", c.player.skill, c.player.uncertainty)
+    c.player.skill = skill
+    c.player.uncertainty = uncertainty
+    log.info("rank: %s", c.rank)
+    log.info("new: %s:%s", skill, uncertainty)
+    c.player.put()
+
 def record_game_to_db(world, replay_blob_key, run_time, tournament_key=None):
   t = None
   if tournament_key:
