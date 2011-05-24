@@ -223,11 +223,11 @@ class DisqusPage(webapp.RequestHandler):
     self.response.out.write(template.render(path, template_values))
 
 class LadderPage(webapp.RequestHandler):
-  def get(self, resource):
+  def get(self):
     self.response.headers['Content-Type'] = 'text/html'
-    template_values = {}
 
-    ladder_players = AILadderPlayer.all.fetch(PAGESIZE)
+    ladder_players = AILadderPlayer.all().fetch(PAGESIZE)
+    template_values = {"ladder_players" : ladder_players }
 
     path = os.path.join(TEMPLATE_DIR, "ladder.html")
     self.response.headers['Content-Type'] = 'text/html'
@@ -430,7 +430,7 @@ application = webapp.WSGIApplication(
                                       ('/run_game', RunHandler),
                                       ('/ladder/register', RegisterAIHandler),
                                       ('/ladder/run', RunLadderHandler),
-                                      ('/ladder/', LadderPage),
+                                      ('/ladder', LadderPage),
                                       ('/disqus/([^/]+)?', DisqusPage),
                                       ('/replays/([^/]+)?', ReplayPage),
                                       ('/run_tournament', TournamentHandler)],
