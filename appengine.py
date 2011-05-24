@@ -91,7 +91,8 @@ class AILadderPlayer(db.Model):
   class_name = db.StringProperty(required=True)
   file_name  = db.StringProperty(required=True)
   enabled    = db.BooleanProperty(default=False)
-
+  last_match = db.DateTimeProperty()
+  matches    = db.IntegerProperty(default=0)
 
   # mu / sigma terms for trueskill
   skill       = db.FloatProperty(default=25.0)
@@ -218,6 +219,17 @@ class DisqusPage(webapp.RequestHandler):
     template_values = { "blob_key" : resource }
 
     path = os.path.join(TEMPLATE_DIR, "disqus.html")
+    self.response.headers['Content-Type'] = 'text/html'
+    self.response.out.write(template.render(path, template_values))
+
+class LadderPage(webapp.RequestHandler):
+  def get(self, resource):
+    self.response.headers['Content-Type'] = 'text/html'
+    template_values = {}
+
+    ladder_players = AILadderPlayer.all.fetch(PAGESIZE)
+
+    path = os.path.join(TEMPLATE_DIR, "ladder.html")
     self.response.headers['Content-Type'] = 'text/html'
     self.response.out.write(template.render(path, template_values))
 
@@ -418,6 +430,7 @@ application = webapp.WSGIApplication(
                                       ('/run_game', RunHandler),
                                       ('/ladder/register', RegisterAIHandler),
                                       ('/ladder/run', RunLadderHandler),
+                                      ('/ladder/', LadderPage),
                                       ('/disqus/([^/]+)?', DisqusPage),
                                       ('/replays/([^/]+)?', ReplayPage),
                                       ('/run_tournament', TournamentHandler)],
@@ -461,10 +474,12 @@ def record_ladder_match(world):
   log.info("Calculating new trueskill ratings")
   for c in contestants:
     skill, uncertainty = c.skill
+    log.info("rank: %s", c.rank)
     log.info("old: %s:%s", c.player.skill, c.player.uncertainty)
     c.player.skill = skill
     c.player.uncertainty = uncertainty
-    log.info("rank: %s", c.rank)
+    c.player.matches += 1
+    c.player.last_match = datetime.datetime.now()
     log.info("new: %s:%s", skill, uncertainty)
     c.player.put()
 
