@@ -19,15 +19,9 @@ Implements the player skill estimation algorithm from Herbrich et al.,
 "TrueSkill(TM): A Bayesian Skill Rating System".
 """
 
-from __future__ import print_function
-
 __author__ = "Doug Zongker <dougz@isotropic.org>"
 
 import sys
-if sys.hexversion < 0x02060000:
-  print("requires Python 2.6 or higher")
-  sys.exit(1)
-
 
 from math import sqrt
 
@@ -305,7 +299,7 @@ def SetParameters(beta=None, epsilon=None, draw_probability=None,
     EPSILON = DrawMargin(draw_probability, BETA)
   else:
     EPSILON = epsilon
-  print("EPSILON %f" % EPSILON)
+
   if gamma is None:
     GAMMA = INITIAL_SIGMA / 100.0
   else:

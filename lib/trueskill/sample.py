@@ -1,4 +1,3 @@
-from __future__ import print_function
 import trueskill
 
 # The output of this program should match the output of the TrueSkill
@@ -52,7 +51,7 @@ trueskill.AdjustPlayers([alice, bob, chris, darren])
 
 # Print the results.
 
-print(" Alice: mu={0[0]:.3f}  sigma={0[1]:.3f}".format(alice.skill))
-print("   Bob: mu={0[0]:.3f}  sigma={0[1]:.3f}".format(bob.skill))
-print(" Chris: mu={0[0]:.3f}  sigma={0[1]:.3f}".format(chris.skill))
-print("Darren: mu={0[0]:.3f}  sigma={0[1]:.3f}".format(darren.skill))
+print " Alice: mu={0[0]:.3f}  sigma={0[1]:.3f}".format(alice.skill)
+print "   Bob: mu={0[0]:.3f}  sigma={0[1]:.3f}".format(bob.skill)
+print " Chris: mu={0[0]:.3f}  sigma={0[1]:.3f}".format(chris.skill)
+print "Darren: mu={0[0]:.3f}  sigma={0[1]:.3f}".format(darren.skill)
