@@ -391,16 +391,22 @@ class RegisterAIHandler(webapp.RequestHandler):
     self.response.out.write(response_str)
 
 class RunLadderHandler(webapp.RequestHandler):
-  def post(self):
-    # Needs to iterate through the AILadderPlayer instances and schedule some
-    # matches
-    pass
+    def get(self):
+        if users.is_current_user_admin():
+            # Needs to iterate through the AILadderPlayer instances and schedule
+            # some matches
+            t = Tournament()
+            t.put()
+
+            ai_players = AILadderPlayer.all().filter("enabled =", True).fetch(PAGESIZE)
+            ai_files = map(lambda a: a.file_name, ai_players)
+            argv_str = "-t 10" # Hardcoded 10 games
+            deferred.defer(dmangame.appengine_run_tournament, ai_files, "-t 10", str(t.key()))
 
 class TournamentHandler(webapp.RequestHandler):
     def post(self):
         argv_str = urllib.unquote(self.request.get("argv"))
         self.response.headers['Content-Type'] = 'text/plain'
-        fn = files.blobstore.create(mime_type='text/html')
         self.response.out.write('Running tournament with %s' % argv_str)
 
         t = Tournament()

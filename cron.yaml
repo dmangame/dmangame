@@ -1,0 +1,5 @@
+cron:
+- description: Run Hourly Ladder Matches
+  url: /ladder/run
+  schedule: every 2 hours
+
