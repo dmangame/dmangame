@@ -95,7 +95,7 @@ class AILadderPlayer(db.Model):
   matches    = db.IntegerProperty(default=0)
 
   # mu / sigma terms for trueskill
-  skill       = db.FloatProperty(default=25.0)
+  skill     = db.FloatProperty(default=25.0)
   uncertainty = db.FloatProperty(default=25/3.0)
 
 # This is the AI representing a player in a game
@@ -205,7 +205,6 @@ class AIStatsPage(webapp.RequestHandler):
 
       ai_scores, num_ais, total_games = aggregate_games(tournament=tournament)
 
-      self.response.headers['Content-Type'] = 'text/html'
       template_values = { "ai_scores" : ai_scores, "total_games" : total_games, "count_ai" : num_ais }
 
       path = os.path.join(TEMPLATE_DIR, "stats.html")
@@ -392,16 +391,18 @@ class RegisterAIHandler(webapp.RequestHandler):
 
 class RunLadderHandler(webapp.RequestHandler):
     def get(self):
-        if users.is_current_user_admin():
-            # Needs to iterate through the AILadderPlayer instances and schedule
-            # some matches
-            t = Tournament()
-            t.put()
+        # Needs to iterate through the AILadderPlayer instances and schedule
+        # some matches
+        t = Tournament()
+        t.put()
 
-            ai_players = AILadderPlayer.all().filter("enabled =", True).fetch(PAGESIZE)
-            ai_files = map(lambda a: a.file_name, ai_players)
-            argv_str = "-t 10" # Hardcoded 10 games
-            deferred.defer(dmangame.appengine_run_tournament, ai_files, "-t 10", str(t.key()))
+        ai_players = AILadderPlayer.all().filter("enabled =", True).fetch(PAGESIZE)
+        ai_files = map(lambda a: a.file_name, ai_players)
+        num_games = 10
+        argv_str = "-t %s" % num_games # Hardcoded 10 games
+        deferred.defer(dmangame.appengine_run_tournament, ai_files, argv_str, str(t.key()))
+        self.response.headers['Content-Type'] = 'text/html'
+        self.response.out.write('Scheduling %s ladder matches' % num_games)
 
 class TournamentHandler(webapp.RequestHandler):
     def post(self):
@@ -439,8 +440,7 @@ application = webapp.WSGIApplication(
                                       ('/ladder', LadderPage),
                                       ('/disqus/([^/]+)?', DisqusPage),
                                       ('/replays/([^/]+)?', ReplayPage),
-                                      ('/run_tournament', TournamentHandler)],
-                                     debug=True)
+                                      ('/run_tournament', TournamentHandler)])
 
 class MatchParticipant:
   pass
@@ -455,15 +455,16 @@ def record_ladder_match(world):
   for ai in world.dumpScores():
     ai_instance = world.team_map[ai["team"]]
     ai_class = ai_instance.__class__
-    ai_module = ai_class.__module__
-    ai_file = sys.modules[ai_module].__file__
-    ai_files.add(ai_file)
+    ai_module = sys.modules[ai_class.__module__]
+    ai_str = ai_module.__ai_str__
+    ai_files.add(ai_str)
 
     if ai["units"] > 0:
-      game_scores[ai_file] = 1
+      game_scores[ai_str] = 0
     else:
-      game_scores[ai_file] = 0
+      game_scores[ai_str] = 1
 
+  log.info(ai_files)
   ai_players = AILadderPlayer.get_by_key_name(ai_files)
   contestants = []
   # ai_players and ai_files are relatively ordered.

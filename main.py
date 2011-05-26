@@ -99,6 +99,9 @@ def setupModule(module_name, filename, data=None):
     del sys.modules[module_name]
 
   mod = imp.new_module(str(module_name))
+  if module_name in sys.modules:
+    del sys.modules[module_name]
+
   sys.modules[module_name] = mod
 
   mod.__file__ = filename
@@ -134,7 +137,7 @@ def loadGithubAIData(ai_str):
     filename = "%s:%s" % (user, filename)
     mod = setupModule(module_name, filename, data)
 
-
+  mod.__ai_str__ = ai_str
   return mod
 
 def loadFileAIData(ai_str):

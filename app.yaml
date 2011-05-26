@@ -11,5 +11,10 @@ handlers:
 - url: /.*
   script: appengine.py
 
+- url: /ladder/run
+  script: appengine.py
+  login: admin
+
+
 builtins:
 - deferred: on
