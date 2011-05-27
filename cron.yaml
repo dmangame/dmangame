@@ -1,5 +1,6 @@
 cron:
-- description: Run Hourly Ladder Matches
+- description: Run Bi-Hourly Ladder Matches
   url: /ladder/run
-  schedule: every 2 hours
+  schedule: every 2 hours from 8:00 to 20:00
+  timezone: America/Los_Angeles
 
