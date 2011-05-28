@@ -19,6 +19,7 @@ import urllib
 import copy
 import glob
 import os
+import random
 import sys
 
 sys.path.append("lib")
@@ -259,8 +260,8 @@ def loadMap(filename):
         sys.modules[module_name] = mod
 
       mod.__file__ = filename
-      settings.MAP_NAME=filename
       execfile(filename, mod.__dict__, mod.__dict__)
+      settings.MAP_NAME=filename
 
       for attr in dir(mod):
         if not attr.startswith("__"):
@@ -276,9 +277,18 @@ def appengine_run_tournament(ai_files, argv_str, tournament_key):
   import tournament
 
   options, args = parseOptions(argv_str.split())
+  tournament_map =  random.choice([None, "macro.py", "village.py"])
 
+  if tournament_map:
+    use_map = "maps/%s" % tournament_map
+  else:
+    use_map = None
+
+  
+
+  
   for game in tournament.league_games(ai_files, options.tournament):
-    deferred.defer(appengine_tournament_game, game, None, tournament_key)
+    deferred.defer(appengine_tournament_game, game, use_map, tournament_key)
 
 def appengine_tournament_game(ai_files, map_file, tournament_key):
   from appengine import record_ladder_match
