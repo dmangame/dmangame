@@ -178,7 +178,6 @@ def loadGithubAIData(ai_str):
       path = require_from_user.base_dir
       if rel_path:
         path = os.path.join(path, rel_path)
-      print rel_path
       sub_mod = loadGithubAIData("%s.py" % (os.path.join(path, module_name)))
       require_from_user.locals[module_name] = sub_mod
 
