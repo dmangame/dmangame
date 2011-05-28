@@ -400,6 +400,12 @@ class RunLadderHandler(webapp.RequestHandler):
         ai_files = map(lambda a: a.file_name, ai_players)
         num_games = 10
         argv_str = "-t %s" % num_games # Hardcoded 10 games
+
+        tournament_map = random.choice([None, "macro.py", "village.py"])
+
+        if tournament_map:
+          argv_str += " -m maps/%s" % (tournament_map)
+
         deferred.defer(dmangame.appengine_run_tournament, ai_files, argv_str, str(t.key()))
         self.response.headers['Content-Type'] = 'text/html'
         self.response.out.write('Scheduling %s ladder matches' % num_games)
