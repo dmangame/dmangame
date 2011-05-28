@@ -89,7 +89,30 @@ def parseOptions(opts=None):
                       action="store_true", default=False,
                       help="Register AI for ladder matches")
     (options, args) = parser.parse_args(opts)
-    return options,args
+
+    # Iterate through args and options.highlight to verify there are no
+    # duplicates.
+    ai_used = {}
+    if options.highlight:
+      highlighted_ai = []
+      for ai in options.highlight:
+        if ai in ai_used:
+          logging.warn("Not loading duplicate file AI: %s ", ai)
+        else:
+          highlighted_ai.append(ai)
+        ai_used[ai] = True
+
+      options.highlight = highlighted_ais
+
+    ais = []
+    for ai in args:
+      if ai in ai_used:
+        logging.warn("Not loading duplicate file AI: %s ", ai)
+      else:
+        ais.append(ai)
+      ai_used[ai] = True
+
+    return options,ais
 
 # Requires that module_require is setup with base_dir and locals.
 def module_require(module_name, rel_path=None):
@@ -312,6 +335,7 @@ def post_to_appengine():
 
 
 def run_game():
+  # Start the basic logging at INFO level
   options, args = parseOptions()
 
   if options.tournament:
