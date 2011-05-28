@@ -16,6 +16,7 @@ import settings
 import urllib2
 import urllib
 
+import copy
 import glob
 import os
 import sys
@@ -90,8 +91,17 @@ def parseOptions(opts=None):
     (options, args) = parser.parse_args(opts)
     return options,args
 
-def setupModule(module_name, filename, data=None):
+# Requires that module_require is setup with base_dir and locals.
+def module_require(module_name, rel_path=None):
+  path = module_require.base_dir
+  if rel_path:
+    path = os.path.abspath(os.path.join(path, rel_path))
 
+  mod_args = imp.find_module(module_name, [path])
+  mod = imp.load_module(module_name, *mod_args)
+  module_require.locals[module_name] = mod
+
+def setupModule(module_name, filename, require_func=None, data=None):
   if not data:
     data = open(filename).read()
 
@@ -104,6 +114,12 @@ def setupModule(module_name, filename, data=None):
 
   sys.modules[module_name] = mod
 
+  if not require_func:
+    require_func = copy.copy(module_require)
+
+  require_func.locals = mod.__dict__
+  require_func.base_dir = os.path.split(filename)[0]
+  mod.__dict__["require_dependency"] = require_func
   mod.__file__ = filename
   mod.__file_content__ = data
 
@@ -135,7 +151,11 @@ def loadGithubAIData(ai_str):
     data = f.read()
 
     filename = "%s:%s" % (user, filename)
-    mod = setupModule(module_name, filename, data)
+    def require_from_user(module_name):
+      sub_mod = loadGithubAIData("%s.py" % (os.path.join(require_from_user.base_dir, module_name)))
+      require_from_user.locals[module_name] = sub_mod
+
+    mod = setupModule(module_name, filename, data=data, require_func=require_from_user)
 
   mod.__ai_str__ = ai_str
   return mod
