@@ -8,103 +8,114 @@
 <link rel="stylesheet" type="text/css" href="media/css/game_runs.css">
 <body class="container_12">
 
-<div id="controls" class="clearfix">
-  <div id="map_controls" class="grid_4">
-    <h3 style="float: left;">Map: (Click to Select)</h3>
-    <a class="map_selection" map_name="" href="#">
-      all
-    </a>
-    {% for m in maps %}
-    <a class="map_selection" map_name="{{m}}" href="#">
-      {{ m }}
-    </a>
-    {% endfor %}
-  </div>
-
-  <div id="ai_controls" class="clearfix grid_4">
-    <h3 >Files (Click to Toggle): </h3>
-    {% for a in ai_files %}
-    <a class="ai_selection" ai_name="{{a}}" href="#">
-      {{ a }}
-    </a>
-    {% endfor %}
-  </div>
-
-  <div id="sort_controls" class="clearfix grid_4">
-
-    <h3 >Sort By (Drag to change ordering): </h3>
-    <ol id="sort_order" class="grid_4">
-    </ol>
-  </div>
+<h3 class="grid_12 section_header">Ladder Standings</h3>
+<div id="ladder_info" class="clearfix">
+  {% include "ladder_table.html" %}
+</div>
 
 </div>
 
-<div class="clearfix grid_12">
-  <a id="sort_reverse"> Reverse Results</a>
-  <a id="close_controls">^ Hide Controls ^</a>
-</div>
-
-{% include "game_run_paging.html" %}
-<div id="game_run_collection"></div>
-
-<div id="game_runs" class="hidden">
-{% for gr in game_runs %}
-  <div class="game_run grid_4"
-       data-id="{{gr.key}}"
-       map_name="{{gr.map_name}}"
-       turns="{{gr.turns}}"
-       num_ai="{{gr.aiparticipant_set.count}}"
-       created_at="{{gr.created_at|datetime_to_seconds}}" >
-    <div class="game_run_content">
-      <h2 class="map">
-      <a class="replay" href="/disqus/{{ gr.replay.key }}">
-        {{gr.map_name}} 
+<h3 class="grid_12 section_header">Game Archive</h3>
+<div id="game_run_container">
+  <div id="controls" class="clearfix">
+    <div id="map_controls" class="grid_4">
+      <h3 style="float: left;">Map: (Click to Select)</h3>
+      <a class="map_selection" map_name="" href="#">
+        all
       </a>
-      {% if can_delete %}
-        <a class="delete" href="/delete">x</a>
-      {% endif %}
-      </h2>
+      {% for m in maps %}
+      <a class="map_selection" map_name="{{m}}" href="#">
+        {{ m }}
+      </a>
+      {% endfor %}
+    </div>
+
+    <div id="ai_controls" class="clearfix grid_4">
+      <h3 >Files (Click to Toggle): </h3>
+      {% for a in ai_files %}
+      <a class="ai_selection" ai_name="{{a}}" href="#">
+        {{ a }}
+      </a>
+      {% endfor %}
+    </div>
+
+    <div id="sort_controls" class="clearfix grid_4">
+
+      <h3 >Sort By (Drag to change ordering): </h3>
+      <ol id="sort_order" style="width: 100%;">
+      </ol>
+    </div>
+
+  </div>
+
+  <div class="clearfix grid_12">
+    <a id="sort_reverse"> Reverse Results</a>
+    <a id="close_controls">^ Hide Controls ^</a>
+  </div>
+
+  {% include "game_run_paging.html" %}
+  <div id="game_run_collection"></div>
+
+  <div id="game_runs" class="hidden">
+  {% for gr in game_runs %}
+    <div class="game_run grid_4"
+         data-id="{{gr.key}}"
+         map_name="{{gr.map_name}}"
+         turns="{{gr.turns}}"
+         num_ai="{{gr.aiparticipant_set.count}}"
+         created_at="{{gr.created_at|datetime_to_seconds}}" >
+      <div class="game_run_content">
+        <h2 class="map">
+        <a class="replay" href="/disqus/{{ gr.replay.key }}">
+          {{gr.map_name}}
+        </a>
+        {% if can_delete %}
+          <a class="delete" href="/delete">x</a>
+        {% endif %}
+        </h2>
 
 
-      <div class="ai_participants">
-        {% for ai in gr.aiparticipant_set %}
-        <div class="ai_participant {% if ai.win %}winner{%else%}loser{%endif%} clearfix" file_name="{{ai.file_name}}">
-           <div class="ai_class_name"
-                 title="{{ ai.file_name }}:{{ ai.version }}">
-              {{ ai.class_name|truncate:14 }}
-           </div>
+        <div class="ai_participants">
+          {% for ai in gr.aiparticipant_set %}
+          <div class="ai_participant {% if ai.win %}winner{%else%}loser{%endif%} clearfix" file_name="{{ai.file_name}}">
+             <div class="ai_class_name"
+                   title="{{ ai.file_name }}:{{ ai.version }}">
+                {{ ai.class_name|truncate:14 }}
+             </div>
 
-          <div class="deaths"> {{ ai.deaths }} </div>
-          <div class="kills"> {{ ai.kills }} </div>
+            <div class="deaths"> {{ ai.deaths }} </div>
+            <div class="kills"> {{ ai.kills }} </div>
+          </div>
+          {% endfor %}
         </div>
-        {% endfor %}
-      </div>
 
-      <div class="info clearfix">
-      <h2 class="turns">
-        {{gr.turns}} Turns
-        <span class="runtime">
-          ({{gr.run_time|floatformat:2}}s)
-        </span>
-      </h2>
-      {% if gr.tournament %}
-        <div class="tournament">
-          league: <a href="stats?tournament={{gr.tournament.key}}">{{ gr.tournament.key|truncate:6 }}</a>
+        <div class="info clearfix">
+        <h2 class="turns">
+          {{gr.turns}} Turns
+          <span class="runtime">
+            ({{gr.run_time|floatformat:2}}s)
+          </span>
+        </h2>
+        {% if gr.tournament %}
+          <div class="tournament">
+            league: <a href="stats?tournament={{gr.tournament.key}}">{{ gr.tournament.key|truncate:6 }}</a>
+          </div>
+        {% endif %}
+        <div class="game_version">
+          version: {{ gr.version|truncate:6 }}
         </div>
-      {% endif %}
-      <div class="game_version">
-        version: {{ gr.version|truncate:6 }}
-      </div>
-      <div class="playtime_ago"
-           title="{{gr.created_at|date}} {{ gr.created_at|time }}">
-        {{gr.created_at|timesince}} ago
-      </div>
-      </div>
-    </div> <!-- Game Run Content -->
-  </div> <!-- Game Run -->
+        <div class="playtime_ago"
+             title="{{gr.created_at|date}} {{ gr.created_at|time }}">
+          {{gr.created_at|timesince}} ago
+        </div>
+        </div>
+      </div> <!-- Game Run Content -->
+    </div> <!-- Game Run -->
 
-{% endfor %}
-</div>
+  {% endfor %}
+  </div>
+
+</div> <!-- Game runs and controls -->
 
 <script src="https://github.com/jamespadolsey/jQuery-Plugins/raw/master/sortElements/jquery.sortElements.js" type="text/javascript"></script>
 
@@ -279,7 +290,9 @@
     });
 
     $("#game_run_collection").quicksand($("#game_runs .game_run"));
+
   });
+
 </script>
 
 {% include "game_run_paging.html" %}

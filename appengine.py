@@ -273,10 +273,13 @@ class MainPage(webapp.RequestHandler):
 
         game_maps = sorted(list(map_set))
         game_ais = sorted(list(file_set))
+        ladder_players = AILadderPlayer.all().fetch(PAGESIZE)
+
         template_values = { "game_runs" : games,
                             "next_page" : has_next_page,
                             "maps"      : game_maps,
                             "ai_files"  : game_ais,
+                            "ladder_players" : ladder_players,
                             "can_delete" : users.is_current_user_admin()}
 
         path = os.path.join(TEMPLATE_DIR, "game_runs.html")

@@ -22,7 +22,9 @@ table {
 
 #stats {
   width: 100% !important;
-  margin: 25px 0px;
+  margin-top: 25px;
+  position: relative;
+  float: left;
 }
 
 #stats th {

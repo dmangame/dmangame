@@ -1,3 +1,20 @@
+#hotspot_top {
+  height: 25px;
+  background-color: #000;
+  color: #fff;
+  font-size: 200%;
+  margin-bottom: 10px;
+}
+
+#hotspot_left,
+#hotspot_right {
+  width: 30px;
+  background-color: #000;
+  color: #fff;
+  position: fixed;
+}
+
+
 .toggled {
   background-color: #dedede;
 }
@@ -212,4 +229,9 @@ a.map_selection:visited {
 .newer_games, .older_games {
   font-size: 150%;
   margin-bottom: 25px;
+}
+
+h3.section_header {
+  border-bottom: 2px solid #dedede;
+  font-size: 200%;
 }
