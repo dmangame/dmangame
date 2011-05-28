@@ -174,8 +174,12 @@ def loadGithubAIData(ai_str):
     data = f.read()
 
     filename = "%s:%s" % (user, filename)
-    def require_from_user(module_name):
-      sub_mod = loadGithubAIData("%s.py" % (os.path.join(require_from_user.base_dir, module_name)))
+    def require_from_user(module_name, rel_path=None):
+      path = require_from_user.base_dir
+      if rel_path:
+        path = os.path.join(path, rel_path)
+      print rel_path
+      sub_mod = loadGithubAIData("%s.py" % (os.path.join(path, module_name)))
       require_from_user.locals[module_name] = sub_mod
 
     mod = setupModule(module_name, filename, data=data, require_func=require_from_user)
