@@ -40,6 +40,14 @@ except Exception, e:
 
 import world
 
+
+class DependencyException(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
+
 def parseOptions(opts=None):
     parser = OptionParser()
     parser.add_option("-m", "--map", dest="map",
@@ -120,8 +128,11 @@ def module_require(module_name, rel_path=None):
   if rel_path:
     path = os.path.abspath(os.path.join(path, rel_path))
 
-  mod_args = imp.find_module(module_name, [path])
-  mod = imp.load_module(module_name, *mod_args)
+  file,pathname,desc = imp.find_module(module_name, [path])
+  def sub_module_require(module_name, rel_path=None):
+    raise DependencyException("Dependencies may only be included from the main AI file supplied on the command line.")
+
+  mod = setupModule(module_name, pathname, require_func=sub_module_require)
   module_require.locals[module_name] = mod
 
 def setupModule(module_name, filename, require_func=None, data=None):
@@ -150,6 +161,16 @@ def setupModule(module_name, filename, require_func=None, data=None):
   return mod
 
 
+def generate_submodule_require_func(load_method):
+  def require_from_user(module_name, rel_path=None):
+    path = require_from_user.base_dir
+    if rel_path:
+      path = os.path.join(path, rel_path)
+    sub_mod = load_method("%s.py" % (os.path.join(path, module_name)))
+    require_from_user.locals[module_name] = sub_mod
+
+  return require_from_user
+
 # Should this file be saved to disk?
 def loadGithubAIData(ai_str):
   user,filenames = ai_str.split(":")
@@ -174,26 +195,27 @@ def loadGithubAIData(ai_str):
     data = f.read()
 
     filename = "%s:%s" % (user, filename)
-    def require_from_user(module_name, rel_path=None):
-      path = require_from_user.base_dir
-      if rel_path:
-        path = os.path.join(path, rel_path)
-      sub_mod = loadGithubAIData("%s.py" % (os.path.join(path, module_name)))
-      require_from_user.locals[module_name] = sub_mod
+    require_func = generate_submodule_require_func(loadGithubAIData)
+    mod = setupModule(module_name, filename, data=data,
+                    require_func=require_func)
+    mod.__ai_str__ = ai_str
 
-    mod = setupModule(module_name, filename, data=data, require_func=require_from_user)
-
-  mod.__ai_str__ = ai_str
+  mod.__dict__["__ai_str__"] = ai_str
   return mod
 
 def loadFileAIData(ai_str):
+  log.info("Loading %s from local filesystem" % (ai_str))
   filename = ai_str
 
   split_ext = os.path.splitext(filename)
 
   module_name = os.path.basename(split_ext[0])
 
-  return setupModule(module_name, filename)
+  require_func = generate_submodule_require_func(loadFileAIData)
+  mod = setupModule(module_name, filename, require_func=require_func)
+  mod.__ai_str__ = ai_str
+
+  return mod
 
 def loadAIModules(ais, highlight=False):
     if not ais:

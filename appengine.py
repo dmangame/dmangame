@@ -16,6 +16,7 @@ import os
 import sys
 import time
 import datetime
+import random
 import traceback
 
 import ai as ai_module
@@ -170,8 +171,6 @@ def aggregate_games(tournament=None):
           if not ai == winner:
             losses[ai.file_name][winner.file_name] += 1
             wins[winner.file_name][ai.file_name] += 1
-
-      log.info(ais)
 
     if len(runs) <= PAGESIZE:
       # No more results
@@ -465,6 +464,7 @@ def record_ladder_match(world):
     ai_str = ai_module.__ai_str__
     ai_files.add(ai_str)
 
+    # [okay]: TODO: actually use a better ranking system than tying for last.
     if ai["units"] > 0:
       game_scores[ai_str] = 0
     else:
