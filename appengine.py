@@ -99,6 +99,9 @@ class AILadderPlayer(db.Model):
   skill     = db.FloatProperty(default=25.0)
   uncertainty = db.FloatProperty(default=25/3.0)
 
+class AIMapPlayer(AILadderPlayer):
+  map = db.StringProperty(required=True)
+
 # This is the AI representing a player in a game
 class AIParticipant(db.Model):
     created_at = db.DateTimeProperty(auto_now_add=True)
@@ -448,28 +451,7 @@ application = webapp.WSGIApplication(
 class MatchParticipant:
   pass
 
-def record_ladder_match(world):
-  # Now to generate tournament compatible scores
-  # Collect the
-  game_scores = {}
-  ai_players = world
-  ai_files = set()
-
-  for ai in world.dumpScores():
-    ai_instance = world.team_map[ai["team"]]
-    ai_class = ai_instance.__class__
-    ai_module = sys.modules[ai_class.__module__]
-    ai_str = ai_module.__ai_str__
-    ai_files.add(ai_str)
-
-    # [okay]: TODO: actually use a better ranking system than tying for last.
-    if ai["units"] > 0:
-      game_scores[ai_str] = 0
-    else:
-      game_scores[ai_str] = 1
-
-  log.info(ai_files)
-  ai_players = AILadderPlayer.get_by_key_name(ai_files)
+def adjust_rankings(ai_players, ai_files, game_scores):
   contestants = []
   # ai_players and ai_files are relatively ordered.
   for ai_player in ai_players:
@@ -478,7 +460,6 @@ def record_ladder_match(world):
     m.rank = game_scores[ai_player.file_name]
     m.player = ai_player
     contestants.append(m)
-
 
   trueskill.AdjustPlayers(contestants)
 
@@ -493,6 +474,58 @@ def record_ladder_match(world):
     c.player.last_match = datetime.datetime.now()
     log.info("new: %s:%s", skill, uncertainty)
     c.player.put()
+
+def get_map_players(ai_files, class_mapping):
+  map_query   = AIMapPlayer.all()
+  map_query   = map_query.filter("file_name IN", list(ai_files))
+  map_query   = map_query.filter("map =", settings.MAP_NAME)
+  map_players = map_query.fetch(len(ai_files))
+  player_to_file = {}
+  log.info("FOUND PLAYERS: %s", map_players)
+  for m_player in map_players:
+    player_to_file[m_player.file_name] = m_player
+
+  for ai_file in ai_files:
+    if not ai_file in player_to_file:
+      # build the map player here.
+      class_name = class_mapping[ai_file]
+      m_player = AIMapPlayer(class_name=class_name,
+                             file_name=ai_file,
+                             enabled=True,
+                             map=settings.MAP_NAME)
+      map_players.append(m_player)
+
+  log.info("MAP PLAYERS: %s", map_players)
+  return map_players
+
+def record_ladder_match(world):
+  # Now to generate tournament compatible scores
+  # Collect the
+  game_scores = {}
+  ai_players = world
+  ai_files = set()
+  file_to_class_map = {}
+
+  for ai in world.dumpScores():
+    ai_instance = world.team_map[ai["team"]]
+    ai_class = ai_instance.__class__
+    ai_module = sys.modules[ai_class.__module__]
+    ai_str = ai_module.__ai_str__
+    ai_files.add(ai_str)
+    file_to_class_map[ai_str] = ai_class.__name__
+
+    # [okay]: TODO: actually use a better ranking system than tying for last.
+    if ai["units"] > 0:
+      game_scores[ai_str] = 0
+    else:
+      game_scores[ai_str] = 1
+
+
+  ai_players = AILadderPlayer.get_by_key_name(ai_files)
+  map_players = get_map_players(ai_files, file_to_class_map)
+
+  adjust_rankings(ai_players, ai_files, game_scores)
+  adjust_rankings(map_players, ai_files, game_scores)
 
 def record_game_to_db(world, replay_blob_key, run_time, tournament_key=None):
   t = None
