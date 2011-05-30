@@ -1,0 +1,26 @@
+<div style="float: left;" class="grid_12 clearfix">
+<table id="{{ladder}}_ladder" class="ladder_table">
+<thead>
+<tr>
+<th class="competitor">Player</th>
+<th>Games</th>
+<th>Skill</th>
+<th>Uncertainty</th>
+<th>Last Match</th>
+</tr>
+</thead>
+
+<tbody>
+{% for ai in ladder_players %}
+  <tr>
+    <td class="player_1"> {{ai.class_name}}</td>
+    <td class="matches"> {{ai.matches}}</td>
+    <td class="skill"> {{ai.skill|floatformat}}</td>
+    <td class="uncertainty"> {{ai.uncertainty|floatformat}}</td>
+    <td class="last match"> {{ai.last_match}}</td>
+  </tr>
+{% endfor %}
+</tbody>
+</table>
+
+</div>

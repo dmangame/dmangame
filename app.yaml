@@ -1,5 +1,5 @@
 application: dmangame-app
-version: 1
+version: 2
 runtime: python
 api_version: 1
 
@@ -9,12 +9,11 @@ handlers:
   static_dir: media
 
 - url: /.*
-  script: appengine.py
+  script: appengine/appengine.py
 
 - url: /ladder/run
-  script: appengine.py
+  script: appengine/appengine.py
   login: admin
-
 
 builtins:
 - deferred: on

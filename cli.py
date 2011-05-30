@@ -93,7 +93,7 @@ def end_game():
     jsplayer.end_world(CliWorld.dumpWorldToDict())
 
 def appengine_main(ais, appengine_file_name=None, tournament_key=None):
-  from appengine import record_game_to_db
+  from appengine.appengine import record_game_to_db
   from google.appengine.api import files
   start_time = time.time()
 

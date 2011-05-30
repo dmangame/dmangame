@@ -1,5 +1,11 @@
 from __future__ import with_statement
 
+import os
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+from google.appengine.dist import use_library
+use_library('django', '1.2')
+from google.appengine.ext.webapp import template
+
 from google.appengine.ext import blobstore
 from google.appengine.ext import db
 from google.appengine.ext import deferred
@@ -8,11 +14,10 @@ from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext.webapp.util import run_wsgi_app
-from google.appengine.ext.webapp import template
+
 
 import urllib
 import hashlib
-import os
 import sys
 import time
 import datetime
@@ -34,35 +39,7 @@ import logging
 log = logging.getLogger("APPENGINE")
 log.setLevel(logging.INFO)
 
-register = webapp.template.create_template_register()
-template.register_template_library('appengine')
-
-@register.filter
-def hash(h,key):
-    return h[key]
-
-@register.filter
-def datetime_to_seconds(value):
-    dt = value
-    seconds = time.mktime(dt.timetuple())
-    return seconds
-
-@register.filter
-def truncate(value, arg):
-    """
-    Truncates a string after a given number of chars
-    Argument: Number of chars to truncate after
-    """
-    try:
-        length = int(arg)
-    except ValueError: # invalid literal for int()
-        return value # Fail silently.
-    if not isinstance(value, basestring):
-        value = str(value)
-    if (len(value) > length):
-        return value[:length]
-    else:
-        return value
+template.register_template_library('appengine.extensions')
 
 TEMPLATE_DIR=os.path.join(os.path.dirname(__file__), 'templates')
 
@@ -225,12 +202,21 @@ class DisqusPage(webapp.RequestHandler):
 
 class LadderPage(webapp.RequestHandler):
   def get(self):
-    self.response.headers['Content-Type'] = 'text/html'
 
-    ladder_players = AILadderPlayer.all().fetch(PAGESIZE)
-    template_values = {"ladder_players" : ladder_players }
+    ladders = {}
+
+    map_players = AIMapPlayer.all().order("-skill").fetch(PAGESIZE)
+    for ladder_player in map_players:
+      player_map = ladder_player.map
+      if not player_map in ladders:
+        ladders[player_map] = []
+      ladders[player_map].append(ladder_player)
+
+    template_values = {"ladders" : ladders,
+                       "overall" : AILadderPlayer.all().order("-skill").fetch(PAGESIZE) }
 
     path = os.path.join(TEMPLATE_DIR, "ladder.html")
+
     self.response.headers['Content-Type'] = 'text/html'
     self.response.out.write(template.render(path, template_values))
 
@@ -276,7 +262,7 @@ class MainPage(webapp.RequestHandler):
 
         game_maps = sorted(list(map_set))
         game_ais = sorted(list(file_set))
-        ladder_players = AILadderPlayer.all().fetch(PAGESIZE)
+        ladder_players = AILadderPlayer.all().order("-skill").fetch(PAGESIZE)
 
         template_values = { "game_runs" : games,
                             "next_page" : has_next_page,
