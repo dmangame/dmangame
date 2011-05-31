@@ -9,7 +9,7 @@ h2 {
   border-bottom: 2px solid #dedede;
 }
 
-h3 {
+.ladder_table h3 {
   margin: 10px 0;
   font-size: 120%;
 }
