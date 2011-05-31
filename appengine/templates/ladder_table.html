@@ -17,7 +17,7 @@
     <td class="matches"> {{ai.matches}}</td>
     <td class="skill"> {{ai.skill|floatformat}}</td>
     <td class="uncertainty"> {{ai.uncertainty|floatformat}}</td>
-    <td class="last match"> {{ai.last_match}}</td>
+    <td class="last match"> {{ai.last_match|timesince}} ago</td>
   </tr>
 {% endfor %}
 </tbody>
