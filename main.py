@@ -279,14 +279,15 @@ def appengine_run_tournament(ai_files, argv_str, tournament_key):
   options, args = parseOptions(argv_str.split())
   tournament_map =  random.choice([None, "macro.py", "village.py"])
 
+
   if tournament_map:
     use_map = "maps/%s" % tournament_map
   else:
     use_map = None
 
-  
+  if options.map:
+    use_map = options.map
 
-  
   for game in tournament.league_games(ai_files, options.tournament):
     deferred.defer(appengine_tournament_game, game, use_map, tournament_key)
 
