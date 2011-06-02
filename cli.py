@@ -87,9 +87,9 @@ def end_game():
   if settings.NCURSES:
     ncurses.end()
 
-  jsplayer.save_world_turns(CliWorld.world_turns)
   # Save the world information to an output file.
   if settings.JS_REPLAY_FILE or settings.JS_REPLAY_FILENAME:
+    jsplayer.save_world_turns(CliWorld.world_turns)
     jsplayer.end_world(CliWorld.dumpWorldToDict())
 
 def appengine_main(ais, appengine_file_name=None, tournament_key=None):
