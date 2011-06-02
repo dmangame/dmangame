@@ -11,6 +11,8 @@ import unittest
 import world
 import worldtalker
 
+from collections import defaultdict
+
 
 
 class SecurityWorld(world.World):
@@ -36,6 +38,9 @@ class SecurityAI(ai.AI):
 class TestWorldFunctions(unittest.TestCase):
   def setUp(self):
     self.w = SecurityWorld()
+
+    self.w.teams = defaultdict(lambda: "<<UNDEFINED>>")
+    self.w.team_map = defaultdict(lambda: "<<UNDEFINED>>")
     self.wt = worldtalker.WorldTalker(self.w)
     self.ai = SecurityAI(self.wt)
 

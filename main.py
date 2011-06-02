@@ -49,8 +49,38 @@ class DependencyException(Exception):
         return repr(self.value)
 
 
+# parse highlighted and command line AI options and make sure that only one of
+# each is loaded.
+def parseAIOptions(options, args):
+  # Iterate through args and options.highlight to verify there are no
+  # duplicates.
+  ai_used = {}
+  if options.highlight:
+    highlighted_ai = []
+    for ai in options.highlight:
+      if ai in ai_used:
+        logging.warn("Not loading duplicate file AI: %s ", ai)
+      else:
+        highlighted_ai.append(ai)
+      ai_used[ai] = True
+
+    options.highlight = highlighted_ai
+
+  ais = []
+  for ai in args:
+    if ai in ai_used:
+      logging.warn("Not loading duplicate file AI: %s ", ai)
+    else:
+      ais.append(ai)
+    ai_used[ai] = True
+
+  return ais
+
+
+
 def parseOptions(opts=None):
     parser = OptionParser()
+
     parser.add_option("-m", "--map", dest="map",
                       help="Use map settings from MAP", default=None)
     parser.add_option("-c", "--cli", dest="cli",
@@ -100,30 +130,9 @@ def parseOptions(opts=None):
                       dest="update_app_engine_ai",
                       action="store_true", default=False,
                       help="Register AI for ladder matches")
+
     (options, args) = parser.parse_args(opts)
-
-    # Iterate through args and options.highlight to verify there are no
-    # duplicates.
-    ai_used = {}
-    if options.highlight:
-      highlighted_ai = []
-      for ai in options.highlight:
-        if ai in ai_used:
-          logging.warn("Not loading duplicate file AI: %s ", ai)
-        else:
-          highlighted_ai.append(ai)
-        ai_used[ai] = True
-
-      options.highlight = highlighted_ai
-
-    ais = []
-    for ai in args:
-      if ai in ai_used:
-        logging.warn("Not loading duplicate file AI: %s ", ai)
-      else:
-        ais.append(ai)
-      ai_used[ai] = True
-
+    ais = parseAIOptions(options, args)
     return options,ais
 
 # Requires that module_require is setup with base_dir and locals.
@@ -175,6 +184,10 @@ def generate_submodule_require_func(load_method):
 
   return require_from_user
 
+def generate_github_url(user, filename):
+  url = GITHUB_URL % (user, filename)
+  return url
+
 # Should this file be saved to disk?
 def loadGithubAIData(ai_str):
   user,filenames = ai_str.split(":")
@@ -189,7 +202,7 @@ def loadGithubAIData(ai_str):
     module_name = os.path.basename(split_ext[0])
 
     # URL BEING LOADED
-    url = GITHUB_URL % (user, filename)
+    url = generate_github_url(user, filename)
     if ai_mod:
       log.info("Loading AI module from %s" % (url))
     else:

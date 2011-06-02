@@ -129,7 +129,9 @@ class World:
 
         self.wt = worldtalker.WorldTalker(self)
         self.AI = []
+        # Map a unit or AI to a team
         self.teams = {}
+        # Maps a team to its AI
         self.team_map = {}
         self.ai_cycler = itertools.cycle(self.AI)
         self.units = {} # instead of a list, it will point to the unit's attributes.
