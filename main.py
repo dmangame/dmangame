@@ -92,7 +92,10 @@ def parseOptions(opts=None):
     parser.add_option("-o", "--output",
                       dest="replay_file",
                       help="create HTML replay file")
-
+    parser.add_option("--players",
+                      dest="players",
+                      action="store", default=2, type=int,
+                      help="Number of players in each game")
     parser.add_option("-r", "--register",
                       dest="update_app_engine_ai",
                       action="store_true", default=False,
@@ -288,7 +291,7 @@ def appengine_run_tournament(ai_files, argv_str, tournament_key):
   if options.map:
     use_map = options.map
 
-  for game in tournament.league_games(ai_files, options.tournament):
+  for game in tournament.league_games(ai_files, options.tournament, options.players):
     deferred.defer(appengine_tournament_game, game, use_map, tournament_key)
 
 def appengine_tournament_game(ai_files, map_file, tournament_key):

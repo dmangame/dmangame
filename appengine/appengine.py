@@ -390,11 +390,12 @@ class RunLadderHandler(webapp.RequestHandler):
         ai_players = AILadderPlayer.all().filter("enabled =", True).fetch(PAGESIZE)
         ai_files = map(lambda a: a.file_name, ai_players)
         num_games = 10
-        argv_str = "-t %s" % num_games # Hardcoded 10 games
+        num_players = random.choice([2,3,4,5])
+        argv_str = "-t %s --players %s" % (num_games, num_players) # Hardcoded 10 games
 
         deferred.defer(dmangame.appengine_run_tournament, ai_files, argv_str, str(t.key()))
         self.response.headers['Content-Type'] = 'text/html'
-        self.response.out.write('Scheduling %s ladder matches' % num_games)
+        self.response.out.write('Scheduling %s ladder matches with %s players per game' % (num_games, num_players))
 
 class TournamentHandler(webapp.RequestHandler):
     def post(self):
@@ -488,6 +489,9 @@ def record_ladder_match(world):
   # Now to generate tournament compatible scores
   # Collect the
   game_scores = {}
+  alive = []
+  dead = []
+  ranks = {}
   ai_players = world
   ai_files = set()
   file_to_class_map = {}
@@ -501,17 +505,47 @@ def record_ladder_match(world):
     file_to_class_map[ai_str] = ai_class.__name__
 
     # [okay]: TODO: actually use a better ranking system than tying for last.
-    if ai["units"] > 0:
-      game_scores[ai_str] = 0
-    else:
-      game_scores[ai_str] = 1
+    # Score should be:
+    # If alive:
+    #   score: dead units + kills
+    # If dead:
+    #   score: dead units + kills
 
+    game_scores[ai_str] = ai["deaths"] + ai["kills"]
+    if ai["units"] > 0:
+      alive.append(ai_str)
+    else:
+      dead.append(ai_str)
+
+  dead.sort(key=lambda u: game_scores[u], reverse=True)
+  alive.sort(key=lambda u: game_scores[u], reverse=True)
+
+  rank = 0
+  score = None
+  for ai_str in alive:
+    ai_score = game_scores[ai_str]
+    if ai_score is not score:
+      rank += 1
+
+    ranks[ai_str] = rank
+    score = ai_score
+    log.info("Alive: AI: %s, Score: %s, Rank: %s" % (ai_str, score, rank))
+
+  rank += 1
+  for ai_str in dead:
+    ai_score = game_scores[ai_str]
+    if ai_score is not score:
+      rank += 1
+
+    ranks[ai_str] = rank
+    score = ai_score
+    log.info("Dead: AI: %s, Score: %s, Rank: %s" % (ai_str, score, rank))
 
   ai_players = AILadderPlayer.get_by_key_name(ai_files)
   map_players = get_map_players(ai_files, file_to_class_map)
 
-  adjust_rankings(ai_players, ai_files, game_scores)
-  adjust_rankings(map_players, ai_files, game_scores)
+  adjust_rankings(ai_players, ai_files, ranks)
+  adjust_rankings(map_players, ai_files, ranks)
 
 def record_game_to_db(world, replay_blob_key, run_time, tournament_key=None):
   t = None
