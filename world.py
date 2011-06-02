@@ -227,7 +227,7 @@ class World:
           break
 
         if attempts >= 5 and best_square:
-          log.info("Couldn't place building far enough away after five tries, taking last guess")
+          log.info("Couldn't place building far enough away after five tries, taking best guess")
           rand_square = best_square
           break
 
