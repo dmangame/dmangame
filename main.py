@@ -114,7 +114,7 @@ def parseOptions(opts=None):
           highlighted_ai.append(ai)
         ai_used[ai] = True
 
-      options.highlight = highlighted_ais
+      options.highlight = highlighted_ai
 
     ais = []
     for ai in args:
