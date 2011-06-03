@@ -8,14 +8,18 @@
 
 {% with "overall" as ladder %}
   {% with overall as ladder_players %}
+    <div class="ladder">
     <h2>{{ladder}}</h2>
     {% include "ladder_table.html" %}
+    </div>
   {% endwith %}
 {% endwith %}
 
 {% for ladder in ladders %}
   {% with ladders|hash:ladder as ladder_players %}
+    <div class="ladder">
     <h2>{{ladder}}</h2>
+    </div>
     {% include "ladder_table.html" %}
   {% endwith %}
 {% endfor %}

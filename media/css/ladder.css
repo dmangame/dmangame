@@ -3,7 +3,7 @@ body {
   margin: auto;
 }
 
-h2 {
+.ladder h2 {
   font-size: 140%;
   margin-top: 25px;
   border-bottom: 2px solid #dedede;
