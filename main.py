@@ -89,9 +89,6 @@ def parseOptions(opts=None):
 
     parser.add_option("-f", "--fps", dest="fps",
                       help="Frames Per Second", default=10)
-    parser.add_option("-s", "--save", action="store_true",
-                      help="save each world turn as a png",
-                      dest="save_images", default=False)
     parser.add_option("-q", "--quiet",
                       action="store_false", dest="verbose", default=True,
                       help="don't print status messages to stdout")
@@ -417,9 +414,6 @@ def run_game():
 
   loadMap(options.map)
   settings.IGNORE_EXCEPTIONS = not options.whiny
-  if options.save_images:
-    settings.SAVE_IMAGES = True
-
   if options.replay_file:
     settings.JS_REPLAY_FILENAME = options.replay_file
 

@@ -40,11 +40,6 @@ def main(ai_classes=[]):
     ai_player = w.addAI(ai_class)
     ai_module.generate_ai_color(ai_player)
 
-  if settings.SAVE_IMAGES:
-    import cairo
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 200, 200)
-    cairo_context = cairo.Context(surface)
-
   w.world_turns = []
   turns_left = settings.END_GAME_TURNS
   if settings.NCURSES:
@@ -62,9 +57,6 @@ def main(ai_classes=[]):
       s = w.dumpScores()
 
       w.world_turns.append((t,s))
-
-      if settings.SAVE_IMAGES:
-        worldmap.draw_map(cairo_context, 200, 200, t)
 
       if settings.NCURSES:
         ncurses.update(t, s)
