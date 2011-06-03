@@ -25,7 +25,7 @@ import sys
 sys.path.append("lib")
 import imp
 import traceback
-from optparse import OptionParser
+from optparse import OptionParser, OptionGroup
 
 
 import cli
@@ -81,52 +81,64 @@ def parseAIOptions(options, args):
 def parseOptions(opts=None):
     parser = OptionParser()
 
+    # Config options
     parser.add_option("-m", "--map", dest="map",
                       help="Use map settings from MAP", default=None)
-    parser.add_option("-c", "--cli", dest="cli",
+    parser.add_option("-o", "--output",
+                      dest="replay_file",
+                      help="save game to HTML replay file")
+
+    # Output / Replay options
+    output_group = OptionGroup(parser, "Output Options")
+    output_group.add_option("-c", "--cli", dest="cli",
                       help="Display GUI", default=False,
                       action="store_true")
-
-    parser.add_option("-f", "--fps", dest="fps",
+    output_group.add_option("-n", "--ncurses",
+                      action="store_true", dest="ncurses",
+                      help="use curses output module, (implies -c)",
+                      default=False)
+    output_group.add_option("-f", "--fps", dest="fps",
                       help="Frames Per Second", default=10)
-    parser.add_option("-q", "--quiet",
-                      action="store_false", dest="verbose", default=True,
-                      help="don't print status messages to stdout")
-    parser.add_option("--hl", "--highlight",
-                      action="append", dest="highlight",
-                      default=None, help="Show debugging highlights")
-    parser.add_option("-i", "--ignore",
+    parser.add_option_group(output_group)
+
+
+    debug_group = OptionGroup(parser, "Debug Options")
+    # Logging / Verbosity / Debugging
+    debug_group.add_option("-i", "--ignore",
                       action="store_false", dest="whiny",
                       default=True,
                       help="ignore AI exceptions")
-    parser.add_option("-n", "--ncurses",
-                      action="store_true", dest="ncurses",
-                      help="use curses output module, use with -c",
-                      default=False)
-    parser.add_option("-p", "--profile",
+    debug_group.add_option("-q", "--quiet",
+                      action="store_false", dest="verbose", default=True,
+                      help="don't print status messages to stdout")
+    debug_group.add_option("--profile",
                       action="store_true", dest="profile",
-                      help="enable profiling with cProfile",
+                      help="enable profiling with cProfile, saves to ./mainprof",
                       default=False)
-    parser.add_option("-t", "--tournament",
-                      dest="tournament",
-                      action="store", default=0, type=int,
-                      help="Run app engine tournament")
-    parser.add_option("-a", "--app-engine",
-                      dest="app_engine",
-                      action="store_true", default=False,
-                      help="Run on google app engine")
+    debug_group.add_option("--hl", "--highlight",
+                      action="append", dest="highlight",
+                      default=None, help="Show debugging highlights for the specified AI file")
+    parser.add_option_group(debug_group)
 
-    parser.add_option("-o", "--output",
-                      dest="replay_file",
-                      help="create HTML replay file")
-    parser.add_option("--players",
-                      dest="players",
-                      action="store", default=2, type=int,
-                      help="Number of players in each game")
-    parser.add_option("-r", "--register",
+    # App engine arguments
+    app_engine_group = OptionGroup(parser, "App Engine")
+    app_engine_group.add_option("-r", "--register",
                       dest="update_app_engine_ai",
                       action="store_true", default=False,
-                      help="Register AI for ladder matches")
+                      help="Register AIs for ladder matches.")
+    app_engine_group.add_option("-a", "--app-engine",
+                      dest="app_engine",
+                      action="store_true", default=False,
+                      help="Run a single app engine game")
+    app_engine_group.add_option("-t", "--tournament",
+                      dest="tournament",
+                      action="store", default=0, type=int,
+                      help="Run app engine tournament.")
+    app_engine_group.add_option("-p", "--players",
+                      dest="players",
+                      action="store", default=2, type=int,
+                      help="Specify number of players in each game in a tournament")
+    parser.add_option_group(app_engine_group)
 
     (options, args) = parser.parse_args(opts)
     ais = parseAIOptions(options, args)
@@ -390,7 +402,7 @@ def run_game():
   if options.tournament:
     settings.TOURNAMENT = options.tournament
 
-  if options.app_engine:
+  if options.app_engine or options.tournament:
     post_to_appengine()
     return
 
@@ -401,6 +413,8 @@ def run_game():
   logger_stream = None
   if options.ncurses:
     settings.NCURSES = True
+    options.cli = True
+
     print "Logging game to game.log"
     logger_stream = open("game.log", "w")
 
