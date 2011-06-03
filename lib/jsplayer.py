@@ -783,13 +783,13 @@ def save_to_js_file(world_data, world_turns):
 
 START_WORLD_HTML=False
 def save_world_turns(world_turns):
+  if not settings.JS_REPLAY_FILE and not settings.JS_REPLAY_FILENAME:
+    return
+
   global START_WORLD_HTML
   if not START_WORLD_HTML:
     START_WORLD_HTML=True
     begin_save_to_js_file(world_turns)
-
-  if not settings.JS_REPLAY_FILE and not settings.JS_REPLAY_FILENAME:
-    return
 
   # Save the world information to an output file.
   save_world_turns_to_js_file(world_turns)
