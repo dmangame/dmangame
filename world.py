@@ -16,6 +16,8 @@ import traceback
 import threading
 from collections import defaultdict
 
+from lib.geometry import linesIntersect
+
 try:
   import json
 except ImportError:
@@ -535,18 +537,22 @@ class World:
         victims = []
         attackers = []
         for victim in self.unitpaths:
-            for (x, y) in self.unitpaths[victim]:
-                for attacker in self.bulletpaths:
-                    # No direct fire at self.
-                    if attacker == victim:
-                      continue
+            up = self.unitpaths[victim]
+            for attacker in self.bulletpaths:
+                # No direct fire at self.
+                if attacker == victim:
+                    continue
 
-                    for path in self.bulletpaths[attacker]:
-                        for (m, n) in path:
-                            if (x == m and y == n):
-                                victims.append(victim)
-                                attackers.append(attacker)
-                                break
+                if not up:
+                  continue
+
+                for bp in self.bulletpaths[attacker]:
+                    if (up[0] == up[-1] and up[0] in bp) or \
+                      linesIntersect((up[0], up[-1]), (bp[0], bp[-1])):
+
+                      victims.append(victim)
+                      attackers.append(attacker)
+                      break
 
         log.debug("Attackers: %s", attackers)
         log.debug("Victims:   %s", victims)
