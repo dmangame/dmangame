@@ -43,6 +43,7 @@ def league_games(contestants, max_games=50, num_players=2):
   while len(games) < max_games:
     games += games
 
+  random.shuffle(games)
   return games[:max_games]
 
 if __name__ == "__main__":
