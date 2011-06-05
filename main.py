@@ -431,13 +431,12 @@ def run_game():
 
   if options.safe_mode:
     # do some processing before setting up safelite
-    from safelite import FileReader
-    # Force the game into single thread mode
-    settings.SINGLE_THREAD = True
     def fake_printer(*args, **kwargs):
       pass
 
-    IMPORT_GUI_FAILURE = True
+    from safelite import FileReader
+    # Force the game into single thread mode
+    settings.SINGLE_THREAD = True
     traceback.print_exc = fake_printer
 
   ais = loadAIModules(args) or []

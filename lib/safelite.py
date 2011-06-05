@@ -113,12 +113,14 @@ def secure_python_builtins():
 
     # SAFE MODE OPTIONS.
     WHITELIST_MODULES=[
-      # dmangame modules
+      # dmangame modules that can be imported
       'ai', 'ai_exceptions',
-      # python modules. need to make sure the right ones are
-      # here
+      # for running dmangame gui in safe mode
+      #   from . import util (in multiprocessing/process.py)
+      '', 'util',
+      # standard useful python modules.
       'collections', 'copy', 'heapq', 'itertools', 'lib', 'logging', 'math',
-      'operator', 'random', 're', 'string', 'time',
+      'operator', 'random', 're', 'string', 'time', 'traceback'
       ]
 
 
