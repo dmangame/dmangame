@@ -49,6 +49,17 @@ class DependencyException(Exception):
         return repr(self.value)
 
 
+# This sets up safemode with safelite
+def setupSafeMode():
+  # do some processing before setting up safelite
+  def fake_printer(*args, **kwargs):
+    pass
+
+  from safelite import FileReader
+  # Force the game into single thread mode
+  settings.SINGLE_THREAD = True
+  traceback.print_exc = fake_printer
+
 # parse highlighted and command line AI options and make sure that only one of
 # each is loaded.
 def parseAIOptions(options, args):
@@ -396,7 +407,6 @@ def post_to_appengine():
   r = urllib2.urlopen(url_to, data_str)
   print r.read()
 
-
 def run_game():
   global IMPORT_GUI_FAILURE 
   # Start the basic logging at INFO level
@@ -430,14 +440,7 @@ def run_game():
 
 
   if options.safe_mode:
-    # do some processing before setting up safelite
-    def fake_printer(*args, **kwargs):
-      pass
-
-    from safelite import FileReader
-    # Force the game into single thread mode
-    settings.SINGLE_THREAD = True
-    traceback.print_exc = fake_printer
+    setupSafeMode()
 
   ais = loadAIModules(args) or []
   highlighted_ais = loadAIModules(options.highlight, highlight=True)
