@@ -27,6 +27,7 @@ ai_module = ai
 
 def main(ai_classes=[]):
   w = world.World()
+  ai_module.clear_ai_colors()
   global CliWorld, ncurses
 
   CliWorld = w

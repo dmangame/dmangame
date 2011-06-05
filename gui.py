@@ -74,6 +74,7 @@ class MapGUI:
         self.ai_drawables = {}
         self.colors = {}
         self.guiTurn = 0
+        ai.clear_ai_colors()
 
         # Initialize our pixbuf queue
         self.stopped = False
