@@ -49,6 +49,17 @@ class DependencyException(Exception):
         return repr(self.value)
 
 
+# This sets up safemode with safelite
+def setupSafeMode():
+  # do some processing before setting up safelite
+  def fake_printer(*args, **kwargs):
+    pass
+
+  from safelite import FileReader
+  # Force the game into single thread mode
+  settings.SINGLE_THREAD = True
+  traceback.print_exc = fake_printer
+
 # parse highlighted and command line AI options and make sure that only one of
 # each is loaded.
 def parseAIOptions(options, args):
@@ -87,6 +98,10 @@ def parseOptions(opts=None):
     parser.add_option("-o", "--output",
                       dest="replay_file",
                       help="save game to HTML replay file")
+    parser.add_option("-s", "--safe-mode",
+                      dest="safe_mode", action="store_true",
+                      help="Run game in restricted mode. Only supports console output.",
+                      default=False)
 
     # Output / Replay options
     output_group = OptionGroup(parser, "Output Options")
@@ -161,10 +176,8 @@ def setupModule(module_name, filename, require_func=None, data=None):
   if not data:
     data = open(filename).read()
 
-  if module_name in sys.modules:
-    del sys.modules[module_name]
-
   mod = imp.new_module(str(module_name))
+
   if module_name in sys.modules:
     del sys.modules[module_name]
 
@@ -230,7 +243,7 @@ def loadGithubAIData(ai_str):
   return mod
 
 def loadFileAIData(ai_str):
-  log.info("Loading %s from local filesystem" % (ai_str))
+  log.info("Loading %s from local filesystem", ai_str)
   filename = ai_str
 
   split_ext = os.path.splitext(filename)
@@ -394,8 +407,8 @@ def post_to_appengine():
   r = urllib2.urlopen(url_to, data_str)
   print r.read()
 
-
 def run_game():
+  global IMPORT_GUI_FAILURE 
   # Start the basic logging at INFO level
   options, args = parseOptions()
 
@@ -420,6 +433,15 @@ def run_game():
 
   logging.basicConfig(level=logging.INFO, stream=logger_stream)
 
+  if options.replay_file:
+    settings.JS_REPLAY_FILENAME = options.replay_file
+    settings.JS_REPLAY_FILE = open(options.replay_file, "w")
+
+
+
+  if options.safe_mode:
+    setupSafeMode()
+
   ais = loadAIModules(args) or []
   highlighted_ais = loadAIModules(options.highlight, highlight=True)
   if highlighted_ais:
@@ -428,8 +450,6 @@ def run_game():
 
   loadMap(options.map)
   settings.IGNORE_EXCEPTIONS = not options.whiny
-  if options.replay_file:
-    settings.JS_REPLAY_FILENAME = options.replay_file
 
   if options.fps:
     settings.FPS = int(options.fps)
@@ -446,6 +466,9 @@ def run_game():
   finally:
     ui.end_threads()
     ui.end_game()
+
+    if settings.JS_REPLAY_FILE:
+      settings.JS_REPLAY_FILE.close()
 
 
 def main():
