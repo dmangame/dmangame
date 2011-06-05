@@ -54,7 +54,9 @@ def setupSafeMode():
   # do some processing before setting up safelite
   def fake_printer(*args, **kwargs):
     pass
-
+  # initialize urlopen
+  _opener = urllib2.build_opener()
+  urllib2._opener = _opener
   from safelite import FileReader
   # Force the game into single thread mode
   settings.SINGLE_THREAD = True
