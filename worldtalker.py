@@ -8,6 +8,7 @@ from unit import Unit
 import world
 from collections import defaultdict
 import sys
+from sys import _getframe as getframe
 import math
 
 from worldmap import calcDistance
@@ -303,7 +304,7 @@ class WorldTalker:
             try:
                 i+=1
                 try:
-                    frame = sys._getframe(i)
+                    frame = getframe(i)
                 except ValueError:
                     i = 0
                     if errored_once:
