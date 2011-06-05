@@ -45,10 +45,10 @@ class TestAILoader(unittest.TestCase):
       return open(filename)
 
     urllib2.urlopen = mockLoadURL
-    mod = main.loadGithubAIData("okayzed:okay/remote_dep.py")
+    mod = main.loadGithubAIData("okayzed:test/remote_dep.py")
 
-    self.assertIn("okay/remote_dep.py", mock_loaded_modules)
-    self.assertIn("okay/okay.py", mock_loaded_modules)
+    self.assertIn("test/remote_dep.py", mock_loaded_modules)
+    self.assertIn("test/../main.py", mock_loaded_modules)
 
   # Test that file dependencies are properly loaded
   def test_load_file_dep(self):
@@ -59,13 +59,13 @@ class TestAILoader(unittest.TestCase):
       return mod
 
     main.setupModule = accountForSetupModule
-    main.loadFileAIData("dmanai/okay/remote_dep.py")
+    main.loadFileAIData("test/remote_dep.py")
     ai_files = map(lambda m: m.__file__, loaded_modules)
 
     # These are hardcoded and probably wrong. It should do a check on the FS
     # to make sure that the two files are the same
-    self.assertIn("dmanai/okay/remote_dep.py", ai_files)
-    self.assertIn("dmanai/okay/../okay/okay.py", ai_files)
+    self.assertIn("test/remote_dep.py", ai_files)
+    self.assertIn("test/../main.py", ai_files)
 
   # Test that an AI file can only be loaded once
   def test_load_file_once(self):
