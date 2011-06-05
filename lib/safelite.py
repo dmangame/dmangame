@@ -140,6 +140,7 @@ Would you like continue with loading this module? [y/N] """ % (name, name),
           response = raw_input().lower()
           if response == "y":
             load_module = True
+            WHITELIST_MODULES.append(name)
             break
           elif response == "n" or not response.strip():
             break
