@@ -398,6 +398,7 @@ def post_to_appengine():
 
 
 def run_game():
+  global IMPORT_GUI_FAILURE 
   # Start the basic logging at INFO level
   options, args = parseOptions()
 
