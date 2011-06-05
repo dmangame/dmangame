@@ -89,7 +89,7 @@ def parseOptions(opts=None):
                       help="save game to HTML replay file")
     parser.add_option("-s", "--safe-mode",
                       dest="safe_mode", action="store_true",
-                      help="Run game in restricted mode",
+                      help="Run game in restricted mode. Only supports console output.",
                       default=False)
 
     # Output / Replay options
@@ -426,13 +426,17 @@ def run_game():
     settings.JS_REPLAY_FILENAME = options.replay_file
     settings.JS_REPLAY_FILE = open(options.replay_file, "w")
 
+
+
   if options.safe_mode:
+    # do some processing before setting up safelite
     from safelite import FileReader
     # Force the game into single thread mode
     settings.SINGLE_THREAD = True
     def fake_printer(*args, **kwargs):
       pass
 
+    IMPORT_GUI_FAILURE = True
     traceback.print_exc = fake_printer
 
   ais = loadAIModules(args) or []
