@@ -312,9 +312,6 @@ class MapGUI:
 
 m = None
 def main(ais=[]):
-    import sys
-    import os
-
     global m
     m = MapGUI()
     for ai in ais:
