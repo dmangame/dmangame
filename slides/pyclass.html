@@ -13,10 +13,10 @@
     .slide { font-family:sans-serif; text-align:center; padding: 20px; }
     .slide h1 { color: #ff004c; }
     .slide h1 { font-size:48em; font-weight:bold; }
-    .slide strong { color: #ff004c; }
-    .slide strong { font-size:48em; font-weight:bold; }
+    .slide h1 { color: #ff004c; }
+    .slide h1 { font-size:48em; font-weight:bold; }
     .slide h2 { font-size:32em; font-weight:bold; }
-    .slide h2 .hl { color: #ff004c; font-size: 110%; }
+    .slide h2 strong { color: #ff004c; font-size: 110%; }
     .slide h3 { font-size:28em; font-weight:bold; }
     .slide h1, h2 { letter-spacing:-.05em; }
     .slide a { border:none; color:black; background:#ddd; padding:.25em .5em; border-radius:.25em; }
@@ -51,12 +51,12 @@
 
   <div class="slide demo">
     <script>pow.slide.on.load(hide_iframe)</script>
-    <strong>RushAI vs. ExpandThenSearch</strong>
+    <h1>RushAI vs. ExpandThenSearch</h1>
     <iframe width="800px" height="400px" src="expand_vs_rush.html"></iframe>;
   </div>
 
   <div class="slide">
-    <strong>jumping in with code</strong>
+    <h1>jumping in with code</h1>
     <p><pre class="code" style="font-size: 20em; text-align: left;">
     <code>
   # download the engine
@@ -76,48 +76,48 @@
   </div>
 
   <div class="slide">
-    <strong>interacting with the world</strong>
+    <h1>interacting with the world</h1>
   </div>
 
   <div class="slide">
     <h2>
-      units <span class="hl">(move)</span> around the map, <br />
-      <span class="hl">(shoot)</span> bullets at other units <br />
-       and <span class="hl">(capture)</span> buildings.
+      units <strong>(move)</strong> around the map, <br />
+      <strong>(shoot)</strong> bullets at other units <br />
+       and <strong>(capture)</strong> buildings.
     </h2>
   </div>
 
   <div class="slide">
-    <strong>taking the world in</strong>
+    <h1>taking the world in</h1>
   </div>
 
   <div class="slide">
     <h2>
-      AIs and units can see their <span class="hl">visible_buildings</span>
-      and <span class="hl">visible_enemies</span>.
+      AIs and units can see their <strong>visible_buildings</strong>
+      and <strong>visible_enemies</strong>.
     </h2>
   </div>
 
   <div class="slide">
     <h2>
-      Every turn, the AI is informed of its
-      <span class="hl">new_units</span>,
-      <span class="hl">dead_units</span>,
-      <span class="hl">new_buildings</span> and
-      <span class="hl">lost_buildings</span>.
+      Every turn, each AI is informed of its
+      <strong>new_units</strong>,
+      <strong>dead_units</strong>,
+      <strong>new_buildings</strong> and
+      <strong>lost_buildings</strong>.
     </h2>
 
   </div>
 
   <div class="slide">
     <h2>
-      The AI also knows about <span class="hl">my_units</span> and <span
-      class="hl">my_buildings</span>
+      The AI also knows about <strong>my_units</strong> and
+      <strong>my_buildings</strong>
     </h2>
   </div>
 
   <div class="slide">
-    <strong>where you come in</strong>
+    <h1>where you come in</h1>
     <pre style="font-size: 20em; text-align: left;">
     <code>
 # simpleai.py
@@ -144,7 +144,7 @@ class SimpleAI(ai.AI):
   </div>
 
   <div class="slide">
-    <strong>be social</strong>
+    <h1>be social</h1>
     <div>
       <h2>
         fork the dmanai repository<br />
@@ -157,7 +157,7 @@ python main.py okayzed:basic/searchai.py
   </div>
 
   <div class="slide">
-    <strong>be competitive</strong>
+    <h1>be competitive</h1>
     <h2>register your AI to play in the dmangame ladder</h2>
     <pre class="code"><code>
 python main.py -r okayzed:basic/searchai.py
@@ -165,12 +165,12 @@ python main.py -r okayzed:basic/searchai.py
   </div>
 
   <div class="slide">
-    <strong>the ladder</strong>
+    <h1>the ladder</h1>
     <iframe src="http://dmangame-app.appspot.com/ladder" width="100%" height="100%"> </iframe>;
   </div>
 
   <div class="slide">
-    <strong>alright already - stop tlaking</strong>
+    <h1>alright already - stop tlaking</h1>
     <p> <a href="http://okayzed.github.com/dmangame"> http://okayzed.github.com/dmangame </a></p>
     <h3>look here for news, tutorials, APIs, feedback, etc</h3>
   </div>
