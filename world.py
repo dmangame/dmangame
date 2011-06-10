@@ -156,6 +156,8 @@ class World:
         self.execution_times = defaultdict(lambda: defaultdict(int))
 
         self.buildings = {}
+        # These contain the amount of time left for a building to spawn a unit
+        self.spawn_counters = defaultdict(int) 
         log.info('Adding %s buildings to map', settings.ADDITIONAL_BUILDINGS)
         for i in xrange(settings.ADDITIONAL_BUILDINGS):
           self.buildings[self.placeRandomBuilding()] = None
@@ -395,6 +397,9 @@ class World:
                       self.teams[owner.ai_id],
                       building.building_id)
           else:
+            # Reset the unit spawn timer
+            self.spawn_counters[building] = settings.UNIT_SPAWN_MOD
+
             if old_owner:
               log.info("BUILDING: %s lost %s to %s",
                         self.teams[old_owner.ai_id],
@@ -447,6 +452,7 @@ class World:
                     if attacker:
                         unit.killer.add(attacker)
 
+
     def __spawnUnit(self, statsdict, owner, square):
         stats = Stats(**statsdict)
         stats.ai = owner
@@ -457,9 +463,11 @@ class World:
         return unit
 
     def __spawnUnits(self):
-        if self.currentTurn % settings.UNIT_SPAWN_MOD == 0:
-          log.info("Spawning Units")
-          for b in self.buildings:
+        for b in self.buildings:
+          if self.spawn_counters[b] <= 0:
+            self.spawn_counters[b] = settings.UNIT_SPAWN_MOD
+
+            log.info("Spawning Units for building %s" % b.building_id)
             owner = self.buildings[b]
             square = self.map.getPosition(b)
             if owner and square:
@@ -467,12 +475,17 @@ class World:
               self.__spawnUnit(statsdict, owner, square)
 
               log.info("SPAWN: %s gained a unit", (self.teams[owner.ai_id]))
+
+
+
           log.info("SCORES:")
           scores = self.calcScores()
           for t in scores:
             log.info("%s\t%s", t, self.team_map[t].__class__.__name__)
             for k in scores[t]:
               log.info("  %s:\t%s", k, scores[t][k])
+
+          self.spawn_counters[b] -= 1
 
 
     def __unitCleanup(self, unit):
