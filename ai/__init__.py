@@ -26,22 +26,20 @@ def clear_ai_colors():
 
   # These should be better defined
   PREDEFINED_COLORS = random.choice([[
-                       hex2float("202020"),
-                       hex2float("221b00"),
-                       hex2float("2fda00"),
-                       hex2float("e80c7a"),
-                       hex2float("3d0dff"),
-
-                       hex2float("f26716"),
+                        hex2float("221b00"),
+                        hex2float("2fda00"),
+                        hex2float("e80c7a"),
+                        hex2float("3d0dff"),
+                        hex2float("f26716"),
                       ],
-                      
+
                       [
-                      hex2float("ffff00"),
-                      hex2float("202020"),
-                      hex2float("a60311"),
-                      hex2float("1abc16"),
-                      hex2float("023a8b"),
-                      hex2float("f26716"),
+                        hex2float("ffff00"),
+                        hex2float("202020"),
+                        hex2float("a60311"),
+                        hex2float("1abc16"),
+                        hex2float("023a8b"),
+                        hex2float("f26716"),
                       ]])
 
 
