@@ -20,7 +20,7 @@
     .slide h3 { font-size:28em; font-weight:bold; }
     .slide h1, h2 { letter-spacing:-.05em; }
     .slide a { border:none; color:black; background:#ddd; padding:.25em .5em; border-radius:.25em; }
-    .slide code a { 
+    .slide code a {
       background: none;
       border:none;
       color:#ff00c4;
@@ -68,7 +68,7 @@
     <code>
 
   # download the engine
-  git clone http://github.com/okayzed/dmangame 
+  git clone http://github.com/okayzed/dmangame
   cd dmangame/
 
   # download more AIs
@@ -159,22 +159,23 @@ class SimpleAI(ai.AI):
         fork the dmanai repository<br />
         &amp; push your AI to github<br />
       </h2>
-      <pre class="code" style="text-align: left;"><code>
-# register a user on <a href="http://github.com">github</a>
+      <pre class="code" style="text-align: left;">
+      <code># register a user on <a href="http://github.com">github</a>
 # <a href="http://help.github.com/fork-a-repo/">fork</a> the <a
 # href="http://github.com/okayzed/dmanai">dmanai repository</a>
+</code></pre>
 
-# play against any AI on github
-python main.py &lt;github_user&gt;:basic/searchai.py
-      </code></pre>
+<pre class="code" style="text-align: left;"><code>
+# play against any AI on github, using
+python main.py &lt;github_user&gt;:username/ai.py </code></pre>
     </div>
   </div>
 
   <div class="slide">
     <h1>be competitive</h1>
     <h2>register your AI to play in the dmangame ladder</h2>
-    <pre class="code" style="text-align: left"><code>
-# In username/ai.py
+    <pre class="code" style="text-align: left">
+<code># In username/ai.py
 class MyAI(ai.AI):
   PLAY_IN_LADDER=True
   ...
@@ -185,11 +186,10 @@ class MyAI(ai.AI):
 
 </pre></code>
 
-<pre class="code" style="text-align: left"><code>
-git add username/ai.py
+<pre class="code" style="text-align: left">
+<code>git add username/ai.py
 git commit -m "Adding my AI to the ladder"
-python main.py -r &lt;github_user&gt;:username/ai.py
-    </code></pre>
+python main.py -r &lt;github_user&gt;:username/ai.py </code></pre>
   </div>
 
   <div class="slide">
