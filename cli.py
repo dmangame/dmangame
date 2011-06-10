@@ -88,6 +88,7 @@ def end_game():
 def appengine_main(ais, appengine_file_name=None, tournament_key=None):
   from appengine.appengine import record_game_to_db
   from google.appengine.api import files
+  ai_module.clear_ai_colors()
   start_time = time.time()
 
   if not appengine_file_name:
