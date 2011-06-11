@@ -6,6 +6,7 @@ import worldtalker
 import worldmap
 import math
 import settings
+import tuct
 from unit import Unit
 
 import copy
@@ -40,6 +41,17 @@ MOVING=0
 # shooting only lasts one turn.
 SHOOTING=1
 CAPTURING=2
+
+
+DEFAULT_UNIT_STATS = {
+                      "armor"   : 1,
+                      "attack"  : 1,
+                      "sight"   : 1,
+                      "energy"  : 1,
+                      "speed"   : 1
+                     }
+
+
 
 
 class Event:
@@ -157,7 +169,7 @@ class World:
 
         self.buildings = {}
         # These contain the amount of time left for a building to spawn a unit
-        self.spawn_counters = defaultdict(int) 
+        self.spawn_counters = defaultdict(int)
         log.info('Adding %s buildings to map', settings.ADDITIONAL_BUILDINGS)
         for i in xrange(settings.ADDITIONAL_BUILDINGS):
           self.buildings[self.placeRandomBuilding()] = None
@@ -184,10 +196,10 @@ class World:
         self.visiblebuildings = defaultdict(set)
         self.__calcVisibility()
 
-
+        self.unit_stats = tuct.tuct(DEFAULT_UNIT_STATS)
 
     def placeRandomBuilding(self):
-      b = mapobject.Building(self.wt)
+      b = mapobject.Building(self.unit_stats, self.wt)
       # Make sure this building is not within a distance
       # from any other buildings.
       attempts = 0
@@ -453,8 +465,8 @@ class World:
                         unit.killer.add(attacker)
 
 
-    def __spawnUnit(self, statsdict, owner, square):
-        stats = Stats(**statsdict)
+    def __spawnUnit(self, owner, square):
+        stats = Stats(**self.unit_stats)
         stats.ai = owner
         stats.ai_id = owner.ai_id
         stats.team = owner.team
@@ -471,8 +483,7 @@ class World:
             owner = self.buildings[b]
             square = self.map.getPosition(b)
             if owner and square:
-              statsdict = dict(b.getStats().iteritems())
-              self.__spawnUnit(statsdict, owner, square)
+              self.__spawnUnit(owner, square)
 
               log.info("SPAWN: %s gained a unit", (self.teams[owner.ai_id]))
 

@@ -16,15 +16,8 @@ def building_id_generator():
 ID_GENERATOR=building_id_generator()
 
 class Building(MapObject):
-    def __init__(self, worldtalker):
+    def __init__(self, stats, worldtalker):
         self.__wt = worldtalker
-        self.__stats = tuct.tuct({
-                        "armor"   : 1,
-                        "attack"  : 1,
-                        "sight"   : 1,
-                        "energy"  : 1,
-                        "speed"   : 1
-                       })
         self.__building_id = ID_GENERATOR.next()
 
     def getBuildingID(self):
