@@ -189,17 +189,27 @@ class World:
         self.bullet_endings = defaultdict(bool)
         self.bulletRange = self.mapSize/settings.BULLET_RANGE_MODIFIER
         self.bulletSpeed = self.mapSize/settings.BULLET_SPEED_MODIFIER
-
-
+        self.__initStats()
 
         self.visibleunits = defaultdict(set)
         self.visiblebuildings = defaultdict(set)
         self.__calcVisibility()
 
-        self.unit_stats = tuct.tuct(DEFAULT_UNIT_STATS)
+
+    def __initStats(self):
+        stats = Stats(**DEFAULT_UNIT_STATS)
+        stats.armor  = stats.armor  * settings.ARMOR_MODIFIER
+        stats.energy = stats.energy * settings.ENERGY_MODIFIER
+        stats.attack = stats.attack * settings.ATTACK_MODIFIER * math.log(self.mapSize)
+        stats.sight  = int((stats.sight * self.bulletRange) * settings.SIGHT_MODIFIER)
+        stats.speed  = int(stats.speed * (settings.SPEED_MODIFIER * math.log(settings.MAP_SIZE)))
+
+        self.unit_stats = stats
+
+
 
     def placeRandomBuilding(self):
-      b = mapobject.Building(self.unit_stats, self.wt)
+      b = mapobject.Building(self.wt)
       # Make sure this building is not within a distance
       # from any other buildings.
       attempts = 0
@@ -466,7 +476,7 @@ class World:
 
 
     def __spawnUnit(self, owner, square):
-        stats = Stats(**self.unit_stats)
+        stats = copy.copy(self.unit_stats)
         stats.ai = owner
         stats.ai_id = owner.ai_id
         stats.team = owner.team
@@ -613,11 +623,6 @@ class World:
 
         # modify the stats and copy them for our world.
         stats = copy.copy(stats)
-        stats.armor  = stats.armor  * settings.ARMOR_MODIFIER
-        stats.energy = stats.energy * settings.ENERGY_MODIFIER
-        stats.attack = stats.attack * settings.ATTACK_MODIFIER * math.log(self.mapSize)
-        stats.sight  = int((stats.sight * self.bulletRange) * settings.SIGHT_MODIFIER)
-        stats.speed  = int(stats.speed * (settings.SPEED_MODIFIER * math.log(settings.MAP_SIZE)))
 
         unit = Unit(self.wt, stats)
         self.units[unit] = stats

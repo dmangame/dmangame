@@ -1,7 +1,6 @@
 # The unit class for the game.
 import random
 import copy
-import tuct
 
 class MapObject:
     def __init__():
@@ -16,7 +15,7 @@ def building_id_generator():
 ID_GENERATOR=building_id_generator()
 
 class Building(MapObject):
-    def __init__(self, stats, worldtalker):
+    def __init__(self, worldtalker):
         self.__wt = worldtalker
         self.__building_id = ID_GENERATOR.next()
 
@@ -28,11 +27,6 @@ class Building(MapObject):
         " Returns the owner of the building's team"
         return self.__wt.getTeam(self)
     team = property(getTeam)
-
-    def getStats(self):
-        " Returns a copy of this building's unit stat generation"
-        return copy.copy(self.__stats)
-    stats = property(getStats)
 
     def getPosition(self):
         " Returns the position of this Unit on the map"
