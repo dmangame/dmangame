@@ -472,6 +472,21 @@ def run_game():
     if settings.JS_REPLAY_FILE:
       settings.JS_REPLAY_FILE.close()
 
+def print_profile_information(filename):
+  import pstats
+  p = pstats.Stats(filename)
+  p = p.strip_dirs()
+  print "PRINTING FUNCTIONS SORTED BY TIME"
+  p.sort_stats('time')
+  p.print_stats(10)
+  p.print_callers(10)
+
+
+  print "PRINTING FUNCTIONS SORTED BY # CALLS"
+  p.sort_stats('calls')
+  p.print_stats(10)
+  p.print_callers(10)
+
 
 def main():
   options, args = parseOptions()
@@ -482,7 +497,9 @@ def main():
     import cProfile
 
   if settings.PROFILE:
-    cProfile.run("run_game()", "mainprof")
+    prof_filename = "mainprof"
+    cProfile.run("run_game()", prof_filename)
+    print_profile_information(prof_filename)
   else:
     run_game()
 
