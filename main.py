@@ -422,6 +422,10 @@ def run_game():
     return
 
   if options.update_app_engine_ai:
+    if not args:
+      print "Please supply the path to an AI on github"
+      print "(e.g. python main.py -r okayzed:basic/searchai.py)"
+      return
     update_ai_on_appengine()
     return
 
