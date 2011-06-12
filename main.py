@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 import settings
+import maps.default as map_settings
 
 import logging
 log = logging.getLogger("MAIN")
@@ -286,7 +287,6 @@ def loadAIModules(ais, highlight=False):
     return ai_classes
 
 def loadMap(filename):
-
   try:
       log.info("Loading Map %s..." % (filename),)
       split_ext = os.path.splitext(filename)
@@ -306,7 +306,7 @@ def loadMap(filename):
       for attr in dir(mod):
         if not attr.startswith("__"):
           log.info("Setting: %s to %s", attr, getattr(mod, attr))
-          setattr(settings, attr, getattr(mod,attr))
+          setattr(map_settings, attr, getattr(mod,attr))
 
   except Exception, e:
       log.info("Error loading %s, %s", filename, e)
@@ -323,7 +323,7 @@ def appengine_run_tournament(ai_files, argv_str, tournament_key):
   if tournament_map:
     use_map = "maps/%s" % tournament_map
   else:
-    use_map = None
+    use_map = "maps/micro.py"
 
   if options.map:
     use_map = options.map

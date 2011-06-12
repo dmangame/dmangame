@@ -2,6 +2,7 @@ import sys
 sys.path.append(".")
 
 import settings
+import maps.default as map_settings
 import ai_exceptions
 import mapobject
 import ai
@@ -10,6 +11,8 @@ import random
 import unittest
 import world
 import worldtalker
+import copy
+from collections import defaultdict
 
 
 class SecurityWorld(world.World):
@@ -20,6 +23,12 @@ class SecurityWorld(world.World):
   def calcVisibility(self):
     at = getattr(self, '_World__calcVisibility')
     return at()
+
+  def Stats(self, *args, **kwargs):
+    s = copy.copy(self.unit_stats)
+    for k in kwargs:
+      setattr(s, k, kwargs[k])
+    return s
 
 class SecurityAI(ai.AI):
   # Tests that an AI can not manipulate units from another
@@ -45,12 +54,12 @@ class TestSecurityFunctions(unittest.TestCase):
     self.top_left = top_left
     self.bottom_right = bottom_right
 
-    s = world.Stats(ai_id=self.own_ai.ai_id,
+    s = self.w.Stats(ai_id=self.own_ai.ai_id,
                     team=self.own_ai.team)
     s.ai = self.own_ai
     self.own_unit = self.w.createUnit(s, top_left)
 
-    s = world.Stats(ai_id=self.other_ai.ai_id, team=self.other_ai.team)
+    s = self.w.Stats(ai_id=self.other_ai.ai_id, team=self.other_ai.team)
     s.ai = self.other_ai
     self.other_unit = self.w.createUnit(s, bottom_right)
 
@@ -108,7 +117,6 @@ class TestSecurityFunctions(unittest.TestCase):
     # Verify own AI can move unit
     ret = self.own_ai.do_unit_action(self.own_unit, action, *args)
     nret = None
-#    print "t", action, ret
     if true_comp is not None:
       self.assertTrue(true_comp(ret))
     else:
@@ -176,7 +184,7 @@ class TestSecurityFunctions(unittest.TestCase):
       self.w.map.placeObject(self.other_unit, self.bottom_right)
 
       self.own_ai.do_unit_action(self.own_unit, "capture", self.own_b)
-      self.w.currentTurn = settings.UNIT_SPAWN_MOD+1
+      self.w.spawn_counters = defaultdict(lambda: 100)
       self.w.Turn()
       self.do_test_property("is_capturing")
 

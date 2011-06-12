@@ -8,6 +8,7 @@ import math
 import settings
 import tuct
 from unit import Unit
+import maps.default as map_settings
 
 import copy
 import itertools
@@ -139,7 +140,7 @@ class Stats:
 class World:
     def __init__(self, mapsize=None):
         if not mapsize:
-          mapsize = settings.MAP_SIZE
+          mapsize = map_settings.MAP_SIZE
 
         self.wt = worldtalker.WorldTalker(self)
         self.AI = []
@@ -170,8 +171,8 @@ class World:
         self.buildings = {}
         # These contain the amount of time left for a building to spawn a unit
         self.spawn_counters = defaultdict(int)
-        log.info('Adding %s buildings to map', settings.ADDITIONAL_BUILDINGS)
-        for i in xrange(settings.ADDITIONAL_BUILDINGS):
+        log.info('Adding %s buildings to map', map_settings.ADDITIONAL_BUILDINGS)
+        for i in xrange(map_settings.ADDITIONAL_BUILDINGS):
           self.buildings[self.placeRandomBuilding()] = None
 
 
@@ -187,8 +188,8 @@ class World:
         self.dead_units = {}
         self.oldbullets = []
         self.bullet_endings = defaultdict(bool)
-        self.bulletRange = self.mapSize/settings.BULLET_RANGE_MODIFIER
-        self.bulletSpeed = self.mapSize/settings.BULLET_SPEED_MODIFIER
+        self.bulletRange = self.mapSize/map_settings.BULLET_RANGE_MODIFIER
+        self.bulletSpeed = self.mapSize/map_settings.BULLET_SPEED_MODIFIER
         self.__initStats()
 
         self.visibleunits = defaultdict(set)
@@ -198,11 +199,11 @@ class World:
 
     def __initStats(self):
         stats = Stats(**DEFAULT_UNIT_STATS)
-        stats.armor  = stats.armor  * settings.ARMOR_MODIFIER
-        stats.energy = stats.energy * settings.ENERGY_MODIFIER
-        stats.attack = stats.attack * settings.ATTACK_MODIFIER * math.log(self.mapSize)
-        stats.sight  = int((stats.sight * self.bulletRange) * settings.SIGHT_MODIFIER)
-        stats.speed  = int(stats.speed * (settings.SPEED_MODIFIER * math.log(settings.MAP_SIZE)))
+        stats.armor  = stats.armor  * map_settings.ARMOR_MODIFIER
+        stats.energy = stats.energy * map_settings.ENERGY_MODIFIER
+        stats.attack = stats.attack * map_settings.ATTACK_MODIFIER * math.log(self.mapSize)
+        stats.sight  = int((stats.sight * self.bulletRange) * map_settings.SIGHT_MODIFIER)
+        stats.speed  = int(stats.speed * (map_settings.SPEED_MODIFIER * math.log(map_settings.MAP_SIZE)))
 
         self.unit_stats = stats
 
@@ -236,7 +237,7 @@ class World:
           pos = self.map.getPosition(building)
           if building == b or not pos:
             continue
-          spawn_distance = settings.BUILDING_SPAWN_DISTANCE * math.log(self.mapSize)
+          spawn_distance = map_settings.BUILDING_SPAWN_DISTANCE * math.log(self.mapSize)
           dist = calcDistance(pos, rand_square)
           if dist < spawn_distance:
             within_range_of_other_building = True
@@ -272,8 +273,8 @@ class World:
         b = self.placeRandomBuilding()
         self.buildings[b] = self.ai_cycler.next()
 
-        log.info("Adding %s new buildings for %s AI to map", settings.ADDITIONAL_BUILDINGS_PER_AI, ai_player)
-        for n in xrange(settings.ADDITIONAL_BUILDINGS_PER_AI):
+        log.info("Adding %s new buildings for %s AI to map", map_settings.ADDITIONAL_BUILDINGS_PER_AI, ai_player)
+        for n in xrange(map_settings.ADDITIONAL_BUILDINGS_PER_AI):
           b = self.placeRandomBuilding()
           self.buildings[b] = None
 
@@ -420,7 +421,7 @@ class World:
                       building.building_id)
           else:
             # Reset the unit spawn timer
-            self.spawn_counters[building] = settings.UNIT_SPAWN_MOD
+            self.spawn_counters[building] = map_settings.UNIT_SPAWN_MOD
 
             if old_owner:
               log.info("BUILDING: %s lost %s to %s",
@@ -487,7 +488,7 @@ class World:
     def __spawnUnits(self):
         for b in self.buildings:
           if self.spawn_counters[b] <= 0:
-            self.spawn_counters[b] = settings.UNIT_SPAWN_MOD
+            self.spawn_counters[b] = map_settings.UNIT_SPAWN_MOD
 
             log.info("Spawning Units for building %s" % b.building_id)
             owner = self.buildings[b]
@@ -502,6 +503,9 @@ class World:
           log.info("SCORES:")
           scores = self.calcScores()
           for t in scores:
+            if not t in self.team_map:
+              continue
+
             log.info("%s\t%s", t, self.team_map[t].__class__.__name__)
             for k in scores[t]:
               log.info("  %s:\t%s", k, scores[t][k])
@@ -620,7 +624,6 @@ class World:
     # This is not a validated creation, so it will always
     # create the unit
     def __createUnit(self, stats, square):
-
         # modify the stats and copy them for our world.
         stats = copy.copy(stats)
 
@@ -846,7 +849,7 @@ class World:
         #I'm trying to check if the unit is inside the building
         #we will also have to check if there are enemies inside
         #the building, but I'm not sure how
-            e = CaptureEvent(unit, building, settings.CAPTURE_LENGTH)
+            e = CaptureEvent(unit, building, map_settings.CAPTURE_LENGTH)
             self.__queueEvent(e)
         else:
             raise ai_exceptions.IllegalCaptureEvent("The unit is not in the building.")
