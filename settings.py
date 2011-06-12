@@ -8,6 +8,7 @@ MAP_NAME="maps/micro.py"
 SINGLE_THREAD=False
 IGNORE_EXCEPTIONS=False
 PROFILE=False
+PROFILE_AI=False
 NCURSES=False
 
 # Set of AI classes to show map debugging information for.

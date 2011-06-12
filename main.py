@@ -132,7 +132,7 @@ def parseOptions(opts=None):
                       help="don't print status messages to stdout")
     debug_group.add_option("--profile",
                       action="store_true", dest="profile",
-                      help="enable profiling with cProfile, saves to ./mainprof",
+                      help="enable AI profiling with cProfile",
                       default=False)
     debug_group.add_option("--hl", "--highlight",
                       action="append", dest="highlight",
@@ -234,8 +234,15 @@ def setupModule(module_name, filename, require_func=None, data=None):
 
   mod.__file__ = filename
   mod.__file_content__ = data
+  mod.__co_filename__ = filename
 
-  exec(data, mod.__dict__, mod.__dict__)
+  try:
+    mod.__name__ = os.path.splitext(os.path.basename(filename))[0]
+  except:
+    mod.__name__ = filename
+
+  code_object = compile(data, filename, 'exec')
+  exec(code_object, mod.__dict__, mod.__dict__)
   return mod
 
 
@@ -513,9 +520,9 @@ def run_game():
     if settings.JS_REPLAY_FILE:
       settings.JS_REPLAY_FILE.close()
 
-def print_profile_information(filename):
+def print_profile_information(filedata):
   import pstats
-  p = pstats.Stats(filename)
+  p = pstats.Stats(filedata)
   p = p.strip_dirs()
   print "PRINTING FUNCTIONS SORTED BY TIME"
   p.sort_stats('time')
@@ -533,14 +540,19 @@ def main():
   options, args = parseOptions()
   log.info(options)
   if options.profile:
-    settings.PROFILE = True
+    settings.PROFILE_AI = True
     settings.SINGLE_THREAD = True
     import cProfile
 
+  # If PROFILING the whole game engine
   if settings.PROFILE:
     prof_filename = "mainprof"
-    cProfile.run("run_game()", prof_filename)
-    print_profile_information(prof_filename)
+    try:
+      cProfile.run("run_game()", prof_filename)
+    except Exception, e:
+      pass
+    finally:
+      print_profile_information(data=open(prof_filename).read())
   else:
     run_game()
 

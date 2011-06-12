@@ -18,6 +18,7 @@ import traceback
 import threading
 from collections import defaultdict
 
+
 from lib.geometry import linesIntersect
 
 try:
@@ -172,6 +173,7 @@ class World:
         # Maps a team to its AI
         self.team_map = {}
         self.ai_cycler = itertools.cycle(self.AI)
+        self.ai_profiles = {}
         self.units = {} # instead of a list, it will point to the unit's attributes.
         self.all_units = {} # instead of a list, it will point to the unit's attributes.
         self.under_attack = set()
@@ -293,6 +295,9 @@ class World:
           b = self.placeRandomBuilding()
           self.buildings[b] = None
 
+        if settings.PROFILE_AI:
+          import cProfile
+          self.ai_profiles[ai_player] = cProfile.Profile()
 
         return ai_player
 
@@ -339,9 +344,12 @@ class World:
           continue
 
         start_time = time.time()
-        if settings.SINGLE_THREAD:
+        if settings.SINGLE_THREAD or settings.PROFILE_AI:
           try:
-            ai.turn()
+            if settings.PROFILE_AI:
+              self.ai_profiles[ai].runctx("ai.turn()", { "ai" : ai }, {})
+            else:
+              ai.turn()
           except Exception, e:
               traceback.print_exc()
               if not settings.IGNORE_EXCEPTIONS:
@@ -1110,6 +1118,31 @@ class World:
           turn_data["highlights"].append(highlight_data)
 
       return turn_data
+
+    def printAIProfiles(self):
+      import pstats
+      for ai in self.ai_profiles:
+        prof = self.ai_profiles[ai]
+        ai_profile_file = open("%s.prof" % (ai.__class__.__name__), "w")
+
+        # Need to strip game engine stats out
+        log.info("Saving AI profile information to %s.prof", ai.__class__.__name__)
+        ai_profile_file.write("*** PROFILING OUTPUT FOR %s\n" % (ai.__class__))
+        p = pstats.Stats(prof, stream=ai_profile_file)
+        p = p.strip_dirs()
+        ai_profile_file.write("PRINTING FUNCTIONS SORTED BY TIME\n")
+        p.sort_stats('time')
+        p.print_stats(10)
+        p.print_callers(10)
+
+        ai_profile_file.write("PRINTING FUNCTIONS SORTED BY # CALLS\n")
+        p.sort_stats('calls')
+        p.print_stats(10)
+        p.print_callers(10)
+
+        ai_profile_file.close()
+
+
 
 
 #Map1 = {unit:position, building:position}

@@ -85,6 +85,15 @@ def end_game():
     jsplayer.save_world_turns(CliWorld.world_turns)
     jsplayer.end_world(CliWorld.dumpWorldToDict())
 
+  try:
+    if settings.PROFILE_AI:
+      CliWorld.printAIProfiles()
+  except Exception, e:
+    log.warn("""
+There was a problem saving AI profile information. Profiling
+information can get corrupted if the game is interrupted.
+""")
+
 def appengine_main(ais, appengine_file_name=None, tournament_key=None):
   from appengine.appengine import record_game_to_db
   from google.appengine.api import files
