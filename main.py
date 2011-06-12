@@ -33,6 +33,7 @@ import cli
 IMPORT_GUI_FAILURE=False
 
 GITHUB_URL="https://github.com/%s/dmanai/raw/master/%s"
+TOURNAMENT_MAPS = ["micro.py", "macro.py", "village.py"]
 
 try:
   import gui
@@ -317,13 +318,8 @@ def appengine_run_tournament(ai_files, argv_str, tournament_key):
   import tournament
 
   options, args = parseOptions(argv_str.split())
-  tournament_map =  random.choice([None, "macro.py", "village.py"])
-
-
-  if tournament_map:
-    use_map = "maps/%s" % tournament_map
-  else:
-    use_map = "maps/micro.py"
+  tournament_map =  random.choice(TOURNAMENT_MAPS)
+  use_map = "maps/%s" % tournament_map
 
   if options.map:
     use_map = options.map
