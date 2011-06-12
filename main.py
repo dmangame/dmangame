@@ -176,6 +176,25 @@ def module_require(module_name, rel_path=None):
   mod = setupModule(module_name, pathname, require_func=sub_module_require)
   module_require.locals[module_name] = mod
 
+class Settings(object):
+  def __init__(self, module=None, dict=None):
+    self.__attrs = {}
+
+    if module:
+      for attr in dir(module):
+        if not attr.startswith("__"):
+          self.__attrs[attr] = getattr(module,attr)
+
+    if dict:
+      for k in dict:
+        self.__attrs[k] = dict[k]
+
+  def __getattr__(self, attr):
+    return self.__attrs[attr]
+
+  def __dir__(self):
+    return self.__attrs.keys()
+
 def setupModule(module_name, filename, require_func=None, data=None):
   if not data:
     data = open(filename).read()
@@ -192,7 +211,27 @@ def setupModule(module_name, filename, require_func=None, data=None):
 
   require_func.locals = mod.__dict__
   require_func.base_dir = os.path.split(filename)[0]
-  mod.__dict__["require_dependency"] = require_func
+
+
+  # Turn the module into settings object (copies the attrs out)
+  ai_local_settings = Settings(dict={
+    "map" : Settings(module=map_settings),
+  })
+  print dir(ai_local_settings)
+
+  dmangame_ai_builtins = {
+    "require_dependency" : require_func,
+    "settings" : ai_local_settings
+  }
+
+  python_futures = {
+    "next" : lambda n: n.next()
+  }
+
+
+  mod.__dict__.update(dmangame_ai_builtins)
+  mod.__dict__.update(python_futures)
+
   mod.__file__ = filename
   mod.__file_content__ = data
 
@@ -406,7 +445,7 @@ def post_to_appengine():
   print r.read()
 
 def run_game():
-  global IMPORT_GUI_FAILURE 
+  global IMPORT_GUI_FAILURE
   # Start the basic logging at INFO level
   options, args = parseOptions()
 
@@ -444,13 +483,13 @@ def run_game():
   if options.safe_mode:
     setupSafeMode()
 
+  loadMap(options.map)
   ais = loadAIModules(args) or []
   highlighted_ais = loadAIModules(options.highlight, highlight=True)
   if highlighted_ais:
     ais.extend(highlighted_ais)
     settings.SHOW_HIGHLIGHTS = set(highlighted_ais)
 
-  loadMap(options.map)
   settings.IGNORE_EXCEPTIONS = not options.whiny
 
   if options.fps:
