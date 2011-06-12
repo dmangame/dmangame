@@ -216,8 +216,8 @@ def setupModule(module_name, filename, require_func=None, data=None):
   # Turn the module into settings object (copies the attrs out)
   ai_local_settings = Settings(dict={
     "map" : Settings(module=map_settings),
+    "unit" : Settings(world.Stats.adjustStatsForMap(map_settings))
   })
-  print dir(ai_local_settings)
 
   dmangame_ai_builtins = {
     "require_dependency" : require_func,

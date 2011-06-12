@@ -53,8 +53,6 @@ DEFAULT_UNIT_STATS = {
                      }
 
 
-
-
 class Event:
     def __init__(self):
         self.__type == None
@@ -130,9 +128,32 @@ class Stats:
         self.energy = energy
         self.sight = sight
         self.speed = speed
+
+        if team:
+          self.team = team
+
+        if ai_id:
+          self.ai_id = ai_id
+
         self.unit = None
-        self.team = team
-        self.ai_id = ai_id
+
+
+    @classmethod
+    def adjustStatsForMap(self, map_module):
+      stats = Stats(**DEFAULT_UNIT_STATS)
+
+      bulletRange = map_settings.MAP_SIZE/map_settings.BULLET_RANGE_MODIFIER
+      bulletSpeed = map_settings.MAP_SIZE/map_settings.BULLET_SPEED_MODIFIER
+
+      stats.armor  = stats.armor  * map_module.ARMOR_MODIFIER
+      stats.energy = stats.energy * map_module.ENERGY_MODIFIER
+      stats.attack = stats.attack * map_module.ATTACK_MODIFIER * math.log(map_module.MAP_SIZE)
+
+      stats.sight  = int((stats.sight * bulletRange) * map_module.SIGHT_MODIFIER)
+
+      stats.speed  = int(stats.speed * (map_module.SPEED_MODIFIER * math.log(map_module.MAP_SIZE)))
+
+      return stats
 
 # The world is responsible for maintaining the world
 # as well as running each turn, checking for end conditions
@@ -141,6 +162,8 @@ class World:
     def __init__(self, mapsize=None):
         if not mapsize:
           mapsize = map_settings.MAP_SIZE
+
+        self.mapSize = mapsize
 
         self.wt = worldtalker.WorldTalker(self)
         self.AI = []
@@ -152,8 +175,8 @@ class World:
         self.units = {} # instead of a list, it will point to the unit's attributes.
         self.all_units = {} # instead of a list, it will point to the unit's attributes.
         self.under_attack = set()
-        self.mapSize = mapsize
-        self.map = worldmap.Map(self.mapSize)
+        map_settings.MAP_SIZE = mapsize
+        self.map = worldmap.Map(map_settings.MAP_SIZE)
         self.currentTurn = 0
         self.events = set()
         self.unitevents = defaultdict(set)
@@ -188,8 +211,8 @@ class World:
         self.dead_units = {}
         self.oldbullets = []
         self.bullet_endings = defaultdict(bool)
-        self.bulletRange = self.mapSize/map_settings.BULLET_RANGE_MODIFIER
-        self.bulletSpeed = self.mapSize/map_settings.BULLET_SPEED_MODIFIER
+        self.bulletRange = map_settings.MAP_SIZE/map_settings.BULLET_RANGE_MODIFIER
+        self.bulletSpeed = map_settings.MAP_SIZE/map_settings.BULLET_SPEED_MODIFIER
         self.__initStats()
 
         self.visibleunits = defaultdict(set)
@@ -198,15 +221,7 @@ class World:
 
 
     def __initStats(self):
-        stats = Stats(**DEFAULT_UNIT_STATS)
-        stats.armor  = stats.armor  * map_settings.ARMOR_MODIFIER
-        stats.energy = stats.energy * map_settings.ENERGY_MODIFIER
-        stats.attack = stats.attack * map_settings.ATTACK_MODIFIER * math.log(self.mapSize)
-        stats.sight  = int((stats.sight * self.bulletRange) * map_settings.SIGHT_MODIFIER)
-        stats.speed  = int(stats.speed * (map_settings.SPEED_MODIFIER * math.log(map_settings.MAP_SIZE)))
-
-        self.unit_stats = stats
-
+      self.unit_stats = Stats.adjustStatsForMap(map_settings)
 
 
     def placeRandomBuilding(self):
@@ -217,27 +232,27 @@ class World:
       best_min_guess = 0
       best_base = None
       while True:
-        min_guess = self.mapSize**2
+        min_guess = map_settings.MAP_SIZE**2
         attempts += 1
         rand_square = self.map.getRandomSquare()
         within_range_of_other_building = False
         best_square = None
 
-        dist_from_edge = math.sqrt(self.mapSize) / 2
+        dist_from_edge = math.sqrt(map_settings.MAP_SIZE) / 2
         if rand_square[0] < dist_from_edge:
           continue
         if rand_square[1] < dist_from_edge:
           continue
-        if self.mapSize - rand_square[0] < dist_from_edge:
+        if map_settings.MAP_SIZE - rand_square[0] < dist_from_edge:
           continue
-        if self.mapSize - rand_square[1] < dist_from_edge:
+        if map_settings.MAP_SIZE - rand_square[1] < dist_from_edge:
           continue
 
         for building in self.buildings:
           pos = self.map.getPosition(building)
           if building == b or not pos:
             continue
-          spawn_distance = map_settings.BUILDING_SPAWN_DISTANCE * math.log(self.mapSize)
+          spawn_distance = map_settings.BUILDING_SPAWN_DISTANCE * math.log(map_settings.MAP_SIZE)
           dist = calcDistance(pos, rand_square)
           if dist < spawn_distance:
             within_range_of_other_building = True
@@ -809,7 +824,7 @@ class World:
     def createShootEvent(self, unit, square, range):
         log.debug("Creating ShootEvent: Unit %s to Square %s", unit, square)
         self.__clearQueue(unit)
-        if isValidSquare(square, self.mapSize):
+        if isValidSquare(square, map_settings.MAP_SIZE):
             position = self.map.getPosition(unit)
             e = ShootEvent(unit, square, range)
             self.__queueEvent(e)
@@ -823,7 +838,7 @@ class World:
         if position == square:
           return
 
-        if isValidSquare(square, self.mapSize):
+        if isValidSquare(square, map_settings.MAP_SIZE):
             e = MoveEvent(unit, square)
             # If we've already calculated the full path to destination, we
             # don't need to recalculate it. This is so that subsequent move
@@ -984,7 +999,7 @@ class World:
     def dumpWorldToDict(self):
       world_data = {
                   "AI" : [],
-                  "mapsize" : self.mapSize,
+                  "mapsize" : map_settings.MAP_SIZE,
                   "colors"  : {},
                   "names"   : {},
                   "units"   : {},

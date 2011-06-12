@@ -11,6 +11,8 @@ import sys
 from sys import _getframe as getframe
 import math
 
+import maps.default as map_settings
+
 from worldmap import calcDistance
 
 # TODO: add permissions checking for all commands that are issued on a unit.
@@ -100,7 +102,7 @@ class WorldTalker:
         return self.__world.getLifeTime()
 
     def getMapSize(self):
-        return self.__world.mapSize
+        return map_settings.MAP_SIZE
 
     def getPosition(self, unit):
         if unit.__class__ == mapobject.Building:
