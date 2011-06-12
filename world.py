@@ -509,8 +509,11 @@ class World:
         return unit
 
     def __spawnUnits(self):
+        spawned_units = False
         for b in self.buildings:
+
           if self.spawn_counters[b] <= 0:
+            spawned_units = True
             self.spawn_counters[b] = map_settings.UNIT_SPAWN_MOD
 
             log.info("Spawning Units for building %s" % b.building_id)
@@ -523,6 +526,10 @@ class World:
 
 
 
+
+          self.spawn_counters[b] -= 1
+
+        if spawned_units:
           log.info("SCORES:")
           scores = self.calcScores()
           for t in scores:
@@ -532,8 +539,6 @@ class World:
             log.info("%s\t%s", t, self.team_map[t].__class__.__name__)
             for k in scores[t]:
               log.info("  %s:\t%s", k, scores[t][k])
-
-          self.spawn_counters[b] -= 1
 
 
     def __unitCleanup(self, unit):
