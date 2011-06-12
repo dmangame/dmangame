@@ -370,6 +370,7 @@ def appengine_tournament_game(ai_files, map_file, tournament_key):
   from appengine.appengine import record_ladder_match
   logging.basicConfig(level=logging.INFO)
   reload(settings)
+  reload(map_settings)
   loadMap(map_file)
   ais = loadAIModules(ai_files)
 
@@ -387,6 +388,7 @@ def appengine_run_game(argv_str, appengine_file_name=None):
   argv = argv_str.split()
   options, args = parseOptions(argv)
   reload(settings)
+  reload(map_settings)
   loadMap(options.map)
   ais = loadAIModules(args) or []
   highlighted_ais = loadAIModules(options.highlight, highlight=True)
