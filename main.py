@@ -176,14 +176,32 @@ def module_require(module_name, rel_path=None):
   mod = setupModule(module_name, pathname, require_func=sub_module_require)
   module_require.locals[module_name] = mod
 
+# These are map settings that contain too much information
+# about the map.
+BLACKLIST_SETTINGS = set([
+  "adjustStatsForMap",
+  "unit",
+  "ADDITIONAL_BUILDINGS",
+  "ADDITIONAL_BUILDINGS_PER_AI",
+  "BUILDING_SPAWN_DISTANCE"])
+
 class Settings(object):
   def __init__(self, module=None, dict=None):
     self.__attrs = {}
 
     if module:
       for attr in dir(module):
-        if not attr.startswith("__"):
-          self.__attrs[attr] = getattr(module,attr)
+        if attr.startswith("__"):
+          continue
+
+        if attr in BLACKLIST_SETTINGS:
+          continue
+
+        val = getattr(module,attr)
+        if not val:
+          continue
+
+        self.__attrs[attr] = val
 
     if dict:
       for k in dict:
