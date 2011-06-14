@@ -28,6 +28,7 @@ import imp
 import traceback
 from optparse import OptionParser, OptionGroup
 
+BUILTIN_COMPILE=None # compile gets removed by safelite
 
 import cli
 IMPORT_GUI_FAILURE=False
@@ -104,7 +105,7 @@ def parseOptions(opts=None):
                       help="save game to HTML replay file")
     parser.add_option("-s", "--safe-mode",
                       dest="safe_mode", action="store_true",
-                      help="Run game in restricted mode. Only supports console output.",
+                      help="Run game in restricted mode.",
                       default=False)
 
     # Output / Replay options
@@ -259,7 +260,7 @@ def setupModule(module_name, filename, require_func=None, data=None):
   except:
     mod.__name__ = filename
 
-  code_object = compile(data, filename, 'exec')
+  code_object = BUILTIN_COMPILE(data, filename, 'exec')
   exec(code_object, mod.__dict__, mod.__dict__)
   return mod
 
@@ -279,6 +280,7 @@ def generate_github_url(user, filename):
   return url
 
 # Should this file be saved to disk?
+# Once github AIs are loaded for the first time, drop into restricted mode.
 def loadGithubAIData(ai_str):
   user,filenames = ai_str.split(":")
   files = filenames.split(",")
@@ -507,12 +509,34 @@ def run_game():
 
 
 
-  if options.safe_mode:
+  global BUILTIN_COMPILE
+  BUILTIN_COMPILE=compile
+
+
+  # Figure out if any AI are loaded from github and drop into safe mode if
+  # they are.
+  remote_ai = False
+  loading_ais = args
+  if options.highlight:
+    loading_ais.extend(options.highlight)
+
+  for ai_str in loading_ais:
+    if ai_str.find(":") > 0:
+      print "*** Remote AI specified on command line, enabling safe mode"
+      remote_ai = True
+      break
+
+  if remote_ai or options.safe_mode:
+    print "*** Entering Safe Mode"
     setupSafeMode()
 
   loadMap(options.map)
+
   ais = loadAIModules(args) or []
   highlighted_ais = loadAIModules(options.highlight, highlight=True)
+
+  BUILTIN_COMPILE=None
+
   if highlighted_ais:
     ais.extend(highlighted_ais)
     settings.SHOW_HIGHLIGHTS = set(highlighted_ais)
