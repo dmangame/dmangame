@@ -140,7 +140,7 @@ class Stats:
 
 
     @classmethod
-    def adjustStatsForMap(self, map_module):
+    def aiVisibleSettings(self, map_module):
       stats = Stats(**DEFAULT_UNIT_STATS)
 
       bulletRange = map_settings.MAP_SIZE/map_settings.BULLET_RANGE_MODIFIER
@@ -153,6 +153,7 @@ class Stats:
       stats.sight  = int((stats.sight * bulletRange) * map_module.SIGHT_MODIFIER)
 
       stats.speed  = int(stats.speed * (map_module.SPEED_MODIFIER * math.log(map_module.MAP_SIZE)))
+
 
       return stats
 

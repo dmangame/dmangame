@@ -140,6 +140,10 @@ def draw_map(cairo_context, width, height, world_data, turn_data):
 
 
 class Map:
+    @classmethod
+    def aiVisibleSettings(self, map_settings):
+      return { "size" : map_settings.MAP_SIZE }
+
     def __init__(self, N):
         self.size = N
         self.objectMap = {}

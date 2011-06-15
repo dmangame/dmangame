@@ -2,6 +2,9 @@
 import settings
 import maps.default as map_settings
 
+from mapobject import Bullet, Building
+import worldmap
+
 import logging
 log = logging.getLogger("MAIN")
 
@@ -179,15 +182,28 @@ def module_require(module_name, rel_path=None):
 
 # These are map settings that contain too much information
 # about the map.
-BLACKLIST_SETTINGS = set([
-  "adjustStatsForMap",
-  "unit",
-  "ADDITIONAL_BUILDINGS",
-  "ADDITIONAL_BUILDINGS_PER_AI",
-  "BUILDING_SPAWN_DISTANCE"])
+
+UNIT_WHITELIST_SETTINGS = set([
+    'armor',
+    'attack',
+    'energy',
+    'sight',
+    'speed',
+    'range'])
+
+MAP_WHITELIST_SETTINGS = set([
+    'size'])
+
+BULLET_WHITELIST_SETTINGS = set([
+    'speed',
+    'range'])
+
+BUILDING_WHITELIST_SETTINGS = set([
+    'capture_time',
+    'spawn_time'])
 
 class Settings(object):
-  def __init__(self, module=None, dict=None):
+  def __init__(self, module=None, dict=None, whitelist=[]):
     self.__attrs = {}
 
     if module:
@@ -195,7 +211,7 @@ class Settings(object):
         if attr.startswith("__"):
           continue
 
-        if attr in BLACKLIST_SETTINGS:
+        if not attr in whitelist:
           continue
 
         val = getattr(module,attr)
@@ -233,9 +249,18 @@ def setupModule(module_name, filename, require_func=None, data=None):
 
 
   # Turn the module into settings object (copies the attrs out)
+  # TODO: Could be that each object says what it's settings are, instead of
+  # gathering them here.
   ai_local_settings = Settings(dict={
-    "map" : Settings(module=map_settings),
-    "unit" : Settings(world.Stats.adjustStatsForMap(map_settings))
+    "map" : Settings(dict=worldmap.Map.aiVisibleSettings(map_settings),
+                     whitelist=MAP_WHITELIST_SETTINGS),
+    "unit" : Settings(module=world.Stats.aiVisibleSettings(map_settings),
+                      whitelist=UNIT_WHITELIST_SETTINGS),
+    "bullet" : Settings(dict=Bullet.aiVisibleSettings(map_settings),
+                        whitelist=BULLET_WHITELIST_SETTINGS),
+    "building" : Settings(dict=Building.aiVisibleSettings(map_settings),
+                          whitelist=BUILDING_WHITELIST_SETTINGS)
+
   })
 
   dmangame_ai_builtins = {
