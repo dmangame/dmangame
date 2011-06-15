@@ -156,6 +156,10 @@ class Stats:
 
 
       return stats
+  
+    @classmethod
+    def adjustStatsForMap(self, map_module):
+      return Stats.aiVisibleSettings(map_module)
 
 # The world is responsible for maintaining the world
 # as well as running each turn, checking for end conditions
