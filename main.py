@@ -2,6 +2,9 @@
 import settings
 import maps.default as map_settings
 
+from mapobject import Bullet, Building
+import worldmap
+
 import logging
 log = logging.getLogger("MAIN")
 
@@ -28,6 +31,7 @@ import imp
 import traceback
 from optparse import OptionParser, OptionGroup
 
+BUILTIN_COMPILE=None # compile gets removed by safelite
 
 import cli
 IMPORT_GUI_FAILURE=False
@@ -104,7 +108,7 @@ def parseOptions(opts=None):
                       help="save game to HTML replay file")
     parser.add_option("-s", "--safe-mode",
                       dest="safe_mode", action="store_true",
-                      help="Run game in restricted mode. Only supports console output.",
+                      help="Run game in restricted mode.",
                       default=False)
 
     # Output / Replay options
@@ -178,15 +182,28 @@ def module_require(module_name, rel_path=None):
 
 # These are map settings that contain too much information
 # about the map.
-BLACKLIST_SETTINGS = set([
-  "adjustStatsForMap",
-  "unit",
-  "ADDITIONAL_BUILDINGS",
-  "ADDITIONAL_BUILDINGS_PER_AI",
-  "BUILDING_SPAWN_DISTANCE"])
+
+UNIT_WHITELIST_SETTINGS = set([
+    'armor',
+    'attack',
+    'energy',
+    'sight',
+    'speed',
+    'range'])
+
+MAP_WHITELIST_SETTINGS = set([
+    'size'])
+
+BULLET_WHITELIST_SETTINGS = set([
+    'speed',
+    'range'])
+
+BUILDING_WHITELIST_SETTINGS = set([
+    'capture_time',
+    'spawn_time'])
 
 class Settings(object):
-  def __init__(self, module=None, dict=None):
+  def __init__(self, module=None, dict=None, whitelist=[]):
     self.__attrs = {}
 
     if module:
@@ -194,7 +211,7 @@ class Settings(object):
         if attr.startswith("__"):
           continue
 
-        if attr in BLACKLIST_SETTINGS:
+        if not attr in whitelist:
           continue
 
         val = getattr(module,attr)
@@ -212,6 +229,21 @@ class Settings(object):
 
   def __dir__(self):
     return self.__attrs.keys()
+
+  def __repr__(self):
+    r = ""
+    for k,v in sorted(self.__attrs.iteritems()):
+      if isinstance(v, Settings):
+        for sub_k in dir(v):
+          k_str = "%s.%s"%(k, sub_k)
+          MIN_STR_LEN = 25
+          if len(k_str) < MIN_STR_LEN:
+            k_str += ''.join([" "] * (MIN_STR_LEN-len(k_str)))
+          r += "%s -> %s\n" % (k_str, getattr(v, sub_k))
+      else:
+        r += "%s -> %s\n" % (k, v)
+
+    return r
 
 def setupModule(module_name, filename, require_func=None, data=None):
   if not data:
@@ -232,9 +264,18 @@ def setupModule(module_name, filename, require_func=None, data=None):
 
 
   # Turn the module into settings object (copies the attrs out)
+  # TODO: Could be that each object says what it's settings are, instead of
+  # gathering them here.
   ai_local_settings = Settings(dict={
-    "map" : Settings(module=map_settings),
-    "unit" : Settings(world.Stats.adjustStatsForMap(map_settings))
+    "map" : Settings(dict=worldmap.Map.aiVisibleSettings(map_settings),
+                     whitelist=MAP_WHITELIST_SETTINGS),
+    "unit" : Settings(module=world.Stats.aiVisibleSettings(map_settings),
+                      whitelist=UNIT_WHITELIST_SETTINGS),
+    "bullet" : Settings(dict=Bullet.aiVisibleSettings(map_settings),
+                        whitelist=BULLET_WHITELIST_SETTINGS),
+    "building" : Settings(dict=Building.aiVisibleSettings(map_settings),
+                          whitelist=BUILDING_WHITELIST_SETTINGS)
+
   })
 
   dmangame_ai_builtins = {
@@ -259,7 +300,7 @@ def setupModule(module_name, filename, require_func=None, data=None):
   except:
     mod.__name__ = filename
 
-  code_object = compile(data, filename, 'exec')
+  code_object = BUILTIN_COMPILE(data, filename, 'exec')
   exec(code_object, mod.__dict__, mod.__dict__)
   return mod
 
@@ -279,6 +320,7 @@ def generate_github_url(user, filename):
   return url
 
 # Should this file be saved to disk?
+# Once github AIs are loaded for the first time, drop into restricted mode.
 def loadGithubAIData(ai_str):
   user,filenames = ai_str.split(":")
   files = filenames.split(",")
@@ -507,12 +549,34 @@ def run_game():
 
 
 
-  if options.safe_mode:
+  global BUILTIN_COMPILE
+  BUILTIN_COMPILE=compile
+
+
+  # Figure out if any AI are loaded from github and drop into safe mode if
+  # they are.
+  remote_ai = False
+  loading_ais = args
+  if options.highlight:
+    loading_ais.extend(options.highlight)
+
+  for ai_str in loading_ais:
+    if ai_str.find(":") > 0:
+      print "*** Remote AI specified on command line, enabling safe mode"
+      remote_ai = True
+      break
+
+  if remote_ai or options.safe_mode:
+    print "*** Entering Safe Mode"
     setupSafeMode()
 
   loadMap(options.map)
+
   ais = loadAIModules(args) or []
   highlighted_ais = loadAIModules(options.highlight, highlight=True)
+
+  BUILTIN_COMPILE=None
+
   if highlighted_ais:
     ais.extend(highlighted_ais)
     settings.SHOW_HIGHLIGHTS = set(highlighted_ais)

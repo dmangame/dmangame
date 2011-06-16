@@ -140,7 +140,7 @@ class Stats:
 
 
     @classmethod
-    def adjustStatsForMap(self, map_module):
+    def aiVisibleSettings(self, map_module):
       stats = Stats(**DEFAULT_UNIT_STATS)
 
       bulletRange = map_settings.MAP_SIZE/map_settings.BULLET_RANGE_MODIFIER
@@ -154,7 +154,12 @@ class Stats:
 
       stats.speed  = int(stats.speed * (map_module.SPEED_MODIFIER * math.log(map_module.MAP_SIZE)))
 
+
       return stats
+  
+    @classmethod
+    def adjustStatsForMap(self, map_module):
+      return Stats.aiVisibleSettings(map_module)
 
 # The world is responsible for maintaining the world
 # as well as running each turn, checking for end conditions

@@ -94,9 +94,11 @@ class WorldTalker:
         return units
 
     # Get functions
-
     def getBulletRange(self):
         return self.__world.bulletRange
+
+    def getBulletSpeed(self):
+        return self.__world.bulletSpeed
 
     def getCurrentTurn(self):
         return self.__world.getLifeTime()

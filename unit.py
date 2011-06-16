@@ -79,6 +79,10 @@ class Unit(mapobject.MapObject):
         return self.__wt.getStats(self).energy
 
     @property
+    def range(self):
+        "The bullet range of the unit - the number of units distance a bullet fired by the unit would travel."
+        return self.__wt.getRange(self)
+    @property
     def sight(self):
         "The sight of the unit, use: sight as R of unit"
         return self.__wt.getSight(self)
