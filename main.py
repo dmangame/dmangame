@@ -538,9 +538,9 @@ def run_game():
     if settings.JS_REPLAY_FILE:
       settings.JS_REPLAY_FILE.close()
 
-def print_profile_information(filedata):
+def print_profile_information(filename):
   import pstats
-  p = pstats.Stats(filedata)
+  p = pstats.Stats(filename)
   p = p.strip_dirs()
   print "PRINTING FUNCTIONS SORTED BY TIME"
   p.sort_stats('time')
@@ -570,7 +570,7 @@ def main():
     except Exception, e:
       pass
     finally:
-      print_profile_information(data=open(prof_filename).read())
+      print_profile_information(prof_filename)
   else:
     run_game()
 
