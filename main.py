@@ -230,6 +230,21 @@ class Settings(object):
   def __dir__(self):
     return self.__attrs.keys()
 
+  def __repr__(self):
+    r = ""
+    for k,v in sorted(self.__attrs.iteritems()):
+      if isinstance(v, Settings):
+        for sub_k in dir(v):
+          k_str = "%s.%s"%(k, sub_k)
+          MIN_STR_LEN = 25
+          if len(k_str) < MIN_STR_LEN:
+            k_str += ''.join([" "] * (MIN_STR_LEN-len(k_str)))
+          r += "%s -> %s\n" % (k_str, getattr(v, sub_k))
+      else:
+        r += "%s -> %s\n" % (k, v)
+
+    return r
+
 def setupModule(module_name, filename, require_func=None, data=None):
   if not data:
     data = open(filename).read()
