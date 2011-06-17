@@ -31,7 +31,7 @@ import imp
 import traceback
 from optparse import OptionParser, OptionGroup
 
-BUILTIN_COMPILE=None # compile gets removed by safelite
+BUILTIN_COMPILE=compile # compile gets removed by safelite
 
 import cli
 IMPORT_GUI_FAILURE=False
@@ -549,8 +549,6 @@ def run_game():
 
 
 
-  global BUILTIN_COMPILE
-  BUILTIN_COMPILE=compile
 
 
   # Figure out if any AI are loaded from github and drop into safe mode if
@@ -575,6 +573,7 @@ def run_game():
   ais = loadAIModules(args) or []
   highlighted_ais = loadAIModules(options.highlight, highlight=True)
 
+  global BUILTIN_COMPILE
   BUILTIN_COMPILE=None
 
   if highlighted_ais:
