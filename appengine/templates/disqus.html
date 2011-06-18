@@ -3,6 +3,9 @@
 {% block content %}
 <body>
 <style>
+body {
+  width: 100% !important;
+}
 
 iframe {
   border: 0px;
@@ -25,7 +28,11 @@ iframe {
 Scroll down to see comments
 </div>
 
-<iframe src="/replays/{{blob_key}}" width="100%" height="100%"></iframe>
+{% include "ai_score_graph.html" %}
+
+<iframe src="/replays/{{blob_key}}" width="100%" height="100%" onload="plotAiScores('#ai_scores')" id="game_replay"></iframe>
+
+<div id="ai_scores"> </div>
 
 <div id="thread_wrapper">
   <div id="disqus_thread"></div>
