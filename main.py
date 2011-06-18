@@ -573,9 +573,6 @@ def run_game():
   ais = loadAIModules(args) or []
   highlighted_ais = loadAIModules(options.highlight, highlight=True)
 
-  global BUILTIN_COMPILE
-  BUILTIN_COMPILE=None
-
   if highlighted_ais:
     ais.extend(highlighted_ais)
     settings.SHOW_HIGHLIGHTS = set(highlighted_ais)
