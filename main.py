@@ -621,17 +621,18 @@ def main():
   options, args = parseOptions()
   log.info(options)
   if options.profile:
+    import cProfile
     settings.PROFILE_AI = True
     settings.SINGLE_THREAD = True
-    import cProfile
 
   # If PROFILING the whole game engine
   if settings.PROFILE:
+    import cProfile
     prof_filename = "mainprof"
     try:
       cProfile.run("run_game()", prof_filename)
     except Exception, e:
-      pass
+      traceback.print_exc()
     finally:
       print_profile_information(prof_filename)
   else:
