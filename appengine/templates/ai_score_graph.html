@@ -48,7 +48,14 @@ function plotAiScores(div_selector) {
     console.log(color_str);
   });
 
+  var options = {
+    'yaxis' : {
+      'position' : 'right'
+    },
+    'shadowSize' : 0
+  }
 
-  $.plot($(div_selector), ai_arrays);
+
+  $.plot($(div_selector), ai_arrays, options);
 }
 </script>
