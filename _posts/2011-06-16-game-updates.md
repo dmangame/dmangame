@@ -19,10 +19,9 @@ two updates have been added to help AI developers make assumptions and speed up
 their code. , game settings are now passed to each AI and are available in the
 'settings' object.
 
-    import pprint
-    pprint.pprint(dir(settings))
-    pprint.pprint(dir(settings.unit))
-    print settings.unit.range
+    print settings
+    print settings.map
+    print settings.map.size
 
 `--profile` now saves per AI profiling information, so if you think your AI
 is going slow - now you know.

@@ -20,10 +20,9 @@ printed to screen. You can log the game output with:
     python main.py ai/simpleai.py > game.log 2>&1
 
 
-Alternatively, if the game is run with the -p option (profiling), gameplay
-will stop when an AI throws an exception. This is because profiling requires
-that the execution stays single threaded in order to profile each AI more
-accurately.
+Alternatively, if the game is run with the --profile option, gameplay will stop
+when an AI throws an exception. This is because profiling requires that the
+execution stays single threaded in order to profile each AI more accurately.
 
 ### highlighting the map
 
