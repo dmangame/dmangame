@@ -554,7 +554,7 @@ def run_game():
   # Figure out if any AI are loaded from github and drop into safe mode if
   # they are.
   remote_ai = False
-  loading_ais = args
+  loading_ais = copy.copy(args)
   if options.highlight:
     loading_ais.extend(options.highlight)
 
