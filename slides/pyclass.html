@@ -71,8 +71,10 @@
   git clone http://github.com/okayzed/dmangame
   cd dmangame/
 
-  # download more AIs
-  git clone http://github.com/&lt;github_username&gt;/dmanai
+  # download more AIs, this will download AIs from 
+  # okayzed's dmanai repository.
+  git clone http://github.com/okayzed/dmanai
+  grep -Rl AIClass * # Prints a list of files with AI in them
 
   # no one will win this game.
   python main.py --hl dmanai/basic/searchai.py ai/towerai.py
