@@ -199,8 +199,29 @@ class World:
         self.execution_times = defaultdict(lambda: defaultdict(int))
 
         self.buildings = {}
+        self.spawns = {}
         # These contain the amount of time left for a building to spawn a unit
         self.spawn_counters = defaultdict(int)
+
+        if map_settings.SPAWNS:
+          for coord in map_settings.SPAWNS:
+            if not isValidSquare(coord, self.mapSize):
+              continue
+
+            b = mapobject.Building(self.wt)
+            self.buildings[b] = None
+            self.spawns[b] = None
+            self.map.placeObject(b, coord)
+
+        if map_settings.BUILDINGS:
+          for coord in map_settings.BUILDINGS:
+            if not isValidSquare(coord, self.mapSize):
+              continue
+
+            b = mapobject.Building(self.wt)
+            self.buildings[b] = None
+            self.map.placeObject(b, coord)
+        
         log.info('Adding %s buildings to map', map_settings.ADDITIONAL_BUILDINGS)
         for i in xrange(map_settings.ADDITIONAL_BUILDINGS):
           self.buildings[self.placeRandomBuilding()] = None
@@ -292,8 +313,19 @@ class World:
         self.teams[ai_player.ai_id] = ai_player.team
         self.team_map[ai_player.team] = ai_player
         ai_player.init()
-        b = self.placeRandomBuilding()
-        self.buildings[b] = self.ai_cycler.next()
+
+        if map_settings.SPAWNS:
+          keys = self.spawns.keys()
+          random.shuffle(keys)
+          for key in keys:
+            if self.spawns[key] == None:
+              self.buildings[key] = self.ai_cycler.next()
+              self.spawns[key] = self.buildings[key]
+              break
+            
+        else:
+          b = self.placeRandomBuilding()
+          self.buildings[b] = self.ai_cycler.next()
 
         log.info("Adding %s new buildings for %s AI to map", map_settings.ADDITIONAL_BUILDINGS_PER_AI, ai_player)
         for n in xrange(map_settings.ADDITIONAL_BUILDINGS_PER_AI):
