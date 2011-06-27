@@ -308,6 +308,10 @@ class World:
     # This accepts a subclass ai.AI, instantiates the class
     # and places a building on the map for that AI.
     def addAI(self, ai_class):
+        if map_settings.SPAWN_POINTS and len(self.AI) >= len(map_settings.SPAWN_POINTS):
+          log.warn("Not adding %s to map, all spawn points taken", ai_class)
+          return
+
         ai_player = ai_class(self.wt)
         self.AI.append(ai_player)
         self.teams[ai_player.ai_id] = ai_player.team
@@ -315,10 +319,10 @@ class World:
         ai_player.init()
 
         if map_settings.SPAWN_POINTS:
-          keys = self.spawn_points.keys()
-          random.shuffle(keys)
-          for key in keys:
-            if self.spawn_points[key] == None:
+
+          while True:
+            key = random.choice(self.spawn_points.keys())
+            if not self.spawn_points[key]:
               self.buildings[key] = self.ai_cycler.next()
               self.spawn_points[key] = self.buildings[key]
               break

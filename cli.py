@@ -39,7 +39,8 @@ def main(ai_classes=[]):
 
   for ai_class in ai_classes:
     ai_player = w.addAI(ai_class)
-    ai_module.generate_ai_color(ai_player)
+    if ai_player:
+      ai_module.generate_ai_color(ai_player)
 
   w.world_turns = []
   turns_left = settings.END_GAME_TURNS

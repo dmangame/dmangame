@@ -114,6 +114,10 @@ class MapGUI:
 
     def add_ai(self, ai_class):
         a = self.world.addAI(ai_class)
+
+        if not a:
+          return
+
         ai.generate_ai_color(a)
 
         vbox = gtk.VBox()
