@@ -13,7 +13,7 @@ BULLET_RANGE_MODIFIER = 10
 BULLET_SPEED_MODIFIER = 10
 
 # Spawns is a list of coordinates that AI can spawn at
-SPAWNS = [(20,20), (20, 230), (230, 20), (230, 230)] 
+SPAWN_POINTS = [(20,20), (20, 230), (230, 20), (230, 230)] 
 
 # Buildings is a list of coordinates to add additional buildings at, AIs will not spawn on these
 BUILDINGS = [(125, 125)] 
