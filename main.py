@@ -572,7 +572,7 @@ def run_game():
 
   ais = loadAIModules(args) or []
 
-  if len(ais) != map_settings.PLAYERS:
+  if map_settings.PLAYERS != 0 and len(ais) != map_settings.PLAYERS:
     print "Wrong number of AIs specified for the map"
     return
 
