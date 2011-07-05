@@ -571,6 +571,11 @@ def run_game():
   loadMap(options.map)
 
   ais = loadAIModules(args) or []
+
+  if len(ais) != map_settings.PLAYERS:
+    print "Wrong number of AIs specified for the map"
+    return
+
   highlighted_ais = loadAIModules(options.highlight, highlight=True)
 
   if highlighted_ais:
