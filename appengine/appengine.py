@@ -534,6 +534,14 @@ def mark_timed_out_ai(world):
 
       ai_player.put()
 
+def skip_disabled_ai(ai_files):
+  allowed_files = []
+  ai_players = AILadderPlayer.get_by_key_name(ai_files)
+  for ai_p in ai_players:
+    if ai_p.enabled:
+      allowed_files.append(ai_p.file_name)
+  return allowed_files
+
 def record_ladder_match(world):
   # Now to generate tournament compatible scores
   # Collect the

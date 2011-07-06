@@ -434,11 +434,13 @@ def appengine_run_tournament(ai_files, argv_str, tournament_key):
     deferred.defer(appengine_tournament_game, game, use_map, tournament_key)
 
 def appengine_tournament_game(ai_files, map_file, tournament_key):
-  from appengine.appengine import record_ladder_match
+  from appengine.appengine import record_ladder_match, skip_disabled_ai
   logging.basicConfig(level=logging.INFO)
   reload(settings)
   reload(map_settings)
   loadMap(map_file)
+
+  ai_files = skip_disabled_ai(ai_files)
   ais = loadAIModules(ai_files)
 
   settings.SINGLE_THREAD = True
