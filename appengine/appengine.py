@@ -71,6 +71,8 @@ class AILadderPlayer(db.Model):
   enabled    = db.BooleanProperty(default=False)
   last_match = db.DateTimeProperty()
   matches    = db.IntegerProperty(default=0)
+  # Records how many times it makes an uh oh
+  faults     = db.IntegerProperty(default=0)
 
   # mu / sigma terms for trueskill
   skill     = db.FloatProperty(default=25.0)
@@ -485,6 +487,42 @@ def get_map_players(ai_files, class_mapping):
   log.info("MAP PLAYERS: %s", map_players)
   return map_players
 
+def mark_timed_out_ai(world):
+  ai_files = set()
+  file_to_class_map = {}
+
+  for ai in world.dumpScores():
+    ai_instance = world.team_map[ai["team"]]
+    ai_class = ai_instance.__class__
+    ai_module = sys.modules[ai_class.__module__]
+    ai_str = ai_module.__ai_str__
+    ai_files.add(ai_str)
+    file_to_class_map[ai_str] = ai_class.__name__
+
+
+  total_time = defaultdict(int)
+
+  for turn in world.execution_times:
+    for ai in world.execution_times[turn]:
+      total_time[ai] += world.execution_times[turn][ai]
+
+  ai = world.executing
+  if not total_time[ai] or total_time[ai] / float(total) > 0.80:
+    ai_instance = world.team_map[ai.team]
+    ai_class = ai_instance.__class__
+    ai_module = sys.modules[ai_class.__module__]
+    ai_str = ai_module.__ai_str__
+    ai_player = AILadderPlayer.get_by_key_name([ai_str])[0]
+
+    if ai_player:
+      log.info("expired during execution of %s, total faults: %s", ai_str, ai_player.faults)
+      ai_player.faults += 1
+
+      if ai_player.faults >= 10:
+        ai_player.enabled = False
+
+      ai_player.put()
+
 def record_ladder_match(world):
   # Now to generate tournament compatible scores
   # Collect the
@@ -492,7 +530,6 @@ def record_ladder_match(world):
   alive = []
   dead = []
   ranks = {}
-  ai_players = world
   ai_files = set()
   file_to_class_map = {}
 

@@ -381,6 +381,7 @@ class World:
     def spinAI(self):
       building_owners = set(self.buildings.values())
       for ai in self.AI:
+        self.executing = ai
         if not self.ai_units[ai.ai_id] and not ai in building_owners:
           continue
 
@@ -392,12 +393,15 @@ class World:
             else:
               ai.turn()
           except Exception, e:
+              end_time = time.time()
+              self.execution_times[self.currentTurn][ai] = end_time - start_time
               traceback.print_exc()
               if not settings.IGNORE_EXCEPTIONS:
                 raise
               log.info("AI raised exception %s, skipping this turn for it", e)
         else:
           self.threadedSpin(ai)
+
         end_time = time.time()
         self.execution_times[self.currentTurn][ai] = end_time - start_time
 

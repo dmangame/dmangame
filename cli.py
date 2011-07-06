@@ -10,6 +10,7 @@ import worldtalker
 import itertools
 import settings
 import logging
+import traceback
 
 from lib import jsplayer
 log = logging.getLogger("CLI")
@@ -96,8 +97,9 @@ information can get corrupted if the game is interrupted.
 """)
 
 def appengine_main(ais, appengine_file_name=None, tournament_key=None):
-  from appengine.appengine import record_game_to_db
-  from google.appengine.api import files
+  from appengine.appengine import record_game_to_db, mark_timed_out_ai
+  from google.appengine.runtime import DeadlineExceededError
+
   ai_module.clear_ai_colors()
   start_time = time.time()
 
@@ -138,6 +140,8 @@ def appengine_main(ais, appengine_file_name=None, tournament_key=None):
     log.info("Finished simulating the world")
   except KeyboardInterrupt, e:
     raise
+  except DeadlineExceededError, e:
+    mark_timed_out_ai(w)
   except Exception, e:
     traceback.print_exc()
   finally:
