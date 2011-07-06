@@ -140,6 +140,7 @@ def appengine_main(ais, appengine_file_name=None, tournament_key=None):
 
     log.info("Finished simulating the world")
   except KeyboardInterrupt, e:
+    mark_timed_out_ai(w)
     raise
   except DeadlineExceededError, e:
     mark_timed_out_ai(w)

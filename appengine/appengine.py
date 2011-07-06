@@ -487,6 +487,13 @@ def get_map_players(ai_files, class_mapping):
   log.info("MAP PLAYERS: %s", map_players)
   return map_players
 
+# Examine the world and mark AIs that are timing out.
+# If the AI is caught using a bigger than 10 second CPU Chunk and the
+# deadline is exceeded, the AI will be penalized.
+# If the AI is the only one who is executing, it will be penalized
+# If the AI has used 90% CPU usage and the game hits the deadline, it is
+# penalized
+# If this happens 10 times, the AI is disabled.
 def mark_timed_out_ai(world):
   ai_files = set()
   file_to_class_map = {}
@@ -507,7 +514,9 @@ def mark_timed_out_ai(world):
       total_time[ai] += world.execution_times[turn][ai]
 
   ai = world.executing
-  if not total_time[ai] or total_time[ai] / float(total) > 0.80:
+  TEN_SECONDS=10
+  if not total_time[ai] or total_time[ai] / float(total) > 0.80 or \
+    time.time() - world.execution_start_time > TEN_SECONDS:
     ai_instance = world.team_map[ai.team]
     ai_class = ai_instance.__class__
     ai_module = sys.modules[ai_class.__module__]

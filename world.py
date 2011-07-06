@@ -386,6 +386,7 @@ class World:
           continue
 
         start_time = time.time()
+        self.execution_start_time = start_time
         if settings.SINGLE_THREAD or settings.PROFILE_AI:
           try:
             if settings.PROFILE_AI:
