@@ -521,13 +521,15 @@ def mark_timed_out_ai(world):
     ai_class = ai_instance.__class__
     ai_module = sys.modules[ai_class.__module__]
     ai_str = ai_module.__ai_str__
+    log.info("deadlined %s, (prev time used: %ss, current chunk: %.2fs", ai_str, total_time[ai], time.time() - world.execution_start_time)
     ai_player = AILadderPlayer.get_by_key_name([ai_str])[0]
 
     if ai_player:
-      log.info("expired during execution of %s, total faults: %s", ai_str, ai_player.faults)
       ai_player.faults += 1
+      log.info("%s has been responsible for %s faults", ai_str, ai_player.faults)
 
       if ai_player.faults >= 10:
+        log.info("disabling player")
         ai_player.enabled = False
 
       ai_player.put()
