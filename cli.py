@@ -97,6 +97,7 @@ information can get corrupted if the game is interrupted.
 """)
 
 def appengine_main(ais, appengine_file_name=None, tournament_key=None):
+  from google.appengine.api import files
   from appengine.appengine import record_game_to_db, mark_timed_out_ai
   from google.appengine.runtime import DeadlineExceededError
 
