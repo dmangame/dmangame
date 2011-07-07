@@ -37,7 +37,7 @@ import cli
 IMPORT_GUI_FAILURE=False
 
 GITHUB_URL="https://github.com/%s/dmanai/raw/master/%s"
-TOURNAMENT_MAPS = ["micro.py", "macro.py", "village.py"]
+TOURNAMENT_MAPS = ["r/micro.py", "r/macro.py", "r/village.py"]
 
 try:
   import gui
