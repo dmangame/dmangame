@@ -111,6 +111,7 @@ def appengine_main(ais, appengine_file_name=None, tournament_key=None):
   world_turns = []
   w = world.World()
   turns_left = settings.END_GAME_TURNS
+  deadlined = False
   for ai_class in ais:
     ai_player = w.addAI(ai_class)
     ai_module.generate_ai_color(ai_player)
@@ -144,20 +145,23 @@ def appengine_main(ais, appengine_file_name=None, tournament_key=None):
     raise
   except DeadlineExceededError, e:
     mark_timed_out_ai(w)
+    deadlined = True
   except Exception, e:
     traceback.print_exc()
   finally:
     for ai in w.AI:
       log.info("%s:%s", ai.__class__, ai.score)
 
-    with files.open(appengine_file_name, 'a') as replay_file:
-      settings.JS_REPLAY_FILE = replay_file
-      if world_turns:
-        jsplayer.save_world_turns(world_turns)
-      # Save the world information to an output file.
-      if settings.JS_REPLAY_FILE or settings.JS_REPLAY_FILENAME:
-        jsplayer.end_world(w.dumpWorldToDict())
-      replay_file.close()
+    if not deadlined:
+      with files.open(appengine_file_name, 'a') as replay_file:
+        settings.JS_REPLAY_FILE = replay_file
+        if world_turns:
+          jsplayer.save_world_turns(world_turns)
+        # Save the world information to an output file.
+        if settings.JS_REPLAY_FILE or settings.JS_REPLAY_FILENAME:
+          jsplayer.end_world(w.dumpWorldToDict())
+
+        replay_file.close()
 
 
   files.finalize(appengine_file_name)
