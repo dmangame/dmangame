@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+<head>
+  <script src="../../pow/src/pow.init.js"></script>
+  <script src="../../pow/src/pow.compat.js"></script>
+  <script src="../../pow/src/pow.core.js"></script>
+  <script src="../../pow/src/pow.ui.js"></script>
+  <script src="../../pow/src/pow.slides.js"></script>
+  <script src="../../pow/src/pow.nav.js"></script>
+<!--   <script src="http://usepow.com"></script> -->
+<!--   <script src="http://usepow.com/highlight"></script> -->
+  <style>
+    .slide { font-family:sans-serif; text-align:center; padding: 20px; }
+    .slide h1 { color: #ff004c; }
+    .slide h1 { font-size:48em; font-weight:bold; }
+    .slide h1 { color: #ff004c; }
+    .slide h1 { font-size:48em; font-weight:bold; }
+    .slide h2 { font-size:32em; font-weight:bold; }
+    .slide h2 strong { color: #ff004c; font-size: 110%; }
+    .slide h3 { font-size:28em; font-weight:bold; }
+    .slide h1, h2 { letter-spacing:-.05em; }
+    .slide a { border:none; color:black; background:#ddd; padding:.25em .5em; border-radius:.25em; }
+    .slide code a {
+      background: none;
+      border:none;
+      color:#ff00c4;
+      padding: 0px;
+    }
+
+
+    .slide iframe  { border: 0px; }
+    pre.code { font-size: 24em; }
+
+  </style>
+
+  <script>
+    function hide_iframe(slide) {
+      console.log("Entering hide iframe");
+      var iframe = slide.el.getElementsByTagName('iframe')[0],
+          src = iframe.src;
+
+      slide.on.show(function() {
+        iframe.src = src;
+      });
+
+      slide.on.hide(function() {
+        iframe.src = '';
+      });
+    }
+  </script>
+
+</head>
+<body>
+<div id="slides">
+  <div class="slide title">
+    <h1>starter ai</h1>
+    <h2>an ai. maybe.</h2>
+  </div>
+
+  <div class="slide">
+
+    <h1>
+    how does one approach writing an AI?
+    </h1>
+  </div>
+
+  <div class="slide">
+    <h1>thinking individually. doing it the agent based way</h1>
+  </div>
+
+  <div class="slide">
+    <h1>KillNCapture</h1>
+    <h1>BasePatroller</h1>
+  </div>
+
+  <div class="slide">
+    <h1>thinking procedurally.</h1>
+  </div>
+
+  <div class="slide">
+    <h1>thinking strategically.</h1>
+  </div>
+
+  <div class="slide">
+    <h1>thinking geometrically.</h1>
+  </div>
+
+  <div class="slide">
+    <h1>alright already - stop tlaking</h1>
+    <p> <a href="http://okayzed.github.com/dmangame"> http://okayzed.github.com/dmangame </a></p>
+    <h3>look here for news, tutorials, APIs, feedback, etc</h3>
+  </div>
+
+</div>
+</body>
+</html>
