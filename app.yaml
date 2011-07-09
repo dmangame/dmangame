@@ -1,4 +1,4 @@
-application: dmangame-app
+application: dmangame-test
 version: 2
 runtime: python
 api_version: 1
@@ -17,3 +17,5 @@ handlers:
 
 builtins:
 - deferred: on
+- datastore_admin: on
+
