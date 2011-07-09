@@ -1,14 +1,14 @@
 <!doctype html>
 <html>
 <head>
-  <script src="../../pow/src/pow.init.js"></script>
-  <script src="../../pow/src/pow.compat.js"></script>
-  <script src="../../pow/src/pow.core.js"></script>
-  <script src="../../pow/src/pow.ui.js"></script>
-  <script src="../../pow/src/pow.slides.js"></script>
-  <script src="../../pow/src/pow.nav.js"></script>
-<!--   <script src="http://usepow.com"></script> -->
-<!--   <script src="http://usepow.com/highlight"></script> -->
+<!--   <script src="../../pow/src/pow.init.js"></script> -->
+<!--   <script src="../../pow/src/pow.compat.js"></script> -->
+<!--   <script src="../../pow/src/pow.core.js"></script> -->
+<!--   <script src="../../pow/src/pow.ui.js"></script> -->
+<!--   <script src="../../pow/src/pow.slides.js"></script> -->
+<!--   <script src="../../pow/src/pow.nav.js"></script> -->
+  <script src="http://usepow.com"></script>
+  <script src="http://usepow.com/highlight"></script>
   <style>
     .slide {
       font-family:sans-serif;
@@ -26,7 +26,7 @@
     .slide h1 a {
       color: #ff004c; 
       text-decoration: none;
-      border: 2px solid #ff004c}
+      border: 5px dashed #ff004c}
     .slide h1 a {
       background-color: inherit; }
     .slide h1 strong {
@@ -116,10 +116,10 @@ python main.py --hl dmanai/basic/searchai.py
   </div>
 
   <div class="slide">
-    <h1><strong>priorities</strong></h1>
-    <h2>defense</h2>
-    <h2>exploration</h2>
-    <h2>capturing / attack</h2>
+    <h1><strong>priorities:</strong></h1>
+    <h2>1) defense</h2>
+    <h2>2) exploration</h2>
+    <h2>3) capturing / attack</h2>
   </div>
 
   <div class="slide">
@@ -163,19 +163,22 @@ python main.py --hl dmanai/basic/searchai.py
     <a href="https://github.com/okayzed/dmanai/blob/master/okay/rushai.py">
   RushAI</a>
   </h1>
-
+<p>
 <pre class="code" style="font-size: 20em; text-align:left;">
 <code>
-  python main.py \
-    dmanai/bob/expand-then-search.py \
-    dmanai/okay/rushai.py \
-    -o expand_v_rush.html -cn
+python main.py \
+  dmanai/bob/expand-then-search.py \
+  dmanai/okay/rushai.py \
+  -o expand_v_rush.html -cn
+
 </code>
 </pre>
+</p>
 </div>
 
   <div class="slide">
     <h1><strong>organizational intelligence</strong></h1>
+    <h2>(companies run themselves this way)</h2>
   </div>
 
   <div class="slide">
@@ -185,10 +188,24 @@ vs.
   <a href="https://github.com/okayzed/dmanai/blob/master/basic/starterai.py">
 StarterAI</a>
 </h1>
-  </div>
+
+<p>
+<pre class="code" style="font-size: 20em; text-align:left;">
+<code>
+python main.py \
+  --hl behindcurtain3:wedge/worksmarter.py \
+  dmanai/basic/starterai.py \
+  -o expand_v_rush.html -cn
+
+</code>
+</pre>
+</p>
+
+</div>
 
   <div class="slide">
-    <h1>smart shapes (geometric intelligence)</h1>
+    <h1><strong>geometric intelligence</strong></h1>
+    <h2>honeycombs, circles &amp; lines - oh my</h2>
   </div>
 
   <div class="slide">
@@ -209,7 +226,7 @@ python main.py \
   </div>
 
   <div class="slide">
-    <h1>class assignments</h1>
+    <h1><strong>class assignments</strong></h1>
     <h2>a) improve the exploration code</h2>
     <h2>b) write a strategy module (and share it)</h2>
 
@@ -219,10 +236,11 @@ vim dmanai/basic/starterai.py
 vim dmanai/basic/searchai.py.py
   </code>
 </pre>
+</div>
 
 
   <div class="slide">
-    <h1>alright already - stop tlaking</h1>
+    <h1><strong>alright already - stop tlaking</strong></h1>
     <p> <a href="http://okayzed.github.com/dmangame"> http://okayzed.github.com/dmangame </a></p>
     <h3>look here for news, tutorials, APIs, feedback, etc</h3>
   </div>
