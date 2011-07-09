@@ -37,7 +37,7 @@ import cli
 IMPORT_GUI_FAILURE=False
 
 GITHUB_URL="https://github.com/%s/dmanai/raw/master/%s"
-TOURNAMENT_MAPS = ["micro.py", "macro.py", "village.py"]
+TOURNAMENT_MAPS = ["r/micro.py", "r/macro.py", "r/village.py"]
 
 try:
   import gui
@@ -573,6 +573,11 @@ def run_game():
   loadMap(options.map)
 
   ais = loadAIModules(args) or []
+
+  if map_settings.PLAYERS != 0 and len(ais) != map_settings.PLAYERS:
+    print "Wrong number of AIs specified for the map"
+    return
+
   highlighted_ais = loadAIModules(options.highlight, highlight=True)
 
   if highlighted_ais:
