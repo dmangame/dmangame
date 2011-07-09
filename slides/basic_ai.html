@@ -10,22 +10,49 @@
 <!--   <script src="http://usepow.com"></script> -->
 <!--   <script src="http://usepow.com/highlight"></script> -->
   <style>
-    .slide { font-family:sans-serif; text-align:center; padding: 20px; }
-    .slide h1 { color: #ff004c; }
-    .slide h1 { font-size:48em; font-weight:bold; }
-    .slide h1 { color: #ff004c; }
-    .slide h1 { font-size:48em; font-weight:bold; }
-    .slide h2 { font-size:32em; font-weight:bold; }
-    .slide h2 strong { color: #ff004c; font-size: 110%; }
-    .slide h3 { font-size:28em; font-weight:bold; }
-    .slide h1, h2 { letter-spacing:-.05em; }
-    .slide a { border:none; color:black; background:#ddd; padding:.25em .5em; border-radius:.25em; }
+    .slide {
+      font-family:sans-serif;
+      text-align:center;
+      padding: 20px; }
+
+    .slide h1 {
+      color: #000; }
+    .slide h1 {
+      font-size:48em;
+      font-weight:bold; }
+    .slide h1 {
+      font-size:48em;
+      font-weight:bold; }
+    .slide h1 a {
+      color: #ff004c; 
+      text-decoration: none;
+      border: 2px solid #ff004c}
+    .slide h1 a {
+      background-color: inherit; }
+    .slide h1 strong {
+      color: #ff004c; }
+    .slide h2 {
+      font-size:32em;
+      font-weight:bold; }
+    .slide h2 strong {
+      color: #ff004c;
+      font-size: 110%; }
+    .slide h3 {
+      font-size:28em;
+      font-weight:bold; }
+    .slide h1, h2 {
+      letter-spacing:-.05em; }
+    .slide a {
+      border:none;
+      color:black;
+      background:#ddd;
+      padding:.25em .5em;
+      border-radius:.25em; }
     .slide code a {
       background: none;
       border:none;
       color:#ff00c4;
-      padding: 0px;
-    }
+      padding: 0px; }
 
 
     .slide iframe  { border: 0px; }
@@ -53,37 +80,146 @@
 <body>
 <div id="slides">
   <div class="slide title">
-    <h1>starter ai</h1>
+    <h1><strong>starter ai</strong></h1>
     <h2>an ai. maybe.</h2>
   </div>
 
-  <div class="slide">
 
+  <div class="slide">
+    <h1><strong>requirements</strong></h1>
+    <pre class="code" style="font-size: 20em; text-align:left;">
+    <code>
+
+# if you were here last week
+cd dmangame && git pull
+cd dmanai && git pull
+
+# otherwise, download the engine
+git clone http://github.com/okayzed/dmangame
+cd dmangame/
+
+# download more AIs, this will download AIs from
+# okayzed's dmanai repository.
+git clone http://github.com/okayzed/dmanai
+grep -Rl AIClass * # Prints a list of files with AI in them
+
+python main.py --hl dmanai/basic/searchai.py
+
+    </code>
+    </pre>
+  </div>
+
+  <div class="slide">
+    <h1>ai = <strong>artificial</strong> intelligence.</h1>
+    <h1>where would a <strong>human</strong> start?</h1>
+    <h2>(discuss)</h2>
+  </div>
+
+  <div class="slide">
+    <h1><strong>priorities</strong></h1>
+    <h2>defense</h2>
+    <h2>exploration</h2>
+    <h2>capturing / attack</h2>
+  </div>
+
+  <div class="slide">
+    <h1><strong>ai patterns</strong></h1>
+  </div>
+
+  <div class="slide">
+    <h1><strong>individual intelligence</strong></h1>
+    <h2>what's good for me is good for yuo</h2>
+  </div>
+
+  <div class="slide">
     <h1>
-    how does one approach writing an AI?
+      <a href="https://github.com/okayzed/dmanai/blob/master/basic/killncapture.py">
+        KillNCapture</a>
+    vs
+      <a href="https://github.com/okayzed/dmanai/blob/master/basic/basepatroller.py">
+    BasePatroller</a>
     </h1>
+  <pre class="code" style="font-size: 20em; text-align:left;">
+  <code>
+    python main.py \
+      ai/killncapture.py \
+      ai/basepatroller.py \
+      -m maps/r/village.py \
+      -o k_v_b.html -cn
+  </code>
+  </pre>
   </div>
 
   <div class="slide">
-    <h1>thinking individually. doing it the agent based way</h1>
+    <h1><strong>hive intelligence</strong></h1>
+    <h2><strong>one</strong> mind controlling many</h2>
   </div>
 
   <div class="slide">
-    <h1>KillNCapture</h1>
-    <h1>BasePatroller</h1>
+  <h1>
+    <a href="https://github.com/okayzed/dmanai/blob/master/bob/expand-then-search.py">
+      ExpandThenSearch</a>
+  vs
+    <a href="https://github.com/okayzed/dmanai/blob/master/okay/rushai.py">
+  RushAI</a>
+  </h1>
+
+<pre class="code" style="font-size: 20em; text-align:left;">
+<code>
+  python main.py \
+    dmanai/bob/expand-then-search.py \
+    dmanai/okay/rushai.py \
+    -o expand_v_rush.html -cn
+</code>
+</pre>
+</div>
+
+  <div class="slide">
+    <h1><strong>organizational intelligence</strong></h1>
   </div>
 
   <div class="slide">
-    <h1>thinking procedurally.</h1>
+<h1>
+<a href="https://github.com/behindcurtain3/dmanai/blob/master/wedge/worksmarter.py">Worksmarter</a>
+vs.
+  <a href="https://github.com/okayzed/dmanai/blob/master/basic/starterai.py">
+StarterAI</a>
+</h1>
   </div>
 
   <div class="slide">
-    <h1>thinking strategically.</h1>
+    <h1>smart shapes (geometric intelligence)</h1>
   </div>
 
   <div class="slide">
-    <h1>thinking geometrically.</h1>
+    <h1>
+    <a href="https://github.com/okayzed/dmanai/okay/clock.py">
+  ClockAI</a>
+    vs.
+    <a href="https://github.com/okayzed/dmanai/okay/circleblaster.py">
+  CircleBlaster</a>
+  </h1>
+    <pre class="code" style="font-size: 20em; text-align:left;">
+      <code>
+python main.py \
+  dmanai/okay/circleblaster.py dmanai/okay/clock.py \
+  -o circle_vs_clock.html -cn
+      </code>
+    </pre>
   </div>
+
+  <div class="slide">
+    <h1>class assignments</h1>
+    <h2>a) improve the exploration code</h2>
+    <h2>b) write a strategy module (and share it)</h2>
+
+<pre class="code" style="font-size: 20em; text-align:left;">
+  <code>
+vim dmanai/basic/starterai.py
+vim dmanai/basic/searchai.py.py
+  </code>
+</pre>
+
 
   <div class="slide">
     <h1>alright already - stop tlaking</h1>
