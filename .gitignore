@@ -6,3 +6,4 @@ comments
 dmanai
 _site
 local_settings.py
+*.prof
