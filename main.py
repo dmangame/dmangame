@@ -37,7 +37,14 @@ import cli
 IMPORT_GUI_FAILURE=False
 
 GITHUB_URL="https://github.com/%s/dmanai/raw/master/%s"
-TOURNAMENT_MAPS = ["r/micro.py", "r/macro.py", "r/village.py"]
+# This could be a glob of maps/t/
+TOURNAMENT_MAPS = [
+                   "maps/s/micro2.py",
+                   "maps/s/micro3.py",
+                   "maps/s/village3.py",
+                   "maps/s/village4.py",
+                   "maps/s/macro5.py",
+                  ]
 
 try:
   import gui
@@ -393,21 +400,24 @@ def loadAIModules(ais, highlight=False):
                      ai_modules)
     return ai_classes
 
+def loadMapModule(filename):
+  split_ext = os.path.splitext(filename)
+  module_name = os.path.basename(split_ext[0])
+
+  if module_name in sys.modules:
+    mod = sys.modules[module_name]
+  else:
+    mod = imp.new_module(str(module_name))
+    sys.modules[module_name] = mod
+
+  mod.__file__ = filename
+  execfile(filename, mod.__dict__, mod.__dict__)
+  return mod
+
 def loadMap(filename):
   try:
       log.info("Loading Map %s..." % (filename),)
-      split_ext = os.path.splitext(filename)
-
-      module_name = os.path.basename(split_ext[0])
-
-      if module_name in sys.modules:
-        mod = sys.modules[module_name]
-      else:
-        mod = imp.new_module(str(module_name))
-        sys.modules[module_name] = mod
-
-      mod.__file__ = filename
-      execfile(filename, mod.__dict__, mod.__dict__)
+      mod = loadMapModule(filename)
       settings.MAP_NAME=filename
 
       for attr in dir(mod):
@@ -418,17 +428,22 @@ def loadMap(filename):
   except Exception, e:
       log.info("Error loading %s, %s", filename, e)
 
+def get_map_value(mapname, key, default=None):
+  mod = loadMapModule(mapname)
+  return getattr(mod, key, default)
+
 # AI Players have a filename, skill and uncertainty.
 def appengine_run_tournament(ai_files, argv_str, tournament_key):
   from google.appengine.ext import deferred
   import tournament
 
   options, args = parseOptions(argv_str.split())
-  tournament_map =  random.choice(TOURNAMENT_MAPS)
-  use_map = "maps/%s" % tournament_map
+  use_map =  random.choice(TOURNAMENT_MAPS)
 
   if options.map:
     use_map = options.map
+
+  options.players = get_map_value(use_map, 'PLAYERS', options.players)
 
   for game in tournament.league_games(ai_files, options.tournament, options.players):
     deferred.defer(appengine_tournament_game, game, use_map, tournament_key)
