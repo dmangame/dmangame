@@ -1,5 +1,5 @@
-application: dmangame-test
-version: 2
+application: dmangame-app
+version: 3
 runtime: python
 api_version: 1
 
