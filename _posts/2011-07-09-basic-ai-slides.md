@@ -10,4 +10,4 @@ available][0] if you can't make it.
 
 this class will include coding, so come prepared with a laptop.
 
-[0]: http://okayzed.github.com/slides/basic_ai.html
+[0]: http://okayzed.github.com/dmangame/slides/basic_ai.html
