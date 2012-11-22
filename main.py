@@ -39,11 +39,10 @@ IMPORT_GUI_FAILURE=False
 GITHUB_URL="https://github.com/%s/dmanai/raw/master/%s"
 # This could be a glob of maps/t/
 TOURNAMENT_MAPS = [
-                   "maps/s/micro2.py",
-                   "maps/s/micro3.py",
-                   "maps/s/village3.py",
-                   "maps/s/village4.py",
-                   "maps/s/macro5.py",
+                   "maps/r/macro.py",
+                   "maps/r/micro.py",
+                   "maps/r/village.py",
+                   "maps/r/warzone.py",
                   ]
 
 try:
@@ -107,6 +106,9 @@ def parseAIOptions(options, args):
 def parseOptions(opts=None):
     parser = OptionParser()
 
+    # Game Options
+    parser.add_option("--random-seed", dest="random_seed",
+                      help="Use map seed", default=None)
     # Config options
     parser.add_option("-m", "--map", dest="map",
                       help="Use map settings from MAP", default=None)
@@ -454,6 +456,7 @@ def appengine_tournament_game(ai_files, map_file, tournament_key):
   reload(settings)
   reload(map_settings)
   loadMap(map_file)
+  map_settings.SEED = int(hash(tournament_key))
 
   ai_files = skip_disabled_ai(ai_files)
   ais = loadAIModules(ai_files)
@@ -586,6 +589,9 @@ def run_game():
     setupSafeMode()
 
   loadMap(options.map)
+  if options.random_seed:
+    print "Setting map SEED", options.random_seed
+    map_settings.SEED = options.random_seed
 
   ais = loadAIModules(args) or []
 

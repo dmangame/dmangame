@@ -196,6 +196,11 @@ class World:
         self.ai_highlighted_regions = defaultdict(set)
         self.ai_highlighted_lines = defaultdict(set)
 
+        state = random.getstate()
+        random.seed(map_settings.SEED)
+        self.map_state = random.getstate()
+        random.setstate(state)
+
         self.execution_times = defaultdict(lambda: defaultdict(int))
 
         self.buildings = {}
@@ -304,6 +309,9 @@ class World:
       self.map.placeObject(b, rand_square)
       return b
 
+    def setSeed(self, seed):
+      self.__seed = seed
+
     # Adding AIs should be done by the creator of the world.
     # This accepts a subclass ai.AI, instantiates the class
     # and places a building on the map for that AI.
@@ -318,6 +326,8 @@ class World:
         self.team_map[ai_player.team] = ai_player
         ai_player.init()
 
+        state = random.getstate()
+        random.setstate(self.map_state)
         if map_settings.SPAWN_POINTS:
 
           while True:
@@ -340,6 +350,8 @@ class World:
           import cProfile
           self.ai_profiles[ai_player] = cProfile.Profile()
 
+        self.map_state = random.getstate()
+        random.setstate(state)
         return ai_player
 
 #    def processSpin(self, ai):
