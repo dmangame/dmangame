@@ -214,7 +214,7 @@ class LadderPage(webapp.RequestHandler):
         ladders[player_map] = []
       ladders[player_map].append(ladder_player)
 
-    template_values = {"ladders" : ladders,
+    template_values = {"ladders" : sorted(ladders.items()),
                        "overall" : AILadderPlayer.all().order("-skill").fetch(PAGESIZE) }
 
     path = os.path.join(TEMPLATE_DIR, "ladder.html")

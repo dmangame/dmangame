@@ -15,12 +15,10 @@
   {% endwith %}
 {% endwith %}
 
-{% for ladder in ladders %}
-  {% with ladders|hash:ladder as ladder_players %}
+{% for ladder, ladder_players in ladders %}
     <div class="ladder clearfix">
     <h2>{{ladder}}</h2>
     {% include "ladder_table.html" %}
     </div>
-  {% endwith %}
 {% endfor %}
 {% endblock %}
