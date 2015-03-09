@@ -256,6 +256,11 @@ class MainPage(webapp.RequestHandler):
             file_set.add(ai.file_name)
           map_set.add(game.map_name)
 
+          try:
+            t = game.tournament
+          except:
+            game.tournament = None
+
 
         has_next_page = False
         if len(games) == PAGESIZE + 1:
