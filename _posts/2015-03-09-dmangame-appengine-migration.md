@@ -1,3 +1,1 @@
-### app engine migration ###
-
 we are migrating dmangame-app to dmangame-hrd instance on appengine, as well as clearing out the old instances and games for a new fresh start. hope to see you there!
