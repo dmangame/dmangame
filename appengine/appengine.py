@@ -278,6 +278,17 @@ class MainPage(webapp.RequestHandler):
         self.response.out.write(template.render(path, template_values))
 
 
+def delete_game(game_id):
+    gr = GameRun.get(game_id)
+    log.info(gr)
+    if gr:
+      for ai in gr.aiparticipant_set:
+        ai.delete()
+      blobstore.delete([gr.replay.key])
+      gr.delete()
+
+
+
 class DeleteHandler(webapp.RequestHandler):
     def post(self):
         log.info("Delete Handler into")
@@ -288,14 +299,21 @@ class DeleteHandler(webapp.RequestHandler):
 
         log.info(user)
         if users.is_current_user_admin():
-          game = self.request.get("game_run")
-          gr = GameRun.get(game)
-          log.info(gr)
-          if gr:
-            for ai in gr.aiparticipant_set:
-              ai.delete()
-            blobstore.delete([gr.replay.key])
-            gr.delete()
+            game = self.request.get("game_run")
+            delete_game(game)
+
+class DeleteOldHandler(webapp.RequestHandler):
+    def post(self):
+        query = GameRun.all().order("created_at")
+        games = query.fetch(PAGESIZE+1)
+
+        for game in games:
+            now = datetime.datetime.now()
+            log.info(now)
+            delta = now - game.created_at
+            if (delta > datetime.timedelta(days=365)):
+                delete_game(game.key())
+
 
 HOW_TO_PARTICIPATE = """
 Almost there! %s is loadable by the server, but it is not setup to participate in ladder matches just yet.
@@ -429,6 +447,7 @@ application = webapp.WSGIApplication(
                                       ('/admin', AdminPage),
                                       ('/stats', AIStatsPage),
                                       ('/delete', DeleteHandler),
+                                      ('/delete_old', DeleteOldHandler),
                                       ('/run_game', RunHandler),
                                       ('/ladder/register', RegisterAIHandler),
                                       ('/ladder/run', RunLadderHandler),
