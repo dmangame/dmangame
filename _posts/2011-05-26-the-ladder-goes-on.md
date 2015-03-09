@@ -28,5 +28,5 @@ To see how your AI is doing, visit the [ladder page on dmangame-app][ladder]
 * 1) Daytime in the PST
 * 2) Yes, technically your AI won't have an orgy. Get over it.
 
-[ladder]: http://dmangame-app.appspot.com/ladder
+[ladder]: http://dmangame-hrd.appspot.com/ladder
 [dmanai_repo]: http://github.com/okayzed/dmanai

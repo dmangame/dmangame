@@ -81,5 +81,5 @@ python main.py --help
 
    [1]: http://okayzed.github.com/dmangame/circleblaster_vs_expand.html
    [2]: http://github.com/okayzed/dmangame
-   [3]: http://dmangame-app.appspot.com
+   [3]: http://dmangame-hrd.appspot.com
 

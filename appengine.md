@@ -25,7 +25,7 @@ instance specified in `app.yaml.`
 
 ### setting up your own app engine instance
 
-edit `app.yaml` and replace "dmangame-app" as the application
+edit `app.yaml` and replace "dmangame-hrd" as the application
 name with your own application name. This lets `main.py` know
 which URL to post the game parameters to.
 
@@ -50,7 +50,7 @@ the typical flow is to work on your AI and test it locally,
 and when ready to see results in larger quantities run the
 update step.
 
-[0]: http://dmangame-app.appspot.com
+[0]: http://dmangame-hrd.appspot.com
 [1]: more_ais.html
 
 

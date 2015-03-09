@@ -13,5 +13,5 @@ layout: default
 <div id="ladder_loading">
   loading appengine... it might be a while
 </div>
-<iframe class="clearfix" style="height:100%; width:1000px; border: 0px; overflow_ hidden" src="http://dmangame-app.appspot.com/ladder" onload="hide_loading()">
+<iframe class="clearfix" style="height:100%; width:1000px; border: 0px; overflow_ hidden" src="http://dmangame-hrd.appspot.com/ladder" onload="hide_loading()">
 </iframe>
