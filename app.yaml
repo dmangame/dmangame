@@ -1,4 +1,4 @@
-application: dmangame-app
+application: dmangame-hrd
 version: 6
 runtime: python
 api_version: 1

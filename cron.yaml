@@ -4,3 +4,7 @@ cron:
   schedule: every 2 hours from 8:00 to 20:00
   timezone: America/Los_Angeles
 
+- description: Delete old blobs
+  url: /delete_old
+  schedule: every 2 hours from 8:00 to 20:00
+  timezone: America/Los_Angeles
