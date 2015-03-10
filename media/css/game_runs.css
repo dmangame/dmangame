@@ -152,21 +152,15 @@ a.map_selection:visited {
   height: 125px;
   overflow: hidden;
   position: relative;
-  padding-top: 30px;
+  padding-top: 10px;
 }
 
 .game_run .ai_participant {
   width: 100%;
 }
 
-.game_run .winner {
+.game_run .winner:hover {
   background-color: #eeffee;
-  font-size: 20px;
-  height: 30px;
-  position: absolute;
-  top: 0px;
-  width: 100%;
-  padding: 0px;
 }
 
 .game_run .ai_participant .ai_class_name {
@@ -174,6 +168,16 @@ a.map_selection:visited {
 }
 .game_run .ai_participant .deaths {
   margin-right: 5px;
+}
+
+.game_run .ai_participant .deaths,
+.game_run .ai_participant .kills {
+  display: none;
+}
+
+.game_run .ai_participant :hover .deaths,
+.game_run .ai_participant :hover .kills {
+  display: inherit;
 }
 
 .game_run h2.turns {
