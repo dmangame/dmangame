@@ -578,6 +578,7 @@ class World:
             owner = self.buildings[b]
             square = self.map.getPosition(b)
             if owner and square:
+              # TODO: check to see how many units are left in the building
               self.__spawnUnit(owner, square)
 
               log.info("SPAWN: %s gained a unit", (self.teams[owner.ai_id]))

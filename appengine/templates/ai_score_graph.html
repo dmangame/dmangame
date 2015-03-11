@@ -13,7 +13,7 @@
 <script type="text/javascript">
 function plotAiScores(div_selector) {
   var ai_data = {};
-  var iframe = frames["game_replay"],
+  var iframe = frames["game_replay"].contentWindow,
       turn_set = iframe.TURN_SET,
       world_data = iframe.WORLD_DATA;
 
