@@ -640,6 +640,14 @@ def record_game_to_db(world, replay_blob_key, run_time, tournament_key=None):
                tournament=t)
   gr.put()
 
+  winners = defaultdict(bool)
+  for ai_datum in world.dumpScores():
+    if ai_datum['units'] > 0:
+      winners[ai_datum['team']] = True
+
+  if len(winners) > 1:
+    winners = defaultdict(bool)
+
   for ai_datum in world.dumpScores():
     team = ai_datum['team']
     ai = world.team_map[team]
@@ -648,9 +656,7 @@ def record_game_to_db(world, replay_blob_key, run_time, tournament_key=None):
     md.update(mod.__file_content__)
     version = md.hexdigest()
 
-    win=False
-    if ai_datum['units'] > 0:
-      win = True
+    win = winners[team]
 
     aip = AIParticipant(class_name=ai.__class__.__name__,
                         file_name=mod.__file__,

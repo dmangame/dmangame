@@ -181,6 +181,7 @@ class World:
         self.ai_profiles = {}
         self.units = {} # instead of a list, it will point to the unit's attributes.
         self.all_units = {} # instead of a list, it will point to the unit's attributes.
+        self.end_game_units = None # number of units alive at end of game
         self.under_attack = set()
         map_settings.MAP_SIZE = mapsize
         self.map = worldmap.Map(map_settings.MAP_SIZE)
@@ -204,9 +205,13 @@ class World:
         self.execution_times = defaultdict(lambda: defaultdict(int))
 
         self.buildings = {}
-        self.spawn_points = {}
+        self.units_per_base = {}
         # These contain the amount of time left for a building to spawn a unit
         self.spawn_counters = defaultdict(int)
+        self.spawn_points = defaultdict(int)
+
+        # contains how many units are left per building
+        self.spawn_resources = defaultdict(int)
 
         if map_settings.SPAWN_POINTS:
           for coord in map_settings.SPAWN_POINTS:
@@ -558,18 +563,26 @@ class World:
 
 
     def __spawnUnit(self, owner, square):
+       
+        if not square in self.spawn_resources:
+            self.spawn_resources[square] = map_settings.UNITS_PER_BASE
+
+        if self.spawn_resources[square] <= 0:
+            return
+
+        self.spawn_resources[square] -= 1
         stats = copy.copy(self.unit_stats)
         stats.ai = owner
         stats.ai_id = owner.ai_id
         stats.team = owner.team
         unit = self.__createUnit(stats, square)
         self.ai_new_units[owner.ai_id].add(unit)
+        log.info("SPAWN: %s gained a unit", (self.teams[owner.ai_id]))
         return unit
 
     def __spawnUnits(self):
         spawned_units = False
         for b in self.buildings:
-
           if self.spawn_counters[b] <= 0:
             spawned_units = True
             self.spawn_counters[b] = map_settings.UNIT_SPAWN_MOD
@@ -580,8 +593,6 @@ class World:
             if owner and square:
               # TODO: check to see how many units are left in the building
               self.__spawnUnit(owner, square)
-
-              log.info("SPAWN: %s gained a unit", (self.teams[owner.ai_id]))
 
 
 
@@ -872,6 +883,18 @@ class World:
         if len(ai_units) == 1:
           self.__winner = building_owners.pop()
           return True
+
+      
+      spawn_resources = 0
+      for sq in self.spawn_resources:
+        spawn_resources += self.spawn_resources[sq]
+
+      if spawn_resources <= 0:
+        if self.end_game_units == len(self.units):
+          return True
+
+        self.end_game_units = len(self.units)
+        
 
     def __queueEvent(self, event):
         self.events.add(event)
