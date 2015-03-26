@@ -8,3 +8,8 @@ cron:
   url: /delete_old
   schedule: every 2 hours from 8:00 to 20:00
   timezone: America/Los_Angeles
+
+- description: Purge Old Tasks
+  url: /purge_queue
+  schedule: every 1 hours from 9:30 to 22:30
+  timezone: America/Los_Angeles

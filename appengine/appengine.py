@@ -433,6 +433,14 @@ class TournamentHandler(webapp.RequestHandler):
         ai_files = map(lambda a: a.file_name, ai_players)
         deferred.defer(dmangame.appengine_run_tournament, ai_files, argv_str, str(t.key()))
 
+class PurgeHandler(webapp.RequestHandler):
+    def post(self):
+        from google.appengine.api import taskqueue
+
+        # Purge entire queue...
+        q = taskqueue.Queue()
+        q.purge()
+
 class RunHandler(webapp.RequestHandler):
     def post(self):
         # Need to iterate through all the parameters of the
@@ -457,6 +465,7 @@ application = webapp.WSGIApplication(
                                       ('/ladder', LadderPage),
                                       ('/disqus/([^/]+)?', DisqusPage),
                                       ('/replays/([^/]+)?', ReplayPage),
+                                      ('/purge_queue', PurgeHandler),
                                       ('/run_tournament', TournamentHandler)])
 
 class MatchParticipant:
