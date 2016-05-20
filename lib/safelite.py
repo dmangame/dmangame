@@ -83,7 +83,6 @@ def secure_python():
 
     sys.get_frame_locals = dictionary_of(FrameType)['f_locals'].__get__
 
-    del dictionary_of(type)['__subclasses__']
     del dictionary_of(GeneratorType)['gi_frame']
     del dictionary_of(FrameType)['f_code']
     del dictionary_of(FrameType)['f_builtins']

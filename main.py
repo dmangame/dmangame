@@ -8,12 +8,13 @@ import worldmap
 import logging
 log = logging.getLogger("MAIN")
 
-try:
-  import pyximport
-  log.info('Gearing up with Cython')
-  pyximport.install()
-except Exception, e:
-  log.info(e)
+def install_pyx():
+    try:
+      import pyximport
+      log.info('Gearing up with Cython')
+      pyximport.install()
+    except Exception, e:
+      log.info(e)
 
 import settings
 
@@ -584,14 +585,19 @@ def run_game():
       remote_ai = True
       break
 
-  if remote_ai or options.safe_mode:
-    print "*** Entering Safe Mode"
-    setupSafeMode()
-
   loadMap(options.map)
   if options.random_seed:
     print "Setting map SEED", options.random_seed
     map_settings.SEED = options.random_seed
+
+  if remote_ai or options.safe_mode:
+    print "*** Entering Safe Mode"
+    if settings.NCURSES:
+        print "NCURSES mode and remote AIs/safe mode do not work together"
+        sys.exit(0)
+    setupSafeMode()
+  else:
+    install_pyx()
 
   ais = loadAIModules(args) or []
 
