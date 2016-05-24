@@ -3,6 +3,11 @@ title: App Engine
 layout: default
 ---
 
+# APP ENGINE LADDER IS NO LONGER RUNNING
+
+as of May 2016, the dmangame-hrd instance is no longer running on appengine.
+(see the news post for more info)
+
 ## app engine support
 
 dmangame has support for google app engine built in. this
