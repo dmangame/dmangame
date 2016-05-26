@@ -79,7 +79,7 @@ python main.py --help
 
 ## game it end?
 
-   [1]: http://dmangame.github.com/dmangame/circleblaster_vs_expand.html
+   [1]: http://dmangame.github.io/dmangame/circleblaster_vs_expand.html
    [2]: http://github.com/dmangame/dmangame
    [3]: http://dmangame-hrd.appspot.com
 
