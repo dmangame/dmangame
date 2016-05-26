@@ -5,13 +5,13 @@ DMANGAME
 
 check the [dmangame page][] for more information.
 
-[dmangame page]:http://okayzed.github.com/dmangame
+[dmangame page]:http://dmangame.github.com/dmangame
 
 ## Download ##
 
 You can find the latest version of the source code on [github][]
 
-[github]:http://github.com/okayzed/dmangame
+[github]:http://github.com/dmangame/dmangame
 
 ## Dependencies ##
 
@@ -67,8 +67,8 @@ If posting to app engine, pyyaml
     # as a player
     #
     # The following loads goose.py (with okay.py as a required dependency)
-    # and expand then search from github.com/okayzed/dmanai
-    python main.py okayzed:okay/goose.py okayzed:bob/expand-then-search.py
+    # and expand then search from github.com/dmangame/dmanai
+    python main.py dmangame:okay/goose.py dmangame:bob/expand-then-search.py
 
 See Also:
 ---------
