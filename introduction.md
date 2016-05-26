@@ -30,7 +30,7 @@ visit the [match archive][3] for more games.
 
 You can find the latest version of the source code on [github][2].
 
-    git clone git://github.com/okayzed/dmangame.git
+    git clone git://github.com/dmangame/dmangame.git
 
 ## dependencies ##
 
@@ -79,7 +79,7 @@ python main.py --help
 
 ## game it end?
 
-   [1]: http://okayzed.github.com/dmangame/circleblaster_vs_expand.html
-   [2]: http://github.com/okayzed/dmangame
+   [1]: http://dmangame.github.com/dmangame/circleblaster_vs_expand.html
+   [2]: http://github.com/dmangame/dmangame
    [3]: http://dmangame-hrd.appspot.com
 

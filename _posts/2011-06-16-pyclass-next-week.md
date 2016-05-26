@@ -13,4 +13,4 @@ class will cover both python fundamentals and AI discussions.
 
 [pyclass_sf]: https://www.noisebridge.net/wiki/PyClass
 [0]: http://usepow.com
-[1]: http://okayzed.github.com/dmangame/slides/pyclass.html
+[1]: http://dmangame.github.com/dmangame/slides/pyclass.html

@@ -22,8 +22,8 @@ fork are then available for others to play against.
 # for tournaments between remote AIs.
 
 cd dmangame/
-python main.py okayzed:okay/rushai.py \
-okayzed:bob/expand-then-search.py
+python main.py dmangame:okay/rushai.py \
+dmangame:bob/expand-then-search.py
 {% endhighlight %}
 
 You can play against any forked AI this way, but the AI must
@@ -33,7 +33,7 @@ be in the master branch of the repository.
 
 {% highlight bash %}
 cd dmangame/
-git clone git://github.com/okayzed/dmanai.git
+git clone git://github.com/dmangame/dmanai.git
 python main.py dmanai/okay/rushai.py \
            dmanai/bob/expand-then-search.py \
            dmanai/okay/goose.py
@@ -52,6 +52,6 @@ instance, or just want your AI to be available for others:
 At this point, anyone can browse the [dmanai member graph][3] and look at what
 others are developing.
 
-[1]: http://github.com/okayzed/dmanai
+[1]: http://github.com/dmangame/dmanai
 [2]: http://help.github.com/fork-a-repo/
-[3]: https://github.com/okayzed/dmanai/network/members
+[3]: https://github.com/dmangame/dmanai/network/members

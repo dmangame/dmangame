@@ -42,4 +42,4 @@ close combat map with lots of damage and unit spawning.
 
 
 [3]: http://github.com/behindcurtain3/dmanai
-[4]: https://github.com/okayzed/dmangame/blob/master/maps/warzone.py
+[4]: https://github.com/dmangame/dmangame/blob/master/maps/warzone.py
