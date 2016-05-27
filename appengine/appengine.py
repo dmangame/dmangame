@@ -226,8 +226,10 @@ class ReplayPage(webapp.RequestHandler):
         blob_info = blobstore.BlobInfo.get(resource)
         blob_reader = blob_info.open()
         blob_data = blob_reader.read()
+
+        no_extra_semis = blob_data.replace(');"', ')"')
         self.response.headers['Content-Type'] = 'text/html'
-        self.response.out.write(blob_data)
+        self.response.out.write(no_extra_semis)
 
 class AdminPage(webapp.RequestHandler):
     def get(self):
