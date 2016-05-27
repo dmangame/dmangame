@@ -24,8 +24,6 @@ thinner line) towards other units.
 The stationary black outlined dots are buildings. Notice how buildings spawn
 units at the same time.
 
-visit the [match archive][3] for more games.
-
 ## gimme
 
 You can find the latest version of the source code on [github][2].
