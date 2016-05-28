@@ -97,15 +97,21 @@ information can get corrupted if the game is interrupted.
 """)
 
 def appengine_main(ais, appengine_file_name=None, tournament_key=None):
-  from google.appengine.api import files
+  from google.appengine.ext import cloudstorage
+  from appengine.appengine import gcs, BUCKET
   from appengine.appengine import record_game_to_db, mark_timed_out_ai
   from google.appengine.runtime import DeadlineExceededError
+  import uuid
 
   ai_module.clear_ai_colors()
   start_time = time.time()
 
   if not appengine_file_name:
-    appengine_file_name = files.blobstore.create(mime_type='text/html')
+    appengine_file_name = str(uuid.uuid4())
+
+  replay_blob_key = appengine_file_name
+
+  appengine_file_name = "/%s/%s" % (BUCKET, appengine_file_name)
   settings.JS_REPLAY_FILENAME = appengine_file_name
 
   world_turns = []
@@ -131,7 +137,7 @@ def appengine_main(ais, appengine_file_name=None, tournament_key=None):
         world_turns.append((t,s))
 
         if len(world_turns) >= settings.BUFFER_SIZE:
-          with files.open(appengine_file_name, 'a') as replay_file:
+          with cloudstorage.open(appengine_file_name, 'w') as replay_file:
             settings.JS_REPLAY_FILE = replay_file
             jsplayer.save_world_turns(world_turns)
             replay_file.close()
@@ -153,7 +159,7 @@ def appengine_main(ais, appengine_file_name=None, tournament_key=None):
       log.info("%s:%s", ai.__class__, ai.score)
 
     if not deadlined:
-      with files.open(appengine_file_name, 'a') as replay_file:
+      with gcs.open(appengine_file_name, 'w', content_type='text/html') as replay_file:
         settings.JS_REPLAY_FILE = replay_file
         if world_turns:
           jsplayer.save_world_turns(world_turns)
@@ -164,12 +170,8 @@ def appengine_main(ais, appengine_file_name=None, tournament_key=None):
         replay_file.close()
 
 
-  files.finalize(appengine_file_name)
-  replay_blob_key = files.blobstore.get_blob_key(appengine_file_name)
-
-  log.info("Saved to: %s", replay_blob_key)
   log.info("Saved as: %s", appengine_file_name)
-  log.info("http://localhost:8080/replays/%s", replay_blob_key)
+  log.info("http://localhost:8080/replays/%s", appengine_file_name)
 
   end_time = time.time()
   run_time = end_time - start_time

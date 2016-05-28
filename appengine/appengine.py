@@ -13,6 +13,8 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext.webapp.util import run_wsgi_app
 
+import appengine.cloudstorage as gcs
+
 
 import urllib
 import hashlib
@@ -21,6 +23,7 @@ import time
 import datetime
 import random
 import traceback
+import uuid
 
 import ai as ai_module
 import code_signature
@@ -40,6 +43,7 @@ log.setLevel(logging.INFO)
 template.register_template_library('appengine.extensions')
 
 TEMPLATE_DIR=os.path.join(os.path.dirname(__file__), 'templates')
+BUCKET="dmangame-hrd.appspot.com"
 
 class Tournament(db.Model):
     created_at    = db.DateTimeProperty(auto_now_add=True)
@@ -223,13 +227,23 @@ class LadderPage(webapp.RequestHandler):
 class ReplayPage(webapp.RequestHandler):
     def get(self, resource):
         resource = str(urllib.unquote(resource))
-        blob_info = blobstore.BlobInfo.get(resource)
-        blob_reader = blob_info.open()
-        blob_data = blob_reader.read()
 
-        no_extra_semis = blob_data.replace(');"', ')"')
-        self.response.headers['Content-Type'] = 'text/html'
-        self.response.out.write(no_extra_semis)
+        # first try reading out old games from appengine via blobstore
+        # if that doesn't work, try google cloud storage
+        blob_info = blobstore.BlobInfo.get(resource)
+        if blob_info:
+            blob_reader = blob_info.open()
+            blob_data = blob_reader.read()
+        else:
+            blob_info = gcs.open("/%s/%s" % (BUCKET, resource))
+            blob_data = blob_info.read()
+
+        if blob_data:
+            no_extra_semis = blob_data.replace(');"', ')"')
+            self.response.headers['Content-Type'] = 'text/html'
+            self.response.out.write(no_extra_semis)
+        else:
+            self.response.out.write("Couldn't find BLOB key: %s" % resource)
 
 class AdminPage(webapp.RequestHandler):
     def get(self):
@@ -451,9 +465,10 @@ class RunHandler(webapp.RequestHandler):
         argv_str = urllib.unquote(self.request.get("argv"))
 
         self.response.headers['Content-Type'] = 'text/plain'
-        fn = files.blobstore.create(mime_type='text/html')
+        unique_filename = str(uuid.uuid4())
+
         self.response.out.write('Running game with %s' % argv_str)
-        deferred.defer(dmangame.appengine_run_game, argv_str, fn)
+        deferred.defer(dmangame.appengine_run_game, argv_str, unique_filename)
 
 application = webapp.WSGIApplication(
                                      [('/', MainPage),
