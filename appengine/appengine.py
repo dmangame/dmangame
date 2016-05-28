@@ -13,7 +13,15 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext.webapp.util import run_wsgi_app
 
-import appengine.cloudstorage as gcs
+
+try:
+  import appengine.cloudstorage as gcs
+except:
+  try:
+    import cloudstorage as gcs
+  except:
+    raise("Couldn't import GCS module")
+
 
 
 import urllib

@@ -97,7 +97,6 @@ information can get corrupted if the game is interrupted.
 """)
 
 def appengine_main(ais, appengine_file_name=None, tournament_key=None):
-  from google.appengine.ext import cloudstorage
   from appengine.appengine import gcs, BUCKET
   from appengine.appengine import record_game_to_db, mark_timed_out_ai
   from google.appengine.runtime import DeadlineExceededError
@@ -135,15 +134,6 @@ def appengine_main(ais, appengine_file_name=None, tournament_key=None):
         s = w.dumpScores()
 
         world_turns.append((t,s))
-
-        if len(world_turns) >= settings.BUFFER_SIZE:
-          with cloudstorage.open(appengine_file_name, 'w') as replay_file:
-            settings.JS_REPLAY_FILE = replay_file
-            jsplayer.save_world_turns(world_turns)
-            replay_file.close()
-
-          world_turns = []
-          gc.collect()
 
     log.info("Finished simulating the world")
   except KeyboardInterrupt, e:
