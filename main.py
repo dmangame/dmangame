@@ -40,10 +40,10 @@ IMPORT_GUI_FAILURE=False
 GITHUB_URL="https://github.com/%s/dmanai/raw/master/%s"
 # This could be a glob of maps/t/
 TOURNAMENT_MAPS = [
-                   "maps/r/macro.py",
-                   "maps/r/micro.py",
-                   "maps/r/village.py",
-                   "maps/r/warzone.py",
+                   "maps/1v1/macro2.py",
+                   "maps/1v1/micro2.py",
+                   "maps/1v1/village2.py",
+                   "maps/1v1/warzone2.py"
                   ]
 
 try:
